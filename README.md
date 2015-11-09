@@ -1,10 +1,12 @@
+[![Production Ready](https://img.shields.io/badge/Production%20Ready-NO-red.svg)](https://github.com/stormpath/stormpath-laravel/)
 [![Build Status](https://api.travis-ci.org/stormpath/stormpath-laravel.svg?branch=master,dev)](https://travis-ci.org/stormpath/stormpath-laravel)
 [![Codecov](https://img.shields.io/codecov/c/github/stormpath/stormpath-laravel.svg)](https://codecov.io/github/stormpath/stormpath-laravel)
-[![Total Downloads](https://poser.pugx.org/stormpath/laravel/d/total.svg)](https://packagist.org/packages/stormpath/laravel)
 [![Latest Stable Version](https://poser.pugx.org/stormpath/laravel/v/stable.svg)](https://packagist.org/packages/stormpath/laravel)
 [![Latest Unstable Version](https://poser.pugx.org/stormpath/laravel/v/unstable.svg)](https://packagist.org/packages/stormpath/laravel)
 [![License](https://poser.pugx.org/stormpath/laravel/license.svg)](https://packagist.org/packages/stormpath/laravel)
 
+# THIS PACKAGE IS UNDER INITIAL DEVELOPMENT
+Please do not use this in production and know that things may be changed or removed without notice.
 
 ## Support
 If you are having issues with this package, please feel free to submit an issue on this github repository.  If it is
