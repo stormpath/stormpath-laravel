@@ -1,0 +1,34 @@
+{
+    "name": "stormpath/laravel",
+    "description": "Build simple, secure web applications with Stormpath and Laravel/Lumen!",
+    "license": "apache-2.0",
+    "type": "laravel-package",
+    "keywords": [
+        "lumen",
+        "users",
+        "laravel",
+        "accounts",
+        "stormpath",
+        "authorization",
+        "authentication"
+    ],
+    "authors": [
+        {
+            "name": "Brian Retterer",
+            "email": "brian@stormpath.com",
+            "homepage": "https://stormpath.com",
+            "role": "PHP Developer Evangelist"
+        }
+    ],
+    "require": {
+        "stormpath/sdk": "~1.12"
+    },
+    "minimum-stability": "stable",
+    "support": {
+        "source": "https://github.com/stormpath/stormpath-laravel",
+        "email": "support@stormpath.com",
+        "irc": "irc://irc.freenode.org/stormpath",
+        "issues": "https://github.com/stormpath/stormpath-laravel/issues",
+        "docs": "http://docs.stormpath.com/php/laravel/latest/"
+    }
+}
