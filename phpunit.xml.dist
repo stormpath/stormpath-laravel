@@ -4,7 +4,7 @@
          stopOnError="false"
          backupGlobals="false"
          stopOnFailure="false"
-         bootstrap="phpunit.php"
+         bootstrap="tests/phpunit.php"
          processIsolation="false"
          backupStaticAttributes="false"
          convertErrorsToExceptions="true"
