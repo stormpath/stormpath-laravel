@@ -24,6 +24,11 @@
     "require": {
         "stormpath/sdk": "~1.12"
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Stormpath\\Tests\\": "tests/"
+        }
+    },
     "minimum-stability": "stable",
     "support": {
         "source": "https://github.com/stormpath/stormpath-laravel",
