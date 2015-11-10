@@ -1,6 +1,7 @@
 {
     "name": "stormpath/laravel",
     "description": "Build simple, secure web applications with Stormpath and Laravel/Lumen!",
+    "version": "0.1.0",
     "license": "apache-2.0",
     "type": "laravel-package",
     "keywords": [
