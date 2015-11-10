@@ -13,6 +13,8 @@
 # serve to show the default.
 
 from json import loads
+from sphinx.highlighting import lexers
+from pygments.lexers.web import PhpLexer
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -138,7 +140,7 @@ html_theme_path = ['_themes']
 html_static_path = ['_static']
 
 # Make the default syntax highlighting target Javascript code snippets.
-highlight_language = 'javascript'
+highlight_language = 'php'
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
@@ -283,3 +285,9 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+
+
+
+# enable highlighting for PHP code not between <?php ... ?> by default
+lexers['php'] = PhpLexer(startinline=True)
+lexers['php-annotations'] = PhpLexer(startinline=True)
