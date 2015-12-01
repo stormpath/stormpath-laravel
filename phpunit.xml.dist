@@ -12,7 +12,7 @@
          convertWarningsToExceptions="true"
 >
     <testsuites>
-        <testsuite name="Stormpath Laravel Auth Driver Test Suite">
+        <testsuite name="unit">
             <directory suffix="Test.php">./tests</directory>
         </testsuite>
     </testsuites>

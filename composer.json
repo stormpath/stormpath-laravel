@@ -1,7 +1,7 @@
 {
     "name": "stormpath/laravel",
     "description": "Build simple, secure web applications with Stormpath and Laravel/Lumen!",
-    "version": "0.1.0",
+    "version": "0.1.0.alpha1",
     "license": "apache-2.0",
     "type": "laravel-package",
     "keywords": [
@@ -24,9 +24,18 @@
     "require": {
         "stormpath/sdk": "~1.12"
     },
+    "require-dev": {
+        "phpunit/phpunit": "~5.0",
+        "mockery/mockery": "~0.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "Stormpath\\Laravel\\": "src/"
+        }
+    },
     "autoload-dev": {
         "psr-4": {
-            "Stormpath\\Tests\\": "tests/"
+            "Stormpath\\Laravel\\Tests\\": "tests/"
         }
     },
     "minimum-stability": "stable",
