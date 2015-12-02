@@ -22,19 +22,11 @@
                             @endif
                         </div>
 
-                        @if(isset($formErrors))
+                        @if (isset($errors) && count($errors) > 0)
                             <div class="alert alert-danger bad-login">
-                                @foreach($formErrors as $error)
-                                    <p>{{$error}}</p>
+                                @foreach ($errors->all() as $error)
+                                    <p>{{ $error }}</p>
                                 @endforeach
-                            </div>
-                        @endif
-
-                        @if (count($errors) > 0)
-                            <div class="alert alert-danger bad-login">
-                                    @foreach ($errors->all() as $error)
-                                        <p>{{ $error }}</p>
-                                    @endforeach
                             </div>
                         @endif
 
