@@ -23,6 +23,7 @@
     ],
     "require": {
         "stormpath/sdk": "~1.12",
+        "illuminate/validation": "~5.1",
         "illuminate/support": "~5.1"
     },
     "require-dev": {

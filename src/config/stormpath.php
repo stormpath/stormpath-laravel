@@ -2,6 +2,13 @@
 
 return [
 
+    "apiKey" => [
+        "id" => env( 'STORMPATH_ID' ),
+        "secret" => env( 'STORMPATH_SECRET' )
+    ],
+
+    "application" => env( 'STORMPATH_APPLICATION' ),
+
     "web" => [
 
         "oauth2" => [
