@@ -17,6 +17,6 @@
  |--------------------------------------------------------------------------
  */
 if (config('stormpath.web.login.enabled')) {
-    $this->app->router->get( config('stormpath.web.login.uri'), ['as' => 'stormpath.login', 'uses' => 'Stormpath\Laravel\Http\Controllers\LoginController@show'] );
-    $this->app->router->post( config('stormpath.web.login.uri'), ['as' => 'stormpath.login', 'uses' => 'Stormpath\Laravel\Http\Controllers\LoginController@doLogin'] );
+    $this->app->router->get( config('stormpath.web.login.uri'), ['as' => 'stormpath.login', 'uses' => 'Stormpath\Laravel\Http\Controllers\LoginController@getLogin'] );
+    $this->app->router->post( config('stormpath.web.login.uri'), ['as' => 'stormpath.login', 'uses' => 'Stormpath\Laravel\Http\Controllers\LoginController@postLogin'] );
 }
