@@ -9,9 +9,8 @@ class TestCase extends \Orchestra\Testbench\TestCase
 
     private $application;
 
-    public function setup()
+    public function setupStormpathApplication()
     {
-        parent::setup();
         $this->application = \Stormpath\Resource\Application::instantiate(array('name' => 'Test Application  - ' . microtime(), 'description' => 'Description of Main App', 'status' => 'enabled'));
         self::createResource(\Stormpath\Resource\Application::PATH, $this->application, array('createDirectory' => true));
         $href = $this->application->href;
