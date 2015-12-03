@@ -13,6 +13,14 @@
                         <span>Create Account</span>
                     </div>
 
+                    @if (isset($errors) && count($errors) > 0)
+                        <div class="alert alert-danger bad-login">
+                            @foreach ($errors->all() as $error)
+                                <p>{{ $error }}</p>
+                            @endforeach
+                        </div>
+                    @endif
+
                     <form class="registration-form form-horizontal sp-form" method="post"
                           role="form">
                         {{ csrf_field() }}
@@ -21,7 +29,7 @@
                             <div class="form-group group-{{$field['name']}}">
                                 <label class="col-sm-4">{{$field['placeholder']}}</label>
                                 <div class="col-sm-8">
-                                    <input type="{{$field['type']}}" class="form-control" required="{{$field['required']}}" name="{{$field['name']}}" placeholder="{{$field['placeholder']}}">
+                                    <input type="{{$field['type']}}" class="form-control" name="{{$field['name']}}" placeholder="{{$field['placeholder']}}">
                                 </div>
                             </div>
                         @endforeach
