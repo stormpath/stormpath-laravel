@@ -20,3 +20,13 @@ if (config('stormpath.web.login.enabled')) {
     $this->app->router->get( config('stormpath.web.login.uri'), ['as' => 'stormpath.login', 'uses' => 'Stormpath\Laravel\Http\Controllers\LoginController@getLogin'] );
     $this->app->router->post( config('stormpath.web.login.uri'), ['as' => 'stormpath.login', 'uses' => 'Stormpath\Laravel\Http\Controllers\LoginController@postLogin'] );
 }
+
+/*
+ |--------------------------------------------------------------------------
+ | Register Routes
+ |--------------------------------------------------------------------------
+ */
+if (config('stormpath.web.register.enabled')) {
+    $this->app->router->get( config('stormpath.web.register.uri'), ['as' => 'stormpath.register', 'uses' => 'Stormpath\Laravel\Http\Controllers\RegisterController@getRegister'] );
+    $this->app->router->post( config('stormpath.web.register.uri'), ['as' => 'stormpath.register', 'uses' => 'Stormpath\Laravel\Http\Controllers\RegisterController@postRegister'] );
+}

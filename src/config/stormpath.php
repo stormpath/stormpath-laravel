@@ -44,7 +44,7 @@ return [
         ],
 
         "register" => [
-            "enabled" => false,
+            "enabled" => true,
             "uri" => "/register",
             "nextUri" => "/",
             "autoAuthorize" => false,
@@ -86,9 +86,9 @@ return [
                     "type" => "password"
                 ],
                 "passwordConfirm" => [
-                    "name" => "passwordConfirm",
+                    "name" => "password_confirmation",
                     "placeholder" => "Confirm Password",
-                    "required" => false,
+                    "required" => true,
                     "type" => "password"
                 ]
             ],
