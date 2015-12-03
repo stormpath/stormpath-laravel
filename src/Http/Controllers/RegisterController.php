@@ -5,9 +5,11 @@ namespace Stormpath\Laravel\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Validation\Factory as Validator;
+use Stormpath\Laravel\Http\Traits\AuthenticatesUser;
 
 class RegisterController extends Controller
 {
+    use AuthenticatesUser;
     /**
      * @var Request
      */
@@ -55,7 +57,16 @@ class RegisterController extends Controller
 
             $account = $application->createAccount($account);
 
-            dd($account);
+            if(config('stormpath.web.register.autoAuthorize') == true) {
+                $login = isset($registerFields['username']) ? $registerFields['username'] : null;
+                $login = isset($registerFields['email']) ? $registerFields['email'] : $login;
+
+                $this->authenticate($login, $registerFields['password']);
+            }
+
+            return redirect()
+                ->to(config('stormpath.web.register.nextUri'));
+
         } catch(\Stormpath\Resource\ResourceError $re) {
             return redirect()
                 ->to(config('stormpath.web.register.uri'))

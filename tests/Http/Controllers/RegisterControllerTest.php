@@ -84,6 +84,78 @@ class RegisterControllerTest extends TestCase
         $this->assertHasOldInput();
     }
 
+    /** @test */
+    public function it_auto_authenticates_during_successful_registration_if_enabled()
+    {
+        $this->setupStormpathApplication();
+        config(["stormpath.web.register.autoAuthorize"=>true]);
+
+        $this->post('register', [
+            config('stormpath.web.register.fields.username.name') => 'testUsername',
+            config('stormpath.web.register.fields.givenName.name')=>'Test',
+            config('stormpath.web.register.fields.middleName.name') => 'Middle',
+            config('stormpath.web.register.fields.surname.name') => 'Account',
+            config('stormpath.web.register.fields.email.name') => 'test@account.com',
+            config('stormpath.web.register.fields.password.name') => 'superP4ss!',
+            config('stormpath.web.register.fields.passwordConfirm.name') => 'superP4ss!'
+        ]);
+
+        $this->assertSessionHas(config('stormpath.web.accessTokenCookie.name'));
+        $this->assertSessionHas(config('stormpath.web.refreshTokenCookie.name'));
+
+        $this->assertRedirectedTo(config('stormpath.web.register.nextUri'));
+    }
+
+    /** @test */
+    public function it_does_not_authenticate_during_successful_registration_if_disabled()
+    {
+        $this->setupStormpathApplication();
+        config(["stormpath.web.register.autoAuthorize"=>false]);
+
+        $this->post('register', [
+            config('stormpath.web.register.fields.username.name') => 'testUsername',
+            config('stormpath.web.register.fields.givenName.name')=>'Test',
+            config('stormpath.web.register.fields.middleName.name') => 'Middle',
+            config('stormpath.web.register.fields.surname.name') => 'Account',
+            config('stormpath.web.register.fields.email.name') => 'test@account.com',
+            config('stormpath.web.register.fields.password.name') => 'superP4ss!',
+            config('stormpath.web.register.fields.passwordConfirm.name') => 'superP4ss!'
+        ]);
+
+        $this->assertNull($this->app['session']->get(config('stormpath.web.accessTokenCookie.name')));
+        $this->assertNull($this->app['session']->get(config('stormpath.web.refreshTokenCookie.name')));
+
+        $this->assertRedirectedTo(config('stormpath.web.register.nextUri'));
+    }
+
+    /** @test */
+    public function it_returns_to_registration_if_login_is_already_taken()
+    {
+        $this->setupStormpathApplication();
+        config(["stormpath.web.register.autoAuthorize"=>false]);
+
+        $account = $this->createAccount(['username'=>'testUsername', 'email' => 'test@account.com', 'password' => 'superP4ss!']);
+
+        $this->post('register', [
+            config('stormpath.web.register.fields.username.name') => 'testUsername',
+            config('stormpath.web.register.fields.givenName.name')=>'Test',
+            config('stormpath.web.register.fields.middleName.name') => 'Middle',
+            config('stormpath.web.register.fields.surname.name') => 'Account',
+            config('stormpath.web.register.fields.email.name') => 'test@account.com',
+            config('stormpath.web.register.fields.password.name') => 'superP4ss!',
+            config('stormpath.web.register.fields.passwordConfirm.name') => 'superP4ss!'
+        ]);
+
+        $this->assertRedirectedTo(config('stormpath.web.register.uri'));
+        $this->followRedirects();
+        $this->seePageIs('register');
+        $this->see('Create Account');
+
+        $this->assertContains('Account with that email already exists.  Please choose another email.',$this->app['session']->get('errors')->all());
+        $this->assertHasOldInput();
+        $account->delete();
+    }
+
 
     private function registerWithout($field)
     {
