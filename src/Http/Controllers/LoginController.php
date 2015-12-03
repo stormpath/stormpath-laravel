@@ -8,11 +8,14 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Factory as Validator;
+use Stormpath\Laravel\Http\Traits\AuthenticatesUser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class LoginController extends Controller
 {
+
+    use AuthenticatesUser;
 
     /**
      * @var Request
@@ -55,12 +58,7 @@ class LoginController extends Controller
         }
 
         try {
-            $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest($this->request->get('login'), $this->request->get('password'));
-            $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
-            $result = $auth->authenticate($passwordGrant);
-
-            session([config('stormpath.web.accessTokenCookie.name') => $result->getAccessTokenString()]);
-            session([config('stormpath.web.refreshTokenCookie.name') => $result->getRefreshTokenString()]);
+            $this->authenticate($this->request->get('login'), $this->request->get('password'));
 
             return redirect()
                 ->to(config('stormpath.web.login.nextUri'));
