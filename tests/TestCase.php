@@ -18,14 +18,14 @@ class TestCase extends \Orchestra\Testbench\TestCase
         config(['stormpath.application'=>end($href)]);
     }
 
-    public function createAccount()
+    public function createAccount($overrides = [])
     {
-        $account = \Stormpath\Resource\Account::instantiate([
+        $account = \Stormpath\Resource\Account::instantiate(array_merge([
             'givenName' => 'Test',
             'surname' => 'Account',
             'email' => 'test@test.com',
             'password' => 'superP4ss!'
-        ]);
+        ], $overrides));
         $account = $this->application->createAccount($account);
         return $account;
     }
