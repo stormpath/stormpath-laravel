@@ -37,6 +37,7 @@ class LoginControllerTest extends TestCase
     /** @test */
     public function successful_login_sets_session_variables()
     {
+        $this->setupStormpathApplication();
         $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
         $this->post('login', ['login' => 'test@test.com', 'password' => 'superP4ss!']);
         $this->assertSessionHas(config('stormpath.web.accessTokenCookie.name'));
@@ -47,6 +48,7 @@ class LoginControllerTest extends TestCase
     /** @test */
     public function will_display_error_if_account_is_invalid()
     {
+        $this->setupStormpathApplication();
         $this->post('login', ['login' => 'somelogin', 'password' => 'somePassword']);
         $this->assertRedirectedTo(config('stormpath.web.login.uri'));
         $this->followRedirects();
@@ -60,6 +62,7 @@ class LoginControllerTest extends TestCase
     /** @test */
     public function will_redirect_to_next_uri_on_login()
     {
+        $this->setupStormpathApplication();
         $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
         $this->post('login', ['login' => 'test@test.com', 'password' => 'superP4ss!']);
         $this->assertRedirectedTo(config('stormpath.web.login.nextUri'));
