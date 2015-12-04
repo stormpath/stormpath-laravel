@@ -6,6 +6,7 @@ use Illuminate\Config\Repository;
 use Illuminate\Foundation\Application;
 use Stormpath\Laravel\Support\StormpathLaravelServiceProvider;
 use Stormpath\Laravel\Tests\TestCase;
+use Stormpath\Stormpath;
 
 class StormpathLaravelServiceProviderTest extends TestCase
 {
@@ -35,6 +36,44 @@ class StormpathLaravelServiceProviderTest extends TestCase
         $application = app('stormpath.application');
 
         $this->assertInstanceOf('\Stormpath\Resource\Application', $application);
+    }
+
+    /** @test */
+    public function it_returns_null_from_stormpath_application_if_application_does_not_exist()
+    {
+        $application = app('stormpath.application');
+
+        $this->assertNull($application);
+        $this->assertArrayNotHasKey('enabled', config('stormpath.web.verifyEmail'));
+    }
+
+    /** @test */
+    public function it_sets_verify_email_config_to_false_by_default()
+    {
+        $this->setupStormpathApplication();
+        app('stormpath.application');
+        $this->assertArrayHasKey('enabled', config('stormpath.web.verifyEmail'));
+        $this->assertFalse(config('stormpath.web.verifyEmail.enabled'));
+    }
+
+    /** @test */
+    public function it_sets_verify_email_config_to_true_if_account_store_mapping_for_application_is_set_to_verify_email()
+    {
+        $this->setupStormpathApplication();
+        $accountStoreMappings = $this->application->accountStoreMappings;
+
+        if ($accountStoreMappings) {
+            foreach ($accountStoreMappings as $asm) {
+                $directory = $asm->accountStore;
+                $acp = $directory->accountCreationPolicy;
+                $acp->verificationEmailStatus = Stormpath::ENABLED;
+                $acp->save();
+            }
+        }
+
+        $application = app('stormpath.application');
+
+        $this->assertTrue(config('stormpath.web.verifyEmail.enabled'));
     }
 
 
