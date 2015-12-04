@@ -120,7 +120,11 @@ class RegisterControllerTest extends TestCase
         $this->assertNull($this->app['session']->get(config('stormpath.web.accessTokenCookie.name')));
         $this->assertNull($this->app['session']->get(config('stormpath.web.refreshTokenCookie.name')));
 
-        $this->assertRedirectedTo(config('stormpath.web.register.nextUri'));
+        $this->assertRedirectedToRoute('stormpath.login', ['status'=>'created']);
+        $this->followRedirects();
+        $this->see('Login');
+        $this->seePageIs(config('stormpath.web.login.uri') . '?status=created');
+
     }
 
     /** @test */

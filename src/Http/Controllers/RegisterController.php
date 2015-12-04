@@ -62,16 +62,19 @@ class RegisterController extends Controller
                     ->route('stormpath.login', ['status'=>'unverified']);
             }
 
-
-            if(config('stormpath.web.register.autoAuthorize') == true) {
-                $login = isset($registerFields['username']) ? $registerFields['username'] : null;
-                $login = isset($registerFields['email']) ? $registerFields['email'] : $login;
-
-                $this->authenticate($login, $registerFields['password']);
+            if(config('stormpath.web.register.autoAuthorize') == false) {
+                return redirect()
+                    ->route('stormpath.login', ['status'=>'created']);
             }
+
+            $login = isset($registerFields['username']) ? $registerFields['username'] : null;
+            $login = isset($registerFields['email']) ? $registerFields['email'] : $login;
+
+            $this->authenticate($login, $registerFields['password']);
 
             return redirect()
                 ->to(config('stormpath.web.register.nextUri'));
+
 
         } catch(\Stormpath\Resource\ResourceError $re) {
             return redirect()

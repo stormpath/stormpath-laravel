@@ -32,6 +32,7 @@ class AuthenticateTest extends TestCase
     /** @test */
     public function it_continues_if_user_is_authenticated()
     {
+        config(['stormpath.web.register.autoAuthorize.enabled' => true]);
         $this->setupStormpathApplication();
         $account = $this->createAccount(['username'=>'testUsername', 'email' => 'test@account.com', 'password' => 'superP4ss!']);
         $this->post('login', ['login' => 'test@account.com', 'password' => 'superP4ss!']);
