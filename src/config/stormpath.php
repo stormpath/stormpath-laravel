@@ -119,7 +119,7 @@ return [
         ],
 
         "logout" => [
-            "enabled" => false,
+            "enabled" => true,
             "uri" => "/logout",
             "nextUri" => "/"
         ],
