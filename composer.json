@@ -1,11 +1,10 @@
 {
-    "name": "stormpath/laravel",
-    "description": "Build simple, secure web applications with Stormpath and Laravel/Lumen!",
+    "name": "stormpath/laravel-auth",
+    "description": "Build simple, secure web applications with Stormpath and Laravel!",
     "version": "0.1.0.alpha1",
     "license": "apache-2.0",
     "type": "laravel-package",
     "keywords": [
-        "lumen",
         "users",
         "laravel",
         "accounts",
