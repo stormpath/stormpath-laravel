@@ -70,4 +70,20 @@ class LoginControllerTest extends TestCase
 
     }
 
+    /** @test */
+    public function it_can_logout_of_the_system()
+    {
+        session([config('stormpath.web.accessTokenCookie.name') => '123']);
+        session([config('stormpath.web.refreshTokenCookie.name') => '123']);
+
+        $this->assertSessionHas(config('stormpath.web.accessTokenCookie.name'));
+        $this->assertSessionHas(config('stormpath.web.refreshTokenCookie.name'));
+
+        $this->get(config('stormpath.web.logout.uri'));
+
+        $this->assertNull(session(config('stormpath.web.accessTokenCookie.name')));
+        $this->assertNull(session(config('stormpath.web.refreshTokenCookie.name')));
+        
+        $this->assertRedirectedTo(config('stormpath.web.logout.nextUri'));
+    }
 }
