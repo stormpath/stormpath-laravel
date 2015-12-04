@@ -4,6 +4,7 @@ namespace Stormpath\Laravel\Support;
 
 use Illuminate\Support\ServiceProvider;
 use Stormpath\Client;
+use Stormpath\Stormpath;
 
 class StormpathLaravelServiceProvider extends ServiceProvider
 {
@@ -31,9 +32,16 @@ class StormpathLaravelServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app['router']->middleware('stormpath.auth', \Stormpath\Laravel\Http\Middleware\Authenticate::class);
+        $this->app['router']->middleware('stormpath.guest', \Stormpath\Laravel\Http\Middleware\RedirectIfAuthenticated::class);
         $this->registerConfig();
         $this->registerClient();
+
         $this->registerApplication();
+        $this->enhanceConfig();
+
+
+
     }
 
     public function provides()
@@ -72,9 +80,35 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
     private function registerApplication()
     {
-        $this->app->singleton('stormpath.application', function() {
-            return \Stormpath\Resource\Application::get(config( 'stormpath.application' ));
+        $this->app->bind('stormpath.application', function() {
+            if(config('stormpath.application')) {
+                return \Stormpath\Resource\Application::get(config( 'stormpath.application' ));
+            }
+            return null;
         });
+    }
+
+    private function enhanceConfig()
+    {
+        if(!config('stormpath.application')) {
+            return null;
+        }
+
+        $application = app('stormpath.application');
+        $value = false;
+
+        $accountStoreMappings = $application->accountStoreMappings;
+
+        if ($accountStoreMappings) {
+            foreach ($accountStoreMappings as $asm) {
+                $directory = $asm->accountStore;
+                $acp = $directory->accountCreationPolicy;
+                $value = $acp->verificationEmailStatus == Stormpath::ENABLED ? true : $value;
+            }
+        }
+
+
+        config(['stormpath.web.verifyEmail.enabled'=>$value]);
     }
 
 
