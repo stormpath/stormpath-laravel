@@ -11,6 +11,7 @@ class StormpathLaravelServiceProvider extends ServiceProvider
     const INTEGRATION_NAME = 'stormpath-laravel';
     const INTEGRATION_VERSION = '0.1.0-alpha1';
 
+    protected $defer = true;
 
     /**
      * Perform post-registration booting of services.
@@ -36,12 +37,7 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         $this->app['router']->middleware('stormpath.guest', \Stormpath\Laravel\Http\Middleware\RedirectIfAuthenticated::class);
         $this->registerConfig();
         $this->registerClient();
-
         $this->registerApplication();
-        $this->enhanceConfig();
-
-
-
     }
 
     public function provides()
@@ -82,19 +78,16 @@ class StormpathLaravelServiceProvider extends ServiceProvider
     {
         $this->app->bind('stormpath.application', function() {
             if(config('stormpath.application')) {
-                return \Stormpath\Resource\Application::get(config( 'stormpath.application' ));
+                $application = \Stormpath\Resource\Application::get(config( 'stormpath.application' ));
+                $this->enhanceConfig($application);
+                return $application;
             }
             return null;
         });
     }
 
-    private function enhanceConfig()
+    private function enhanceConfig($application)
     {
-        if(!config('stormpath.application')) {
-            return null;
-        }
-
-        $application = app('stormpath.application');
         $value = false;
 
         $accountStoreMappings = $application->accountStoreMappings;
