@@ -12,7 +12,7 @@ user, start here!
 
    introduction
    setup
-   configuration
+   quickstart
    help
    contributors
 
