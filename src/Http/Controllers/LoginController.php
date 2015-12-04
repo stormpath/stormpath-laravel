@@ -61,13 +61,21 @@ class LoginController extends Controller
             $this->authenticate($this->request->get('login'), $this->request->get('password'));
 
             return redirect()
-                ->to(config('stormpath.web.login.nextUri'));
+                ->intended(config('stormpath.web.login.nextUri'));
         } catch (\Stormpath\Resource\ResourceError $re) {
             return redirect()
                 ->to(config('stormpath.web.login.uri'))
                 ->withErrors(['errors'=>[$re->getMessage()]])
                 ->withInput();
         }
+    }
+
+    public function getLogout()
+    {
+        session()->forget(config('stormpath.web.accessTokenCookie.name'));
+        session()->forget(config('stormpath.web.refreshTokenCookie.name'));
+
+        return Redirect()->to(config('stormpath.web.logout.nextUri'));
     }
 
     private function loginValidator()
