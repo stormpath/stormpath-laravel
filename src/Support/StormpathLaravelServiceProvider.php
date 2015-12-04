@@ -82,10 +82,9 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
     private function registerConfig()
     {
-        $this->mergeConfigFrom(
-            __DIR__.'/../config/stormpath.php',
-            'stormpath'
-        );
+        $this->publishes([
+            __DIR__.'/../config/stormpath.php' => config_path('stormpath.php'),
+        ]);
     }
 
     private function registerApplication()
