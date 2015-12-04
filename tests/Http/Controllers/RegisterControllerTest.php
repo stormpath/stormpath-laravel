@@ -3,15 +3,10 @@
 namespace Stormpath\Tests\Http\Controllers;
 
 use Stormpath\Laravel\Tests\TestCase;
+use Stormpath\Stormpath;
 
 class RegisterControllerTest extends TestCase
 {
-//    /** @test */
-//    public function it_shows_register_page_if_enabled()
-//    {
-//        config(['stormpath.web.register.enabled'=>true]);
-//        $this->visit('register')->assertResponseOk();
-//    }
 
     /** @test */
     public function it_requires_a_username_if_set_to_required()
@@ -155,6 +150,43 @@ class RegisterControllerTest extends TestCase
         $this->assertHasOldInput();
         $account->delete();
     }
+
+    /** @test */
+    public function it_redirects_to_login_with_unverified_flag_if_directory_requires_verification_of_account()
+    {
+        $this->setupStormpathApplication();
+        $accountStoreMappings = $this->application->accountStoreMappings;
+
+        if ($accountStoreMappings) {
+            foreach ($accountStoreMappings as $asm) {
+                $directory = $asm->accountStore;
+                $acp = $directory->accountCreationPolicy;
+                $acp->verificationEmailStatus = Stormpath::ENABLED;
+                $acp->save();
+            }
+        }
+
+        config(["stormpath.web.verifyEmail.enabled"=>true]);
+        config(["stormpath.web.register.autoAuthorize"=>true]);
+
+        $this->post('register', [
+            config('stormpath.web.register.fields.username.name') => 'testUsername',
+            config('stormpath.web.register.fields.givenName.name')=>'Test',
+            config('stormpath.web.register.fields.middleName.name') => 'Middle',
+            config('stormpath.web.register.fields.surname.name') => 'Account',
+            config('stormpath.web.register.fields.email.name') => 'test@account.com',
+            config('stormpath.web.register.fields.password.name') => 'superP4ss!',
+            config('stormpath.web.register.fields.passwordConfirm.name') => 'superP4ss!'
+        ]);
+
+        $this->assertRedirectedToRoute('stormpath.login',['status'=>'unverified']);
+        $this->followRedirects();
+        $this->seePageIs('login?status=unverified');
+        $this->see('Login');
+
+
+    }
+
 
 
     private function registerWithout($field)
