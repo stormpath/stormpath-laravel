@@ -57,6 +57,12 @@ class RegisterController extends Controller
 
             $account = $application->createAccount($account);
 
+            if(config('stormpath.web.verifyEmail.enabled') == true) {
+                return redirect()
+                    ->route('stormpath.login', ['status'=>'unverified']);
+            }
+
+
             if(config('stormpath.web.register.autoAuthorize') == true) {
                 $login = isset($registerFields['username']) ? $registerFields['username'] : null;
                 $login = isset($registerFields['email']) ? $registerFields['email'] : $login;
