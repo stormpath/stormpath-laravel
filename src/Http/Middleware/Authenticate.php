@@ -19,17 +19,13 @@ class Authenticate
         $isGuest = $this->isGuest();
 
         if ($isGuest) {
-            if ($request->ajax()) {
-                return response('Unauthorized.', 401);
-            } else {
-                return redirect()->guest(config('stormpath.web.login.uri'));
-            }
+            return redirect()->guest(config('stormpath.web.login.uri'));
         }
 
         return $next($request);
     }
 
-    public function isGuest()
+    private function isGuest()
     {
         return !session()->has(config('stormpath.web.accessTokenCookie.name'));
     }
