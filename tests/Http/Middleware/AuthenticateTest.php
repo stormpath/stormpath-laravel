@@ -32,11 +32,23 @@ class AuthenticateTest extends TestCase
     /** @test */
     public function it_continues_if_user_is_authenticated()
     {
-        session([config('stormpath.web.accessTokenCookie.name') => '123']);
-        session([config('stormpath.web.refreshTokenCookie.name') => '123']);
+        $this->setupStormpathApplication();
+        $account = $this->createAccount(['username'=>'testUsername', 'email' => 'test@account.com', 'password' => 'superP4ss!']);
+        $this->post('login', ['login' => 'test@account.com', 'password' => 'superP4ss!']);
 
         $this->get('testAuthenticateMiddleware');
         $this->see('Hello!');
+    }
+
+
+    /** @test */
+    public function an_invalid_access_token_redirects_to_login_screen()
+    {
+        $this->setupStormpathApplication();
+        session([config('stormpath.web.accessTokenCookie.name') => '123']);
+
+        $this->get('testAuthenticateMiddleware');
+        $this->assertRedirectedToRoute('stormpath.login');
     }
 
 }
