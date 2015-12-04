@@ -14,6 +14,10 @@ an issue you are having that needs a little more private attention, please feel 
 [support@stormpath.com](mailto:support@stormpath.com?subject=Stormpath+Laravel+Integration) or visit our
 [support center](https://support.stormpath.com).
 
+## Documentation
+
+For basic documentation of this library, see the [documentation][].
+
 ## Contributing
 We welcome anyone to make contributions to this project. Just fork the `develop` branch of this repository, make your
 changes, then issue a pull request on the `develop` branch.
@@ -29,3 +33,6 @@ We regularly maintain this repository, and are quick to review pull requests and
 Copyright &copy; 2013-2015 Stormpath, Inc. and contributors.
 
 This project is open-source via the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0).
+
+
+[documentation]: https://github.com/stormpath/stormpath-laravel/wiki
