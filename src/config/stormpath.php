@@ -105,7 +105,6 @@ return [
         ],
 
         "verifyEmail" => [
-            "enabled" => false,  // TODO: determine this from the API
             "uri" => "/verify",
             "nextUri" => "/",
             "view" => "stormpath::verify"
