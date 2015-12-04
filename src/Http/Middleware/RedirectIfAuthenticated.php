@@ -27,6 +27,10 @@ class RedirectIfAuthenticated
 
     public function isAuthenticated()
     {
-        return session()->has(config('stormpath.web.accessTokenCookie.name'));
+        if(!session()->has(config('stormpath.web.accessTokenCookie.name'))) {
+            return false;
+        }
+
+        return true;
     }
 }
