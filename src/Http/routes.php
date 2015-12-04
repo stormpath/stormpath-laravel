@@ -23,6 +23,15 @@ if (config('stormpath.web.login.enabled')) {
 
 /*
  |--------------------------------------------------------------------------
+ | Logout Routes
+ |--------------------------------------------------------------------------
+ */
+if (config('stormpath.web.logout.enabled')) {
+    $this->app->router->get( config('stormpath.web.logout.uri'), ['as' => 'stormpath.logout', 'uses' => 'Stormpath\Laravel\Http\Controllers\LoginController@getLogout'] );
+    }
+
+/*
+ |--------------------------------------------------------------------------
  | Register Routes
  |--------------------------------------------------------------------------
  */
