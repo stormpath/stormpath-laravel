@@ -17,12 +17,19 @@
 
 return [
 
-    "apiKey" => [
-        "id" => env( 'STORMPATH_ID' ),
-        "secret" => env( 'STORMPATH_SECRET' )
+    "client" => [
+        "apiKey" => [
+            "id" => env( 'STORMPATH_CLIENT_APIKEY_ID' ),
+            "secret" => env( 'STORMPATH_CLIENT_APIKEY_SECRET' )
+        ],
+        "baseUrl" => "https://api.stormpath.com/v1",
+        "authenticationScheme" => "SAUTHC1"
     ],
 
-    "application" => env( 'STORMPATH_APPLICATION' ),
+    "application" => [
+        "name" => "",
+        "href" => env( 'STORMPATH_APPLICATION_HREF' )
+    ],
 
     "web" => [
 

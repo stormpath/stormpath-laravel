@@ -28,9 +28,8 @@ class TestCase extends \Orchestra\Testbench\TestCase
     {
         $this->application = \Stormpath\Resource\Application::instantiate(array('name' => 'Test Application  - ' . microtime(), 'description' => 'Description of Main App', 'status' => 'enabled'));
         self::createResource(\Stormpath\Resource\Application::PATH, $this->application, array('createDirectory' => true));
-        $href = $this->application->href;
-        $href = explode('/',$href);
-        config(['stormpath.application'=>end($href)]);
+
+        config(['stormpath.application.href'=>$this->application->href]);
     }
 
     public function createAccount($overrides = [])
