@@ -37,16 +37,24 @@
                             <div class="form-group group-email">
                                 <label class=col-sm-4>Email</label>
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control" autofocus="true" placeholder="Email"
-                                           name="login">
+                                    <input type="text"
+                                           class="form-control"
+                                           autofocus="true"
+                                           placeholder="Email"
+                                           name="login"
+                                           value="{{ old('login') }}"
+                                    >
                                 </div>
                             </div>
 
                             <div class="form-group group-password">
                                 <label class="col-sm-4">Password</label>
                                 <div class="col-sm-8">
-                                    <input type="password" class="form-control" placeholder="Password"
-                                           name="password">
+                                    <input type="password"
+                                           class="form-control"
+                                           placeholder="Password"
+                                           name="password"
+                                    >
                                 </div>
                             </div>
 

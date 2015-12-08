@@ -29,7 +29,12 @@
                             <div class="form-group group-{{$field['name']}}">
                                 <label class="col-sm-4">{{$field['placeholder']}}</label>
                                 <div class="col-sm-8">
-                                    <input type="{{$field['type']}}" class="form-control" name="{{$field['name']}}" placeholder="{{$field['placeholder']}}">
+                                    <input type="{{$field['type']}}"
+                                           class="form-control"
+                                           name="{{$field['name']}}"
+                                           placeholder="{{$field['placeholder']}}"
+                                           value="{{ old($field['name']) }}"
+                                    >
                                 </div>
                             </div>
                         @endforeach
