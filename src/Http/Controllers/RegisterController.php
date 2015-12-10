@@ -85,10 +85,34 @@ class RegisterController extends Controller
             $login = isset($registerFields['username']) ? $registerFields['username'] : null;
             $login = isset($registerFields['email']) ? $registerFields['email'] : $login;
 
-            $this->authenticate($login, $registerFields['password']);
+            $result = $this->authenticate($login, $registerFields['password']);
 
             return redirect()
-                ->to(config('stormpath.web.register.nextUri'));
+                ->to(config('stormpath.web.register.nextUri'))
+                ->withCookies(
+                    [
+                        config('stormpath.web.accessTokenCookie.name') =>
+                            cookie(
+                                config('stormpath.web.accessTokenCookie.name'),
+                                $result->getAccessTokenString(),
+                                $result->getExpiresIn(),
+                                config('stormpath.web.accessTokenCookie.path'),
+                                config('stormpath.web.accessTokenCookie.domain'),
+                                config('stormpath.web.accessTokenCookie.secure'),
+                                config('stormpath.web.accessTokenCookie.httpOnly')
+                            ),
+                        config('stormpath.web.refreshTokenCookie.name') =>
+                            cookie(
+                                config('stormpath.web.refreshTokenCookie.name'),
+                                $result->getRefreshTokenString(),
+                                $result->getExpiresIn(),
+                                config('stormpath.web.refreshTokenCookie.path'),
+                                config('stormpath.web.refreshTokenCookie.domain'),
+                                config('stormpath.web.refreshTokenCookie.secure'),
+                                config('stormpath.web.refreshTokenCookie.httpOnly')
+                            )
+                    ]
+                );
 
 
         } catch(\Stormpath\Resource\ResourceError $re) {

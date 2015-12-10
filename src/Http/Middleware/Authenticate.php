@@ -31,7 +31,7 @@ class Authenticate
      */
     public function handle($request, Closure $next)
     {
-        $isGuest = $this->isGuest();
+        $isGuest = $this->isGuest($request);
 
         if ($isGuest) {
             return redirect()->guest(config('stormpath.web.login.uri'));
@@ -40,13 +40,13 @@ class Authenticate
         return $next($request);
     }
 
-    private function isGuest()
+    private function isGuest($request)
     {
-        if(!session()->has(config('stormpath.web.accessTokenCookie.name'))) {
+        if(!$request->hasCookie(config('stormpath.web.accessTokenCookie.name'))) {
             return true;
         }
 
-        if(!$this->isValidToken()) {
+        if(!$this->isValidToken($request)) {
             return true;
         }
 
@@ -54,12 +54,11 @@ class Authenticate
 
     }
 
-    private function isValidToken()
+    private function isValidToken($request)
     {
-        $token = session(config('stormpath.web.accessTokenCookie.name'));
-
+        $token = $request->cookie(config('stormpath.web.accessTokenCookie.name'));
         try {
-            $result = (new \Stormpath\Oauth\VerifyAccessToken(app('stormpath.application')))->verify($token);
+            $result = (new \Stormpath\Oauth\VerifyAccessToken(app('stormpath.application')))->verify($token->getValue());
 
             return true;
         } catch (\Stormpath\Resource\ResourceError $re) {

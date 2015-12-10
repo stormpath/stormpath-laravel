@@ -45,27 +45,78 @@ class AuthenticateTest extends TestCase
     }
 
     /** @test */
-    public function it_continues_if_user_is_authenticated()
-    {
-        $this->setupStormpathApplication();
-        config(['stormpath.web.register.autoAuthorize.enabled' => true]);
-        $account = $this->createAccount(['username'=>'testUsername', 'email' => 'test@account.com', 'password' => 'superP4ss!']);
-
-        $this->post('login', ['login' => 'test@account.com', 'password' => 'superP4ss!']);
-
-        $this->get('testAuthenticateMiddleware');
-        $this->see('Hello!');
-    }
-
-
-    /** @test */
     public function an_invalid_access_token_redirects_to_login_screen()
     {
         $this->setupStormpathApplication();
-        session([config('stormpath.web.accessTokenCookie.name') => '123']);
-
-        $this->get('testAuthenticateMiddleware');
+        $this->call('GET', 'testAuthenticateMiddleware',[],
+            [
+                config('stormpath.web.accessTokenCookie.name') =>
+                    cookie(
+                        config('stormpath.web.accessTokenCookie.name'),
+                        '123',
+                        '3600',
+                        config('stormpath.web.accessTokenCookie.path'),
+                        config('stormpath.web.accessTokenCookie.domain'),
+                        config('stormpath.web.accessTokenCookie.secure'),
+                        config('stormpath.web.accessTokenCookie.httpOnly')
+                    ),
+                config('stormpath.web.refreshTokenCookie.name') =>
+                    cookie(
+                        config('stormpath.web.refreshTokenCookie.name'),
+                        '123',
+                        '3600',
+                        config('stormpath.web.refreshTokenCookie.path'),
+                        config('stormpath.web.refreshTokenCookie.domain'),
+                        config('stormpath.web.refreshTokenCookie.secure'),
+                        config('stormpath.web.refreshTokenCookie.httpOnly')
+                    )
+            ]);
         $this->assertRedirectedToRoute('stormpath.login');
     }
+
+    /** @test */
+    public function it_continues_if_user_is_authenticated()
+    {
+        $this->setupStormpathApplication();
+        $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
+
+        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest('test@test.com', 'superP4ss!');
+        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
+        $result =  $auth->authenticate($passwordGrant);
+
+        $this->call('GET', 'testAuthenticateMiddleware',[], $this->cookiesToSend($result));
+        $this->see('Hello!');
+
+
+    }
+
+    private function cookiesToSend($result)
+    {
+        return [
+            config('stormpath.web.accessTokenCookie.name') =>
+            cookie(
+                config('stormpath.web.accessTokenCookie.name'),
+                $result->getAccessTokenString(),
+                $result->getExpiresIn(),
+                config('stormpath.web.accessTokenCookie.path'),
+                config('stormpath.web.accessTokenCookie.domain'),
+                config('stormpath.web.accessTokenCookie.secure'),
+                config('stormpath.web.accessTokenCookie.httpOnly')
+            ),
+            config('stormpath.web.refreshTokenCookie.name') =>
+            cookie(
+                config('stormpath.web.refreshTokenCookie.name'),
+                $result->getRefreshTokenString(),
+                $result->getExpiresIn(),
+                config('stormpath.web.refreshTokenCookie.path'),
+                config('stormpath.web.refreshTokenCookie.domain'),
+                config('stormpath.web.refreshTokenCookie.secure'),
+                config('stormpath.web.refreshTokenCookie.httpOnly')
+            )
+        ];
+    }
+
+
+
 
 }

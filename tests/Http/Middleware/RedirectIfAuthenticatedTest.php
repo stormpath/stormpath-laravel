@@ -53,15 +53,44 @@ class RedirectIfAuthenticatedTest extends TestCase
     /** @test */
     public function it_redirects_home_if_user_is_authenticated()
     {
-        session([config('stormpath.web.accessTokenCookie.name') => '123']);
-        session([config('stormpath.web.refreshTokenCookie.name') => '123']);
+        $this->setupStormpathApplication();
+        $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
 
-        $this->get('testRedirectIfAuthenticatedMiddleware');
+        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest('test@test.com', 'superP4ss!');
+        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
+        $result =  $auth->authenticate($passwordGrant);
+
+        $this->call('GET', 'testRedirectIfAuthenticatedMiddleware',[], $this->cookiesToSend($result));
         $this->assertRedirectedTo('/');
         $this->followRedirects();
         $this->see('Home');
     }
 
+    private function cookiesToSend($result)
+    {
+        return [
+            config('stormpath.web.accessTokenCookie.name') =>
+                cookie(
+                    config('stormpath.web.accessTokenCookie.name'),
+                    $result->getAccessTokenString(),
+                    $result->getExpiresIn(),
+                    config('stormpath.web.accessTokenCookie.path'),
+                    config('stormpath.web.accessTokenCookie.domain'),
+                    config('stormpath.web.accessTokenCookie.secure'),
+                    config('stormpath.web.accessTokenCookie.httpOnly')
+                ),
+            config('stormpath.web.refreshTokenCookie.name') =>
+                cookie(
+                    config('stormpath.web.refreshTokenCookie.name'),
+                    $result->getRefreshTokenString(),
+                    $result->getExpiresIn(),
+                    config('stormpath.web.refreshTokenCookie.path'),
+                    config('stormpath.web.refreshTokenCookie.domain'),
+                    config('stormpath.web.refreshTokenCookie.secure'),
+                    config('stormpath.web.refreshTokenCookie.httpOnly')
+                )
+        ];
+    }
 
 
 

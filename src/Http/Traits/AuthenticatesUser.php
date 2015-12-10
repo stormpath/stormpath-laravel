@@ -23,9 +23,6 @@ trait AuthenticatesUser
     {
         $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest($user, $password);
         $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
-        $result = $auth->authenticate($passwordGrant);
-
-        session([config('stormpath.web.accessTokenCookie.name') => $result->getAccessTokenString()]);
-        session([config('stormpath.web.refreshTokenCookie.name') => $result->getRefreshTokenString()]);
+        return $auth->authenticate($passwordGrant);
     }
 }

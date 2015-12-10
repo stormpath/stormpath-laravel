@@ -66,7 +66,7 @@ return [
         ],
 
         "register" => [
-            "enabled" => false,
+            "enabled" => true,
             "uri" => "/register",
             "nextUri" => "/",
             "autoAuthorize" => false,

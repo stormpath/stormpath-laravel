@@ -93,4 +93,27 @@ class TestCase extends \Orchestra\Testbench\TestCase
 
         parent::tearDown();
     }
+
+    /**
+     * Asserts that the response does not contain the given cookie.
+     *
+     * @param  string $cookieName
+     * @return $this
+     */
+    protected function seeNotCookie($cookieName)
+    {
+        $headers = $this->response->headers;
+        $exist = false;
+
+        foreach ($headers->getCookies() as $cookie) {
+            if ($cookie->getName() === $cookieName) {
+                $exist = true;
+                break;
+            }
+        }
+
+        $this->assertFalse($exist, "Cookie [{$cookieName}] present on response.");
+
+        return $this;
+    }
 }
