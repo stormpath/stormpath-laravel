@@ -18,9 +18,14 @@
 namespace Stormpath\Laravel\Http\Controllers;
 
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Factory as Validator;
 use Stormpath\Laravel\Http\Traits\AuthenticatesUser;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class LoginController extends Controller
 {
@@ -110,26 +115,8 @@ class LoginController extends Controller
         return redirect()
             ->to(config('stormpath.web.logout.nextUri'))
             ->withCookies([
-                config('stormpath.web.accessTokenCookie.name') =>
-                    cookie(
-                        config('stormpath.web.accessTokenCookie.name'),
-                        null,
-                        0,
-                        config('stormpath.web.accessTokenCookie.path'),
-                        config('stormpath.web.accessTokenCookie.domain'),
-                        config('stormpath.web.accessTokenCookie.secure'),
-                        config('stormpath.web.accessTokenCookie.httpOnly')
-                    ),
-                config('stormpath.web.refreshTokenCookie.name') =>
-                    cookie(
-                        config('stormpath.web.refreshTokenCookie.name'),
-                        null,
-                        0,
-                        config('stormpath.web.refreshTokenCookie.path'),
-                        config('stormpath.web.refreshTokenCookie.domain'),
-                        config('stormpath.web.refreshTokenCookie.secure'),
-                        config('stormpath.web.refreshTokenCookie.httpOnly')
-                    )
+                cookie()->forget(config('stormpath.web.accessTokenCookie.name')),
+                cookie()->forget(config('stormpath.web.refreshTokenCookie.name'))
             ]);
     }
 

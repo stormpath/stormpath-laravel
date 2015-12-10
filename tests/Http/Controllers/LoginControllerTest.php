@@ -100,7 +100,7 @@ class LoginControllerTest extends TestCase
         $cookies = $headers->getCookies();
         foreach($cookies as $cookie) {
             if($cookie->getName() == config('stormpath.web.accessTokenCookie.name') || $cookie->getName() == config('stormpath.web.refreshTokenCookie.name')) {
-                $this->assertEquals(0, $cookie->getExpiresTime());
+                $this->assertLessThan(time(), $cookie->getExpiresTime());
             }
         }
 
