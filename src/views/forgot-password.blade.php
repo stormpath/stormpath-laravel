@@ -26,8 +26,13 @@
                             <div class="form-group group-email">
                                 <label for="" class="col-sm-4">Email</label>
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control" placeholder="Email" required="true"
-                                           name="email">
+                                    <input type="text"
+                                           class="form-control"
+                                           placeholder="Email"
+                                           required="true"
+                                           name="email"
+                                           {{ old('email') }}
+                                    >
                                 </div>
                             </div>
 

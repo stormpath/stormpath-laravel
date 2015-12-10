@@ -54,3 +54,13 @@ if (config('stormpath.web.register.enabled')) {
     $this->app->router->get( config('stormpath.web.register.uri'), ['middleware'=>'stormpath.guest', 'as' => 'stormpath.register', 'uses' => 'Stormpath\Laravel\Http\Controllers\RegisterController@getRegister'] );
     $this->app->router->post( config('stormpath.web.register.uri'), ['middleware'=>'stormpath.guest', 'as' => 'stormpath.register', 'uses' => 'Stormpath\Laravel\Http\Controllers\RegisterController@postRegister'] );
 }
+
+/*
+ |--------------------------------------------------------------------------
+ | Register Routes
+ |--------------------------------------------------------------------------
+ */
+if (config('stormpath.web.forgotPassword.enabled')) {
+    $this->app->router->get( config('stormpath.web.forgotPassword.uri'), ['middleware'=>'stormpath.guest', 'as' => 'stormpath.forgotPassword', 'uses' => 'Stormpath\Laravel\Http\Controllers\ForgotPasswordController@getForgotPassword'] );
+    $this->app->router->post( config('stormpath.web.forgotPassword.uri'), ['middleware'=>'stormpath.guest', 'as' => 'stormpath.forgotPassword', 'uses' => 'Stormpath\Laravel\Http\Controllers\ForgotPasswordController@postForgotPassword'] );
+}
