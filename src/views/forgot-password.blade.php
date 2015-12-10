@@ -20,6 +20,15 @@
                             </p>
                         </div>
 
+                        @if (isset($errors) && count($errors) > 0)
+                            <div class="alert alert-danger bad-login">
+                                @foreach ($errors->all() as $error)
+                                    <p>{{ $error }}</p>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        
                         <form action="{{config('stormpath.web.forgotPassword.uri')}}" class="login-form form-horizontal" method="post" role="form">
                             {{ csrf_field() }}
 
