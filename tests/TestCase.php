@@ -24,6 +24,15 @@ class TestCase extends \Orchestra\Testbench\TestCase
 
     protected $application;
 
+    public function getEnvironmentSetUp($app)
+    {
+        parent::getEnvironmentSetUp($app);
+
+        $app->make('Illuminate\Contracts\Http\Kernel')->pushMiddleware('Illuminate\Session\Middleware\StartSession');
+
+    }
+
+
     public function setupStormpathApplication()
     {
         $this->application = \Stormpath\Resource\Application::instantiate(array('name' => 'Test Application  - ' . microtime(), 'description' => 'Description of Main App', 'status' => 'enabled'));
