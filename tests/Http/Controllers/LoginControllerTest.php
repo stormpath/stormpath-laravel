@@ -17,7 +17,6 @@
 
 namespace Stormpath\Tests\Http\Controllers;
 
-use Mockery as m;
 use Stormpath\Laravel\Tests\TestCase;
 
 class LoginControllerTest extends TestCase
@@ -27,12 +26,12 @@ class LoginControllerTest extends TestCase
     {
         $this->post('login', ['password'=>'superPassword']);
         $this->assertRedirectedTo(config('stormpath.web.login.uri'));
+        $this->assertSessionHasErrors(['login'=>'Login is required.']);
+        $this->assertHasOldInput();
         $this->followRedirects();
         $this->seePageIs('login');
         $this->see('Log In');
 
-        $this->assertSessionHasErrors(['login'=>'Login is required.']);
-        $this->assertHasOldInput();
     }
 
     /** @test */
@@ -40,12 +39,12 @@ class LoginControllerTest extends TestCase
     {
         $this->post('login', ['login' => 'someLogin']);
         $this->assertRedirectedTo(config('stormpath.web.login.uri'));
+        $this->assertSessionHasErrors(['password' => 'Password is required.']);
+        $this->assertHasOldInput();
         $this->followRedirects();
         $this->seePageIs('login');
         $this->see('Log In');
 
-        $this->assertSessionHasErrors(['password' => 'Password is required.']);
-        $this->assertHasOldInput();
 
     }
 
@@ -66,12 +65,12 @@ class LoginControllerTest extends TestCase
         $this->setupStormpathApplication();
         $this->post('login', ['login' => 'somelogin', 'password' => 'somePassword']);
         $this->assertRedirectedTo(config('stormpath.web.login.uri'));
+        $this->assertSessionHasErrors(['errors'=>'Invalid username or password.']);
+        $this->assertHasOldInput();
         $this->followRedirects();
         $this->seePageIs('login');
         $this->see('Log In');
 
-        $this->assertSessionHasErrors(['errors'=>'Invalid username or password.']);
-        $this->assertHasOldInput();
     }
 
     /** @test */

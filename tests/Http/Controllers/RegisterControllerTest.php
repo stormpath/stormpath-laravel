@@ -23,53 +23,54 @@ use Stormpath\Stormpath;
 class RegisterControllerTest extends TestCase
 {
 
+    public function getEnvironmentSetUp($app)
+    {
+        parent::getEnvironmentSetUp($app);
+
+        config(['stormpath.web.register.enabled'=>true]);
+
+    }
+
     /** @test */
     public function it_requires_a_username_if_set_to_required()
     {
-        $this->registerWithout('username');
-        $this->assertSessionHasErrors([config('stormpath.web.register.fields.username.name')=>'Username is required.']);
+        $this->registerWithout('username', 'Username is required.');
     }
 
     /** @test */
     public function it_requires_a_given_name_if_set_to_required()
     {
-        $this->registerWithout('givenName');
-        $this->assertSessionHasErrors([config('stormpath.web.register.fields.givenName.name')=>'Given name is required.']);
+        $this->registerWithout('givenName', 'Given name is required.');
     }
 
     /** @test */
     public function it_requires_a_middle_name_if_set_to_required()
     {
-        $this->registerWithout('middleName');
-        $this->assertSessionHasErrors([config('stormpath.web.register.fields.middleName.name')=>'Middle name is required.']);
+        $this->registerWithout('middleName', 'Middle name is required.');
     }
 
     /** @test */
     public function it_requires_a_surname_if_set_to_required()
     {
-        $this->registerWithout('surname');
-        $this->assertSessionHasErrors([config('stormpath.web.register.fields.surname.name')=>'Surname is required.']);
+        $this->registerWithout('surname', 'Surname is required.');
     }
 
     /** @test */
     public function it_requires_a_email_if_set_to_required()
     {
-        $this->registerWithout('email');
-        $this->assertSessionHasErrors([config('stormpath.web.register.fields.email.name')=>'Email is required.']);
+        $this->registerWithout('email', 'Email is required.');
     }
 
     /** @test */
     public function it_requires_a_password_if_set_to_required()
     {
-        $this->registerWithout('password');
-        $this->assertSessionHasErrors([config('stormpath.web.register.fields.password.name')=>'Password is required.']);
+        $this->registerWithout('password', 'Password is required.');
     }
 
     /** @test */
     public function it_requires_a_password_confirm_if_set_to_required()
     {
-        $this->registerWithout('passwordConfirm');
-        $this->assertSessionHasErrors([config('stormpath.web.register.fields.passwordConfirm.name')=>'Password confirmation is required.']);
+        $this->registerWithout('passwordConfirm', 'Password confirmation is required.');
     }
 
     /** @test */
@@ -86,12 +87,12 @@ class RegisterControllerTest extends TestCase
             'password_confirmation' => 'superP4ss'
         ]);
         $this->assertRedirectedTo(config('stormpath.web.register.uri'));
+        $this->assertSessionHasErrors(['password'=>'Passwords are not the same.']);
+        $this->assertHasOldInput();
         $this->followRedirects();
         $this->seePageIs(config('stormpath.web.register.uri'));
         $this->see('Create Account');
 
-        $this->assertSessionHasErrors(['password'=>'Passwords are not the same.']);
-        $this->assertHasOldInput();
     }
 
     /** @test */
@@ -161,12 +162,12 @@ class RegisterControllerTest extends TestCase
         ]);
 
         $this->assertRedirectedTo(config('stormpath.web.register.uri'));
+        $this->assertSessionHasErrors(['errors'=>'Account with that email already exists.  Please choose another email.']);
+        $this->assertHasOldInput();
         $this->followRedirects();
         $this->seePageIs('register');
         $this->see('Create Account');
 
-        $this->assertContains('Account with that email already exists.  Please choose another email.',$this->app['session']->get('errors')->all());
-        $this->assertHasOldInput();
         $account->delete();
     }
 
@@ -208,7 +209,7 @@ class RegisterControllerTest extends TestCase
 
 
 
-    private function registerWithout($field)
+    private function registerWithout($field, $errorMessage = '')
     {
         $without = [];
         $fieldName = config("stormpath.web.register.fields.{$field}.name");
@@ -226,11 +227,12 @@ class RegisterControllerTest extends TestCase
         ], $without));
 
         $this->assertRedirectedTo(config('stormpath.web.register.uri'));
+        $this->assertSessionHasErrors([$fieldName=>$errorMessage]);
+        $this->assertHasOldInput();
         $this->followRedirects();
         $this->seePageIs(config('stormpath.web.register.uri'));
         $this->see('Create Account');
 
-        $this->assertHasOldInput();
 
         return $this;
     }
