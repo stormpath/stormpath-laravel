@@ -36,7 +36,11 @@ class Authenticate
         $isGuest = $this->isGuest($request);
 
         if ($isGuest) {
-            return redirect()->guest(config('stormpath.web.login.uri'));
+            return redirect()->guest(config('stormpath.web.login.uri'))
+                ->withCookies([
+                    cookie()->forget(config('stormpath.web.accessTokenCookie.name')),
+                    cookie()->forget(config('stormpath.web.refreshTokenCookie.name'))
+                ]);
         }
 
         return $next($request);

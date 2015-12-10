@@ -162,6 +162,14 @@ class AuthenticateTest extends TestCase
             ]);
 
         $this->assertRedirectedToRoute('stormpath.login');
+
+        $headers = $this->response->headers;
+        $cookies = $headers->getCookies();
+        foreach($cookies as $cookie) {
+            if($cookie->getName() == config('stormpath.web.accessTokenCookie.name') || $cookie->getName() == config('stormpath.web.refreshTokenCookie.name')) {
+                $this->assertLessThan(time(), $cookie->getExpiresTime());
+            }
+        }
     }
 
     private function cookiesToSend($result)
