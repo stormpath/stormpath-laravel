@@ -90,6 +90,43 @@ class AuthenticateTest extends TestCase
 
     }
 
+    /** @test */
+    public function it_will_refresh_token_if_old_token()
+    {
+        $this->setupStormpathApplication();
+        $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
+
+        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest('test@test.com', 'superP4ss!');
+        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
+        $result =  $auth->authenticate($passwordGrant);
+
+        $this->call('GET', 'testAuthenticateMiddleware',[],
+            [
+                config('stormpath.web.accessTokenCookie.name') =>
+                    cookie(
+                        config('stormpath.web.accessTokenCookie.name'),
+                        'eyJraWQiOiIxUE4zRlhJMFU3OUUyTUhDRjZYVVlHVTRaIiwiYWxnIjoiSFMyNTYifQ.eyJqdGkiOiJ5VnZ4ZTV4T1NqOHl6WHNWa0w4VmIiLCJpYXQiOjE0NDk3ODU5ODgsImlzcyI6Imh0dHBzOi8vYXBpLnN0b3JtcGF0aC5jb20vdjEvYXBwbGljYXRpb25zL3hSQ1FsNmRIRFl2UWtPMzZDY2EwSSIsInN1YiI6Imh0dHBzOi8vYXBpLnN0b3JtcGF0aC5jb20vdjEvYWNjb3VudHMveGloYzVpYXlwb1BvaVFsakFEU2tXIiwiZXhwIjoxNDQ5Nzg5NTg4LCJydGkiOiJ5VnZ4YWxzVHNRQU1BUzFKVVRydFgifQ.gDO2pfxTfItjW8YMM_ZKf8BvqU3kenR0g8my7mneAd8',
+                        time()-86400,
+                        config('stormpath.web.accessTokenCookie.path'),
+                        config('stormpath.web.accessTokenCookie.domain'),
+                        config('stormpath.web.accessTokenCookie.secure'),
+                        config('stormpath.web.accessTokenCookie.httpOnly')
+                    ),
+                config('stormpath.web.refreshTokenCookie.name') =>
+                    cookie(
+                        config('stormpath.web.refreshTokenCookie.name'),
+                        $result->getRefreshTokenString(),
+                        time()-86400,
+                        config('stormpath.web.refreshTokenCookie.path'),
+                        config('stormpath.web.refreshTokenCookie.domain'),
+                        config('stormpath.web.refreshTokenCookie.secure'),
+                        config('stormpath.web.refreshTokenCookie.httpOnly')
+                    )
+            ]);
+
+        $this->see('Hello!');
+    }
+
     private function cookiesToSend($result)
     {
         return [
@@ -115,6 +152,8 @@ class AuthenticateTest extends TestCase
             )
         ];
     }
+
+
 
 
 
