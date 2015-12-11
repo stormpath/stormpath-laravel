@@ -20,6 +20,14 @@
                             </p>
                         </div>
 
+                        @if (isset($errors) && count($errors) > 0)
+                            <div class="alert alert-danger bad-login">
+                                @foreach ($errors->all() as $error)
+                                    <p>{{ $error }}</p>
+                                @endforeach
+                            </div>
+                        @endif
+
                         <form class="login-form form-horizontal" method="post" role="form">
                             {{ csrf_field() }}
 
@@ -27,8 +35,12 @@
                                 <label for="" class="col-sm-4">Password</label>
 
                                 <div class="col-sm-8">
-                                    <input type="password" class="form-control" placeholder="Password"
-                                                             required="true" name="password">
+                                    <input type="password"
+                                           class="form-control"
+                                           placeholder="Password"
+                                           required="true"
+                                           name="password"
+                                    >
                                 </div>
                             </div>
 
@@ -36,9 +48,12 @@
                                 <label for="" class="col-sm-4">Password (again)</label>
 
                                 <div class="col-sm-8">
-                                    <input type="password" class="form-control"
-                                                             placeholder="Password (again)" required="true"
-                                                             name="passwordAgain">
+                                    <input type="password"
+                                           class="form-control"
+                                           placeholder="Password (again)"
+                                           required="true"
+                                           name="password_confirmation"
+                                    >
                                 </div>
                             </div>
 

@@ -8,6 +8,18 @@
     <div class="container custom-container">
         <div class="va-wrapper">
             <div class="view registration-view container">
+
+                @if(isset($status) && $status == 'invalid_sptoken')
+                    <div class="row">
+                        <div class="alert alert-warning invalid-sp-token-warning">
+                            <p>
+                                The password reset link you tried to use is no longer valid.
+                                Please request a new link from the form below.
+                            </p>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="box row">
                     <div class="email-password-area col-xs-12 large col-sm-12">
 
