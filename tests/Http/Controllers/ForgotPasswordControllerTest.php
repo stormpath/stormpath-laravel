@@ -17,7 +17,6 @@
 
 namespace Stormpath\Tests\Http\Controllers;
 
-use Mockery as m;
 use Stormpath\Laravel\Tests\TestCase;
 
 class ForgotPasswordControllerTest extends TestCase

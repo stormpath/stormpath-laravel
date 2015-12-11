@@ -23,9 +23,22 @@ use Stormpath\Resource\ResourceError;
 
 class ForgotPasswordController extends Controller
 {
+
+    /**
+     * @var Request
+     */
+    private $request;
+
+    public function __construct(Request $request)
+    {
+
+        $this->request = $request;
+    }
+
     public function getForgotPassword()
     {
-        return view( config('stormpath.web.forgotPassword.view') );
+        $status = $this->request->get('status');
+        return view( config('stormpath.web.forgotPassword.view'), compact('status') );
     }
 
     public function postForgotPassword(Request $request)
