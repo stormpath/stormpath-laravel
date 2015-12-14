@@ -1,19 +1,55 @@
 language: php
-
 php:
 - 7.0
 - 5.6
 - 5.5
-
 sudo: false
-
+install:
+- pip install --user sphinx
 before_script:
 - composer self-update
 - travis_retry composer install --prefer-dist --no-interaction
 - composer global require phpunit/phpunit
-
 script:
-  - travis_retry phpunit --coverage-clover build/logs/clover.xml
-
+- travis_retry phpunit --coverage-clover build/logs/clover.xml
+- cd docs
+- make html
+- cd ..
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+- bash <(curl -s https://codecov.io/bash)
+- CURRENT_HASH=`git rev-parse HEAD`
+- RELEASE_VERSION=`git tag | xargs -I@ git log --format=format:"%ai @%n" -1 @ | sort
+  | awk '{print $4}' | tail -n 1`
+- RELEASE_HASH=`git rev-list $RELEASE_VERSION -n 1`
+- if [ "$CURRENT_HASH" = "$RELEASE_HASH" ]; then DEPLOY_DOCS=true; fi
+- test -z "$DEPLOY_DOCS" || git config --global user.email "evangelists@stormpath.com"
+- test -z "$DEPLOY_DOCS" || git config --global user.name "stormpath-laravel Auto
+  Doc Build"
+- test -z "$DEPLOY_DOCS" || git clone git@github.com:stormpath/stormpath.github.io.git
+- test -z "$DEPLOY_DOCS" || cd stormpath.github.io
+- test -z "$DEPLOY_DOCS" || git fetch origin source:source
+- test -z "$DEPLOY_DOCS" || git checkout source
+- test -z "$DEPLOY_DOCS" || mkdir -p source/php/laravel
+- test -z "$DEPLOY_DOCS" || rm -rf source/php/laravel/latest
+- test -z "$DEPLOY_DOCS" || cp -r ../docs/_build/html source/php/laravel/latest
+- test -z "$DEPLOY_DOCS" || cp -r ../docs/_build/html source/php/laravel/$RELEASE_VERSION
+- test -z "$DEPLOY_DOCS" || git add --all
+- test -z "$DEPLOY_DOCS" || git commit -m "stormpath-laravel release $RELEASE_VERSION"
+- test -z "$DEPLOY_DOCS" || ls -la source/php/laravel
+- test -z "$DEPLOY_DOCS" || git push origin source
+- test -z "$DEPLOY_DOCS" || gem install bundler
+- test -z "$DEPLOY_DOCS" || bundle install
+- test -z "$DEPLOY_DOCS" || rake setup_github_pages[git@github.com:stormpath/stormpath.github.io.git]
+- test -z "$DEPLOY_DOCS" || cd _deploy
+- test -z "$DEPLOY_DOCS" || git pull --no-edit -s recursive -X theirs https://github.com/stormpath/stormpath.github.io.git
+- test -z "$DEPLOY_DOCS" || cd ..
+- test -z "$DEPLOY_DOCS" || rake generate
+- test -z "$DEPLOY_DOCS" || cd _deploy
+- test -z "$DEPLOY_DOCS" || git pull --no-edit -s recursive -X theirs https://github.com/stormpath/stormpath.github.io.git
+- test -z "$DEPLOY_DOCS" || cd ..
+- test -z "$DEPLOY_DOCS" || rake deploy
+- test -z "$DEPLOY_DOCS" || cd ..
+before_install:
+- openssl aes-256-cbc -K $encrypted_6460fd32304f_key -iv $encrypted_6460fd32304f_iv
+  -in deploy-key.enc -out ~/.ssh/id_rsa -d
+- chmod 600 ~/.ssh/id_rsa

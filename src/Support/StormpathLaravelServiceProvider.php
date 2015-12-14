@@ -24,7 +24,7 @@ use Stormpath\Stormpath;
 class StormpathLaravelServiceProvider extends ServiceProvider
 {
     const INTEGRATION_NAME = 'stormpath-laravel';
-    const INTEGRATION_VERSION = '0.1.0-alpha1';
+    const INTEGRATION_VERSION = '0.1.0-alpha2';
 
 
     /**
@@ -69,8 +69,8 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
     private function registerClient()
     {
-        $id = config( 'stormpath.apiKey.id' );
-        $secret = config( 'stormpath.apiKey.secret' );
+        $id = config( 'stormpath.client.apiKey.id' );
+        $secret = config( 'stormpath.client.apiKey.secret' );
 
         Client::$apiKeyProperties = "apiKey.id={$id}\napiKey.secret={$secret}";
         Client::$integration = self::INTEGRATION_NAME."/".self::INTEGRATION_VERSION;
@@ -95,12 +95,18 @@ class StormpathLaravelServiceProvider extends ServiceProvider
     private function registerApplication()
     {
         $this->app->bind('stormpath.application', function() {
-            if(config('stormpath.application')) {
-                $application = \Stormpath\Resource\Application::get(config( 'stormpath.application' ));
-                $this->enhanceConfig($application);
-                return $application;
+            if(config('stormpath.application.href') == null) {
+                throw new \InvalidArgumentException('Application href MUST be set.');
             }
-            return null;
+
+            if(!$this->isValidApplicationHref()) {
+                throw new \InvalidArgumentException(config('stormpath.application.href') . ' is not a valid Stormpath Application HREF.');
+            }
+
+            $application = \Stormpath\Resource\Application::get(config( 'stormpath.application.href' ));
+            $this->enhanceConfig($application);
+            return $application;
+
         });
     }
 
@@ -120,6 +126,11 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
 
         config(['stormpath.web.verifyEmail.enabled'=>$value]);
+    }
+
+    private function isValidApplicationHref()
+    {
+        return !! strpos(config( 'stormpath.application.href' ), '/applications/');
     }
 
 

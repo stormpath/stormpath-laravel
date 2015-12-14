@@ -19,6 +19,8 @@ namespace Stormpath\Laravel\Http\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Cookie\CookieJar;
+use Illuminate\Support\Facades\Cookie;
 
 class Authenticate
 {
@@ -31,22 +33,26 @@ class Authenticate
      */
     public function handle($request, Closure $next)
     {
-        $isGuest = $this->isGuest();
+        $isGuest = $this->isGuest($request);
 
         if ($isGuest) {
-            return redirect()->guest(config('stormpath.web.login.uri'));
+            return redirect()->guest(config('stormpath.web.login.uri'))
+                ->withCookies([
+                    cookie()->forget(config('stormpath.web.accessTokenCookie.name')),
+                    cookie()->forget(config('stormpath.web.refreshTokenCookie.name'))
+                ]);
         }
 
         return $next($request);
     }
 
-    private function isGuest()
+    private function isGuest($request)
     {
-        if(!session()->has(config('stormpath.web.accessTokenCookie.name'))) {
+        if(!$request->hasCookie(config('stormpath.web.accessTokenCookie.name'))) {
             return true;
         }
 
-        if(!$this->isValidToken()) {
+        if(!$this->isValidToken($request)) {
             return true;
         }
 
@@ -54,18 +60,58 @@ class Authenticate
 
     }
 
-    private function isValidToken()
+    private function isValidToken($request)
     {
-        $token = session(config('stormpath.web.accessTokenCookie.name'));
+        $token = $request->cookie(config('stormpath.web.accessTokenCookie.name'));
+
+        if(!is_string($token)) {
+            $token = $token->getValue();
+        }
 
         try {
             $result = (new \Stormpath\Oauth\VerifyAccessToken(app('stormpath.application')))->verify($token);
 
             return true;
         } catch (\Stormpath\Resource\ResourceError $re) {
-            // TODO: Try to refresh the access token with the refreshTokenCookie
-            return false;
+            return $this->refreshToken($request);
         }
 
+    }
+
+
+    private function refreshToken($request)
+    {
+
+        $token = $request->cookie(config('stormpath.web.refreshTokenCookie.name'));
+
+        if(!is_string($token)) {
+            $token = $token->getValue();
+        }
+
+        $cookie = app(CookieJar::class);
+
+        try {
+            $refreshGrant = new \Stormpath\Oauth\RefreshGrantRequest($token);
+
+            $auth = new \Stormpath\Oauth\RefreshGrantAuthenticator(app('stormpath.application'));
+            $result = $auth->authenticate($refreshGrant);
+
+
+            $cookie->queue(
+                config('stormpath.web.accessTokenCookie.name'),
+                $result->getAccessTokenString(),
+                $result->getExpiresIn()
+            );
+            $cookie->queue(
+                config('stormpath.web.refreshTokenCookie.name'),
+                $result->getRefreshTokenString(),
+                $result->getExpiresIn()
+            );
+
+            return true;
+
+        } catch (\Stormpath\Resource\ResourceError $re) {
+            return false;
+        }
     }
 }

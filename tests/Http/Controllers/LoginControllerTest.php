@@ -17,7 +17,6 @@
 
 namespace Stormpath\Tests\Http\Controllers;
 
-use Mockery as m;
 use Stormpath\Laravel\Tests\TestCase;
 
 class LoginControllerTest extends TestCase
@@ -27,12 +26,12 @@ class LoginControllerTest extends TestCase
     {
         $this->post('login', ['password'=>'superPassword']);
         $this->assertRedirectedTo(config('stormpath.web.login.uri'));
+        $this->assertSessionHasErrors(['login'=>'Login is required.']);
+        $this->assertHasOldInput();
         $this->followRedirects();
         $this->seePageIs('login');
         $this->see('Log In');
 
-        $this->assertSessionHasErrors(['login'=>'Login is required.']);
-        $this->assertHasOldInput();
     }
 
     /** @test */
@@ -40,12 +39,12 @@ class LoginControllerTest extends TestCase
     {
         $this->post('login', ['login' => 'someLogin']);
         $this->assertRedirectedTo(config('stormpath.web.login.uri'));
+        $this->assertSessionHasErrors(['password' => 'Password is required.']);
+        $this->assertHasOldInput();
         $this->followRedirects();
         $this->seePageIs('login');
         $this->see('Log In');
 
-        $this->assertSessionHasErrors(['password' => 'Password is required.']);
-        $this->assertHasOldInput();
 
     }
 
@@ -55,8 +54,9 @@ class LoginControllerTest extends TestCase
         $this->setupStormpathApplication();
         $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
         $this->post('login', ['login' => 'test@test.com', 'password' => 'superP4ss!']);
-        $this->assertSessionHas(config('stormpath.web.accessTokenCookie.name'));
-        $this->assertSessionHas(config('stormpath.web.refreshTokenCookie.name'));
+
+        $this->seeCookie(config('stormpath.web.accessTokenCookie.name'));
+        $this->seeCookie(config('stormpath.web.refreshTokenCookie.name'));
         $account->delete();
     }
 
@@ -66,12 +66,12 @@ class LoginControllerTest extends TestCase
         $this->setupStormpathApplication();
         $this->post('login', ['login' => 'somelogin', 'password' => 'somePassword']);
         $this->assertRedirectedTo(config('stormpath.web.login.uri'));
+        $this->assertSessionHasErrors(['errors'=>'Invalid username or password.']);
+        $this->assertHasOldInput();
         $this->followRedirects();
         $this->seePageIs('login');
         $this->see('Log In');
 
-        $this->assertSessionHasErrors(['errors'=>'Invalid username or password.']);
-        $this->assertHasOldInput();
     }
 
     /** @test */
@@ -88,17 +88,23 @@ class LoginControllerTest extends TestCase
     /** @test */
     public function it_can_logout_of_the_system()
     {
-        session([config('stormpath.web.accessTokenCookie.name') => '123']);
-        session([config('stormpath.web.refreshTokenCookie.name') => '123']);
+        $this->setupStormpathApplication();
+        $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
+        $this->visit('login')
+            ->fillForm('Log In',['login' => 'test@test.com', 'password' => 'superP4ss!']);
 
-        $this->assertSessionHas(config('stormpath.web.accessTokenCookie.name'));
-        $this->assertSessionHas(config('stormpath.web.refreshTokenCookie.name'));
 
-        $this->get(config('stormpath.web.logout.uri'));
+        $this->call('GET', config('stormpath.web.logout.uri'));
 
-        $this->assertNull(session(config('stormpath.web.accessTokenCookie.name')));
-        $this->assertNull(session(config('stormpath.web.refreshTokenCookie.name')));
-        
+        $headers = $this->response->headers;
+        $cookies = $headers->getCookies();
+        foreach($cookies as $cookie) {
+            if($cookie->getName() == config('stormpath.web.accessTokenCookie.name') || $cookie->getName() == config('stormpath.web.refreshTokenCookie.name')) {
+                $this->assertLessThan(time(), $cookie->getExpiresTime());
+            }
+        }
+
         $this->assertRedirectedTo(config('stormpath.web.logout.nextUri'));
+        $account->delete();
     }
 }

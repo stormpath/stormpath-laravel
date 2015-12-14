@@ -32,7 +32,7 @@ class RedirectIfAuthenticated
      */
     public function handle($request, Closure $next)
     {
-        if ($this->isAuthenticated()) {
+        if ($this->isAuthenticated($request)) {
             return redirect('/');
         }
 
@@ -40,9 +40,9 @@ class RedirectIfAuthenticated
     }
 
 
-    public function isAuthenticated()
+    public function isAuthenticated($request)
     {
-        if(!session()->has(config('stormpath.web.accessTokenCookie.name'))) {
+        if(!$request->cookie(config('stormpath.web.accessTokenCookie.name'))) {
             return false;
         }
 

@@ -1,5 +1,5 @@
 <phpunit colors="true"
-         verbose="true"
+         verbose="false"
          syntaxCheck="true"
          stopOnError="false"
          backupGlobals="false"
@@ -14,11 +14,15 @@
     <testsuites>
         <testsuite name="unit">
             <directory suffix="Test.php">./tests</directory>
+            <exclude>./src/views</exclude>
         </testsuite>
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">./src</directory>
+            <exclude>
+                <directory>./src/views</directory>
+            </exclude>
         </whitelist>
     </filter>
 </phpunit>

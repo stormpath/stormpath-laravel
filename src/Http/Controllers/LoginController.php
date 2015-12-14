@@ -73,10 +73,35 @@ class LoginController extends Controller
         }
 
         try {
-            $this->authenticate($this->request->get('login'), $this->request->get('password'));
+            $result = $this->authenticate($this->request->get('login'), $this->request->get('password'));
 
             return redirect()
-                ->intended(config('stormpath.web.login.nextUri'));
+                ->intended(config('stormpath.web.login.nextUri'))
+                ->withCookies(
+                    [
+                        config('stormpath.web.accessTokenCookie.name') =>
+                            cookie(
+                                config('stormpath.web.accessTokenCookie.name'),
+                                $result->getAccessTokenString(),
+                                $result->getExpiresIn(),
+                                config('stormpath.web.accessTokenCookie.path'),
+                                config('stormpath.web.accessTokenCookie.domain'),
+                                config('stormpath.web.accessTokenCookie.secure'),
+                                config('stormpath.web.accessTokenCookie.httpOnly')
+                            ),
+                        config('stormpath.web.refreshTokenCookie.name') =>
+                            cookie(
+                                config('stormpath.web.refreshTokenCookie.name'),
+                                $result->getRefreshTokenString(),
+                                $result->getExpiresIn(),
+                                config('stormpath.web.refreshTokenCookie.path'),
+                                config('stormpath.web.refreshTokenCookie.domain'),
+                                config('stormpath.web.refreshTokenCookie.secure'),
+                                config('stormpath.web.refreshTokenCookie.httpOnly')
+                            )
+                    ]
+                );
+
         } catch (\Stormpath\Resource\ResourceError $re) {
             return redirect()
                 ->to(config('stormpath.web.login.uri'))
@@ -87,10 +112,12 @@ class LoginController extends Controller
 
     public function getLogout()
     {
-        session()->forget(config('stormpath.web.accessTokenCookie.name'));
-        session()->forget(config('stormpath.web.refreshTokenCookie.name'));
-
-        return Redirect()->to(config('stormpath.web.logout.nextUri'));
+        return redirect()
+            ->to(config('stormpath.web.logout.nextUri'))
+            ->withCookies([
+                cookie()->forget(config('stormpath.web.accessTokenCookie.name')),
+                cookie()->forget(config('stormpath.web.refreshTokenCookie.name'))
+            ]);
     }
 
     private function loginValidator()

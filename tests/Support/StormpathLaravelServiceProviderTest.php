@@ -53,13 +53,25 @@ class StormpathLaravelServiceProviderTest extends TestCase
         $this->assertInstanceOf('\Stormpath\Resource\Application', $application);
     }
 
-    /** @test */
-    public function it_returns_null_from_stormpath_application_if_application_does_not_exist()
+    /**
+     * @test
+     * @expectedException InvalidArgumentException
+     */
+    public function it_throws_exception_from_stormpath_application_if_application_is_not_set()
     {
-        $application = app('stormpath.application');
+        app('stormpath.application');
 
-        $this->assertNull($application);
         $this->assertArrayNotHasKey('enabled', config('stormpath.web.verifyEmail'));
+    }
+
+    /**
+     * @test
+     * @expectedException InvalidArgumentException
+     */
+    public function it_throws_exception_if_stormpath_applicaiton_is_not_full_url()
+    {
+        config(['stormpath.application.href'=>'123456789']);
+        app('stormpath.application');
     }
 
     /** @test */

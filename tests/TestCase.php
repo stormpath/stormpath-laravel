@@ -19,18 +19,26 @@ namespace Stormpath\Laravel\Tests;
 
 use Mockery as m;
 
-class TestCase extends \Orchestra\Testbench\TestCase
+abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
 
     protected $application;
+
+    public function getEnvironmentSetUp($app)
+    {
+        parent::getEnvironmentSetUp($app);
+
+        $app->make('Illuminate\Contracts\Http\Kernel')->pushMiddleware('Illuminate\Session\Middleware\StartSession');
+
+    }
+
 
     public function setupStormpathApplication()
     {
         $this->application = \Stormpath\Resource\Application::instantiate(array('name' => 'Test Application  - ' . microtime(), 'description' => 'Description of Main App', 'status' => 'enabled'));
         self::createResource(\Stormpath\Resource\Application::PATH, $this->application, array('createDirectory' => true));
-        $href = $this->application->href;
-        $href = explode('/',$href);
-        config(['stormpath.application'=>end($href)]);
+
+        config(['stormpath.application.href'=>$this->application->href]);
     }
 
     public function createAccount($overrides = [])
@@ -84,5 +92,28 @@ class TestCase extends \Orchestra\Testbench\TestCase
         }
 
         parent::tearDown();
+    }
+
+    /**
+     * Asserts that the response does not contain the given cookie.
+     *
+     * @param  string $cookieName
+     * @return $this
+     */
+    protected function seeNotCookie($cookieName)
+    {
+        $headers = $this->response->headers;
+        $exist = false;
+
+        foreach ($headers->getCookies() as $cookie) {
+            if ($cookie->getName() === $cookieName) {
+                $exist = true;
+                break;
+            }
+        }
+
+        $this->assertFalse($exist, "Cookie [{$cookieName}] present on response.");
+
+        return $this;
     }
 }
