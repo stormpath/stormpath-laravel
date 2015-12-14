@@ -3,8 +3,18 @@ Change Log
 
 All library changes, in descending order.
 
+Version 0.1.0.alpha2
+--------------------
+
+**Released on December 14, 2015.**
+
+- Changes environment variables.
+- Application now has to be the full url, not just ID.
+- Old input values are added if form redirects back because of errors.
+- Adding auto-deployment for docs!
+
 Version 0.1.0.alpha1
--------------
+--------------------
 
 **Released on December 4, 2015.**
 
