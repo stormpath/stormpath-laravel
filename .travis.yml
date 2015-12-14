@@ -5,23 +5,23 @@ php:
 - 5.5
 sudo: false
 install:
-- pip install --user sphinx
+- test -z "$BUILD_DOCS" || pip install --user sphinx
 before_script:
 - composer self-update
 - travis_retry composer install --prefer-dist --no-interaction
 - composer global require phpunit/phpunit
 script:
 - travis_retry phpunit --coverage-clover build/logs/clover.xml
-- cd docs
-- make html
-- cd ..
+- test -z "$BUILD_DOCS" || cd docs
+- test -z "$BUILD_DOCS" || make html
+- test -z "$BUILD_DOCS" || cd ..
 after_success:
 - bash <(curl -s https://codecov.io/bash)
-- CURRENT_HASH=`git rev-parse HEAD`
-- RELEASE_VERSION=`git tag | xargs -I@ git log --format=format:"%ai @%n" -1 @ | sort
+- test -z "$BUILD_DOCS" || CURRENT_HASH=`git rev-parse HEAD`
+- test -z "$BUILD_DOCS" || RELEASE_VERSION=`git tag | xargs -I@ git log --format=format:"%ai @%n" -1 @ | sort
   | awk '{print $4}' | tail -n 1`
-- RELEASE_HASH=`git rev-list $RELEASE_VERSION -n 1`
-- if [ "$CURRENT_HASH" = "$RELEASE_HASH" ]; then DEPLOY_DOCS=true; fi
+- test -z "$BUILD_DOCS" || RELEASE_HASH=`git rev-list $RELEASE_VERSION -n 1`
+- test -z "$BUILD_DOCS" || if [ "$CURRENT_HASH" = "$RELEASE_HASH" ]; then DEPLOY_DOCS=true; fi
 - test -z "$DEPLOY_DOCS" || git config --global user.email "evangelists@stormpath.com"
 - test -z "$DEPLOY_DOCS" || git config --global user.name "stormpath-laravel Auto
   Doc Build"
@@ -53,3 +53,7 @@ before_install:
 - openssl aes-256-cbc -K $encrypted_6460fd32304f_key -iv $encrypted_6460fd32304f_iv
   -in deploy-key.enc -out ~/.ssh/id_rsa -d
 - chmod 600 ~/.ssh/id_rsa
+matrix:
+  include:
+  - env: BUILD_DOCS=true
+    php: '7.0'
