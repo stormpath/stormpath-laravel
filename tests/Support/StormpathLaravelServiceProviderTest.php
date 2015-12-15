@@ -89,13 +89,20 @@ class StormpathLaravelServiceProviderTest extends TestCase
         $this->setupStormpathApplication();
         $accountStoreMappings = $this->application->accountStoreMappings;
 
-        if ($accountStoreMappings) {
-            foreach ($accountStoreMappings as $asm) {
-                $directory = $asm->accountStore;
-                $acp = $directory->accountCreationPolicy;
-                $acp->verificationEmailStatus = Stormpath::ENABLED;
-                $acp->save();
+        try {
+            if ($accountStoreMappings) {
+                foreach ($accountStoreMappings as $asm) {
+                    $directory = $asm->accountStore;
+                    $acp = $directory->accountCreationPolicy;
+                    $acp->verificationEmailStatus = Stormpath::ENABLED;
+                    $acp->save();
+                }
             }
+        } catch (\Stormpath\Resource\ResourceError $re) {
+            var_dump($re->getDeveloperMessage());
+            var_dump($re->getMessage());
+            var_dump($re->getStatus());
+            throw $re;
         }
 
         $application = app('stormpath.application');

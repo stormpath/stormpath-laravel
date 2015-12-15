@@ -1,8 +1,7 @@
 {
-    "name": "stormpath/laravel-auth",
+    "name": "stormpath/laravel",
     "description": "Build simple, secure web applications with Stormpath and Laravel!",
-    "version": "0.1.0.alpha2",
-    "license": "apache-2.0",
+    "license": "Apache-2.0",
     "type": "laravel-package",
     "keywords": [
         "users",
@@ -50,5 +49,8 @@
         "irc": "irc://irc.freenode.org/stormpath",
         "issues": "https://github.com/stormpath/stormpath-laravel/issues",
         "docs": "http://docs.stormpath.com/php/laravel/latest/"
+    },
+    "replace": {
+        "stormpath/laravel-auth": "self.version"
     }
 }
