@@ -5,9 +5,6 @@
 [![Latest Unstable Version](https://poser.pugx.org/stormpath/laravel/v/unstable.svg)](https://packagist.org/packages/stormpath/laravel)
 [![License](https://poser.pugx.org/stormpath/laravel/license.svg)](https://packagist.org/packages/stormpath/laravel)
 
-# THIS PACKAGE IS UNDER INITIAL DEVELOPMENT
-Please do not use this in production and know that things may be changed or removed without notice.
-
 ## Support
 If you are having issues with this package, please feel free to submit an issue on this github repository.  If it is
 an issue you are having that needs a little more private attention, please feel free to contact us at
@@ -35,4 +32,4 @@ Copyright &copy; 2013-2015 Stormpath, Inc. and contributors.
 This project is open-source via the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0).
 
 
-[documentation]: https://github.com/stormpath/stormpath-laravel/wiki
+[documentation]: https://docs.stormpath.com/php/laravel/latest/
