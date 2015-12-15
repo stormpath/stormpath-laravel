@@ -129,7 +129,7 @@ class RegisterController extends Controller
         $rules = [];
         $messages = [];
 
-        $registerField = config('stormpath.web.register.fields');
+        $registerField = config('stormpath.web.register.form.fields');
 
         foreach($registerField as $field) {
             if($field['required'] == true) {
@@ -137,16 +137,16 @@ class RegisterController extends Controller
             }
         }
 
-        $messages[config('stormpath.web.register.fields.username.name').'.required'] = 'Username is required.';
-        $messages[config('stormpath.web.register.fields.givenName.name').'.required'] = 'Given name is required.';
-        $messages[config('stormpath.web.register.fields.middleName.name').'.required'] = 'Middle name is required.';
-        $messages[config('stormpath.web.register.fields.surname.name').'.required'] = 'Surname is required.';
-        $messages[config('stormpath.web.register.fields.email.name').'.required'] = 'Email is required.';
-        $messages[config('stormpath.web.register.fields.password.name').'.required'] = 'Password is required.';
-        $messages[config('stormpath.web.register.fields.passwordConfirm.name').'.required'] = 'Password confirmation is required.';
+        $messages[config('stormpath.web.register.form.fields.username.name').'.required'] = 'Username is required.';
+        $messages[config('stormpath.web.register.form.fields.givenName.name').'.required'] = 'Given name is required.';
+        $messages[config('stormpath.web.register.form.fields.middleName.name').'.required'] = 'Middle name is required.';
+        $messages[config('stormpath.web.register.form.fields.surname.name').'.required'] = 'Surname is required.';
+        $messages[config('stormpath.web.register.form.fields.email.name').'.required'] = 'Email is required.';
+        $messages[config('stormpath.web.register.form.fields.password.name').'.required'] = 'Password is required.';
+        $messages[config('stormpath.web.register.form.fields.passwordConfirm.name').'.required'] = 'Password confirmation is required.';
 
 
-        if( config('stormpath.web.register.fields.passwordConfirm.required') ) {
+        if( config('stormpath.web.register.form.fields.passwordConfirm.required') ) {
             $rules['password'] = 'required|confirmed';
             $messages['password.confirmed'] = 'Passwords are not the same.';
         }
@@ -164,7 +164,7 @@ class RegisterController extends Controller
     private function setRegisterFields()
     {
         $registerArray = [];
-        $registerFields = config('stormpath.web.register.fields');
+        $registerFields = config('stormpath.web.register.form.fields');
         foreach($registerFields as $spfield=>$field) {
             if($field['required'] == true) {
                 $registerArray[$spfield] = $this->request->get($field['name']);

@@ -70,48 +70,57 @@ return [
             "uri" => "/register",
             "nextUri" => "/",
             "autoAuthorize" => false,
-            "fields" => [
-                "username" => [
-                    "name" => "username",
-                    "placeholder" => "Username",
-                    "required" => false,
-                    "type" => "text"
-                ],
-                "givenName" => [
-                    "name" => "givenName",
-                    "placeholder" => "First Name",
-                    "required" => true,
-                    "type" => "text"
-                ],
-                "middleName" => [
-                    "name" => "middleName",
-                    "placeholder" => "Middle Name",
-                    "required" => false,
-                    "type" => "text"
-                ],
-                "surname" => [
-                    "name" => "surname",
-                    "placeholder" => "Last Name",
-                    "required" => true,
-                    "type" => "text"
-                ],
-                "email" => [
-                    "name" => "email",
-                    "placeholder" => "Email",
-                    "required" => true,
-                    "type" => "email"
-                ],
-                "password" => [
-                    "name" => "password",
-                    "placeholder" => "Password",
-                    "required" => true,
-                    "type" => "password"
-                ],
-                "passwordConfirm" => [
-                    "name" => "password_confirmation",
-                    "placeholder" => "Confirm Password",
-                    "required" => true,
-                    "type" => "password"
+            "form" => [
+                "fields" => [
+                    "username" => [
+                        "enabled" => true,
+                        "name" => "username",
+                        "placeholder" => "Username",
+                        "required" => false,
+                        "type" => "text"
+                    ],
+                    "givenName" => [
+                        "enabled" => true,
+                        "name" => "givenName",
+                        "placeholder" => "First Name",
+                        "required" => true,
+                        "type" => "text"
+                    ],
+                    "middleName" => [
+                        "enabled" => true,
+                        "name" => "middleName",
+                        "placeholder" => "Middle Name",
+                        "required" => false,
+                        "type" => "text"
+                    ],
+                    "surname" => [
+                        "enabled" => true,
+                        "name" => "surname",
+                        "placeholder" => "Last Name",
+                        "required" => true,
+                        "type" => "text"
+                    ],
+                    "email" => [
+                        "enabled" => true,
+                        "name" => "email",
+                        "placeholder" => "Email",
+                        "required" => true,
+                        "type" => "email"
+                    ],
+                    "password" => [
+                        "enabled" => true,
+                        "name" => "password",
+                        "placeholder" => "Password",
+                        "required" => true,
+                        "type" => "password"
+                    ],
+                    "passwordConfirm" => [
+                        "enabled" => true,
+                        "name" => "password_confirmation",
+                        "placeholder" => "Confirm Password",
+                        "required" => true,
+                        "type" => "password"
+                    ]
                 ]
             ],
             "fieldOrder" => [
