@@ -3,6 +3,16 @@ Change Log
 
 All library changes, in descending order.
 
+Version 0.1.0.RC1
+--------------------
+
+**Released on December 15, 2015.**
+
+- Updated config file to follow spec
+- Documentation updated to fix syntax issues
+- Added Build Matrix and some other changes to Travis
+
+
 Version 0.1.0.alpha2
 --------------------
 

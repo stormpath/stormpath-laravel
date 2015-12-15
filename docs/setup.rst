@@ -117,7 +117,7 @@ package from `Packagist`_.
 To install Stormpath-Laravel, you'll need ``composer``.  You can install the latest
 version of Stormpath-Laravel by running::
 
-    $ composer require stormpath/laravel-auth
+    $ composer require stormpath/laravel
 
 If you'd like to upgrade to the latest version of Stormpath-Laravel (*maybe you
 have an old version installed*), you can run::
