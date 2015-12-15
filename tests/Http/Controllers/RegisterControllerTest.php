@@ -102,13 +102,13 @@ class RegisterControllerTest extends TestCase
         config(["stormpath.web.register.autoAuthorize"=>true]);
 
         $this->post('register', [
-            config('stormpath.web.register.fields.username.name') => 'testUsername',
-            config('stormpath.web.register.fields.givenName.name')=>'Test',
-            config('stormpath.web.register.fields.middleName.name') => 'Middle',
-            config('stormpath.web.register.fields.surname.name') => 'Account',
-            config('stormpath.web.register.fields.email.name') => 'test@account.com',
-            config('stormpath.web.register.fields.password.name') => 'superP4ss!',
-            config('stormpath.web.register.fields.passwordConfirm.name') => 'superP4ss!'
+            config('stormpath.web.register.form.fields.username.name') => 'testUsername',
+            config('stormpath.web.register.form.fields.givenName.name')=>'Test',
+            config('stormpath.web.register.form.fields.middleName.name') => 'Middle',
+            config('stormpath.web.register.form.fields.surname.name') => 'Account',
+            config('stormpath.web.register.form.fields.email.name') => 'test@account.com',
+            config('stormpath.web.register.form.fields.password.name') => 'superP4ss!',
+            config('stormpath.web.register.form.fields.passwordConfirm.name') => 'superP4ss!'
         ]);
 
         $this->seeCookie(config('stormpath.web.accessTokenCookie.name'));
@@ -124,13 +124,13 @@ class RegisterControllerTest extends TestCase
         config(["stormpath.web.register.autoAuthorize"=>false]);
 
         $this->post('register', [
-            config('stormpath.web.register.fields.username.name') => 'testUsername',
-            config('stormpath.web.register.fields.givenName.name')=>'Test',
-            config('stormpath.web.register.fields.middleName.name') => 'Middle',
-            config('stormpath.web.register.fields.surname.name') => 'Account',
-            config('stormpath.web.register.fields.email.name') => 'test@account.com',
-            config('stormpath.web.register.fields.password.name') => 'superP4ss!',
-            config('stormpath.web.register.fields.passwordConfirm.name') => 'superP4ss!'
+            config('stormpath.web.register.form.fields.username.name') => 'testUsername',
+            config('stormpath.web.register.form.fields.givenName.name')=>'Test',
+            config('stormpath.web.register.form.fields.middleName.name') => 'Middle',
+            config('stormpath.web.register.form.fields.surname.name') => 'Account',
+            config('stormpath.web.register.form.fields.email.name') => 'test@account.com',
+            config('stormpath.web.register.form.fields.password.name') => 'superP4ss!',
+            config('stormpath.web.register.form.fields.passwordConfirm.name') => 'superP4ss!'
         ]);
 
         $this->seeNotCookie(config('stormpath.web.accessTokenCookie.name'));
@@ -152,13 +152,13 @@ class RegisterControllerTest extends TestCase
         $account = $this->createAccount(['username'=>'testUsername', 'email' => 'test@account.com', 'password' => 'superP4ss!']);
 
         $this->post('register', [
-            config('stormpath.web.register.fields.username.name') => 'testUsername',
-            config('stormpath.web.register.fields.givenName.name')=>'Test',
-            config('stormpath.web.register.fields.middleName.name') => 'Middle',
-            config('stormpath.web.register.fields.surname.name') => 'Account',
-            config('stormpath.web.register.fields.email.name') => 'test@account.com',
-            config('stormpath.web.register.fields.password.name') => 'superP4ss!',
-            config('stormpath.web.register.fields.passwordConfirm.name') => 'superP4ss!'
+            config('stormpath.web.register.form.fields.username.name') => 'testUsername',
+            config('stormpath.web.register.form.fields.givenName.name')=>'Test',
+            config('stormpath.web.register.form.fields.middleName.name') => 'Middle',
+            config('stormpath.web.register.form.fields.surname.name') => 'Account',
+            config('stormpath.web.register.form.fields.email.name') => 'test@account.com',
+            config('stormpath.web.register.form.fields.password.name') => 'superP4ss!',
+            config('stormpath.web.register.form.fields.passwordConfirm.name') => 'superP4ss!'
         ]);
 
         $this->assertRedirectedTo(config('stormpath.web.register.uri'));
@@ -190,13 +190,13 @@ class RegisterControllerTest extends TestCase
         config(["stormpath.web.register.autoAuthorize"=>true]);
 
         $this->post('register', [
-            config('stormpath.web.register.fields.username.name') => 'testUsername',
-            config('stormpath.web.register.fields.givenName.name')=>'Test',
-            config('stormpath.web.register.fields.middleName.name') => 'Middle',
-            config('stormpath.web.register.fields.surname.name') => 'Account',
-            config('stormpath.web.register.fields.email.name') => 'test@account.com',
-            config('stormpath.web.register.fields.password.name') => 'superP4ss!',
-            config('stormpath.web.register.fields.passwordConfirm.name') => 'superP4ss!'
+            config('stormpath.web.register.form.fields.username.name') => 'testUsername',
+            config('stormpath.web.register.form.fields.givenName.name')=>'Test',
+            config('stormpath.web.register.form.fields.middleName.name') => 'Middle',
+            config('stormpath.web.register.form.fields.surname.name') => 'Account',
+            config('stormpath.web.register.form.fields.email.name') => 'test@account.com',
+            config('stormpath.web.register.form.fields.password.name') => 'superP4ss!',
+            config('stormpath.web.register.form.fields.passwordConfirm.name') => 'superP4ss!'
         ]);
 
         $this->assertRedirectedToRoute('stormpath.login',['status'=>'unverified']);
@@ -212,18 +212,19 @@ class RegisterControllerTest extends TestCase
     private function registerWithout($field, $errorMessage = '')
     {
         $without = [];
-        $fieldName = config("stormpath.web.register.fields.{$field}.name");
+        $fieldName = config("stormpath.web.register.form.fields.{$field}.name");
         $without[$fieldName] = null;
 
-        config(["stormpath.web.register.fields.{$field}.required"=>true]);
+        config(["stormpath.web.register.form.fields.{$field}.enabled"=>true]);
+        config(["stormpath.web.register.form.fields.{$field}.required"=>true]);
         $this->post('register', array_merge([
-            config('stormpath.web.register.fields.username.name') => 'testUsername',
-            config('stormpath.web.register.fields.givenName.name')=>'Test',
-            config('stormpath.web.register.fields.middleName.name') => 'Middle',
-            config('stormpath.web.register.fields.surname.name') => 'Account',
-            config('stormpath.web.register.fields.email.name') => 'test@account.com',
-            config('stormpath.web.register.fields.password.name') => 'superP4ss!',
-            config('stormpath.web.register.fields.passwordConfirm.name') => 'superP4ss!'
+            config('stormpath.web.register.form.fields.username.name') => 'testUsername',
+            config('stormpath.web.register.form.fields.givenName.name')=>'Test',
+            config('stormpath.web.register.form.fields.middleName.name') => 'Middle',
+            config('stormpath.web.register.form.fields.surname.name') => 'Account',
+            config('stormpath.web.register.form.fields.email.name') => 'test@account.com',
+            config('stormpath.web.register.form.fields.password.name') => 'superP4ss!',
+            config('stormpath.web.register.form.fields.passwordConfirm.name') => 'superP4ss!'
         ], $without));
 
         $this->assertRedirectedTo(config('stormpath.web.register.uri'));
