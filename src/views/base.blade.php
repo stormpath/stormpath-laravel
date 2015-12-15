@@ -4,6 +4,7 @@
 <!--[if IE 8]><html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!-->
 <html class="no-js" lang="en">
+<!--<![endif]-->
 <head>
     <meta charset="UTF-8">
     <title>@yield('title')</title>
@@ -13,7 +14,6 @@
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 
     <style>
-        style.
         html,
         body {
             height: 100%;
