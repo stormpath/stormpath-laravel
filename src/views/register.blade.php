@@ -25,7 +25,8 @@
                           role="form">
                         {{ csrf_field() }}
 
-                        @foreach(config('stormpath.web.register.fields') as $field)
+                        @foreach(config('stormpath.web.register.form.fields') as $field)
+                            @if($field['enabled'])
                             <div class="form-group group-{{$field['name']}}">
                                 <label class="col-sm-4">{{$field['placeholder']}}</label>
                                 <div class="col-sm-8">
@@ -37,6 +38,7 @@
                                     >
                                 </div>
                             </div>
+                            @endif
                         @endforeach
                         <button class="btn btn-register btn-sp-green" type="submit">Create Account</button>
 

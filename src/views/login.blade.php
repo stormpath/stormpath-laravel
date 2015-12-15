@@ -16,9 +16,9 @@
 
                         <div class="header">
                             @if(config('stormpath.web.register.enabled'))
-                                Log In or <a href="{{ config('stormpath.web.register.uri') }}">Create Account</a>
+                                <span>Log In or <a href="{{ config('stormpath.web.register.uri') }}">Create Account</a></span>
                             @else
-                                Log In
+                                <span>Log In </span>
                             @endif
                         </div>
 
@@ -58,7 +58,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-sm-8">
+                            <div>
                                 <button class="login btn btn-login btn-sp-green" type="submit">Log In</button>
                             </div>
 
