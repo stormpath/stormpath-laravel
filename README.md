@@ -35,4 +35,4 @@ Copyright &copy; 2013-2015 Stormpath, Inc. and contributors.
 This project is open-source via the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0).
 
 
-[documentation]: https://github.com/stormpath/stormpath-laravel/wiki
+[documentation]: https://docs.stormpath.com/php/laravel/latest/
