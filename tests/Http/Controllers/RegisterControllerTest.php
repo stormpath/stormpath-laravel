@@ -215,6 +215,7 @@ class RegisterControllerTest extends TestCase
         $fieldName = config("stormpath.web.register.form.fields.{$field}.name");
         $without[$fieldName] = null;
 
+        config(["stormpath.web.register.form.fields.{$field}.enabled"=>true]);
         config(["stormpath.web.register.form.fields.{$field}.required"=>true]);
         $this->post('register', array_merge([
             config('stormpath.web.register.form.fields.username.name') => 'testUsername',

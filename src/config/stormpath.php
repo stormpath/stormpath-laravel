@@ -73,7 +73,7 @@ return [
             "form" => [
                 "fields" => [
                     "username" => [
-                        "enabled" => true,
+                        "enabled" => false,
                         "name" => "username",
                         "placeholder" => "Username",
                         "required" => false,
@@ -87,10 +87,10 @@ return [
                         "type" => "text"
                     ],
                     "middleName" => [
-                        "enabled" => true,
+                        "enabled" => false,
                         "name" => "middleName",
                         "placeholder" => "Middle Name",
-                        "required" => false,
+                        "required" => true,
                         "type" => "text"
                     ],
                     "surname" => [

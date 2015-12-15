@@ -132,7 +132,7 @@ class RegisterController extends Controller
         $registerField = config('stormpath.web.register.form.fields');
 
         foreach($registerField as $field) {
-            if($field['required'] == true) {
+            if($field['enabled'] == true && $field['required'] == true) {
                 $rules[$field['name']] = 'required';
             }
         }
