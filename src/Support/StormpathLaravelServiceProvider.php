@@ -49,6 +49,7 @@ class StormpathLaravelServiceProvider extends ServiceProvider
     {
         $this->app['router']->middleware('stormpath.auth', \Stormpath\Laravel\Http\Middleware\Authenticate::class);
         $this->app['router']->middleware('stormpath.guest', \Stormpath\Laravel\Http\Middleware\RedirectIfAuthenticated::class);
+        $this->app['router']->middleware('stormpath.produces', \Stormpath\Laravel\Http\Middleware\Produces::class);
         $this->registerConfig();
         $this->registerClient();
         $this->registerApplication();

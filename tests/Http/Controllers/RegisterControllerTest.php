@@ -238,5 +238,103 @@ class RegisterControllerTest extends TestCase
         return $this;
     }
 
+    /** @test */
+    public function request_to_register_with_json_accept_returns_json_response()
+    {
+        $this->setupStormpathApplication();
+
+        $this->json('get', config('stormpath.web.register.uri'))
+            ->seeJson();
+
+        $this->see('csrf');
+        $this->see('email');
+        $this->see('password');
+        $this->see('accountStores');
+        $this->assertResponseOk();
+
+    }
+
+    /** @test */
+    public function posting_to_register_with_json_returns_account_object_as_json()
+    {
+        $this->setupStormpathApplication();
+
+        $this->json(
+            'post',
+            config('stormpath.web.register.uri'),
+            [
+                '_token' => csrf_token(),
+                config('stormpath.web.register.form.fields.username.name') => 'testUsername',
+                config('stormpath.web.register.form.fields.givenName.name')=>'Test',
+                config('stormpath.web.register.form.fields.middleName.name') => 'Middle',
+                config('stormpath.web.register.form.fields.surname.name') => 'Account',
+                config('stormpath.web.register.form.fields.email.name') => 'test@account.com',
+                config('stormpath.web.register.form.fields.password.name') => 'superP4ss!',
+                config('stormpath.web.register.form.fields.passwordConfirm.name') => 'superP4ss!'
+            ]
+        )
+            ->seeJson();
+
+        $this->dontSee('errors');
+        $this->see('account');
+        $this->see('test@account.com');
+        $this->assertResponseOk();
+
+
+    }
+
+
+    /** @test */
+    public function posting_to_register_with_json_with_missing_fields_returns_json_error_with_validator_errors()
+    {
+        $this->setupStormpathApplication();
+
+        $this->json(
+            'post',
+            config('stormpath.web.register.uri'),
+            [
+                '_token' => csrf_token(),
+            ]
+        )
+            ->seeJson();
+
+
+        $this->see('errors');
+        $this->see('validatonErrors');
+        $this->dontSee('account');
+
+        $this->assertResponseStatus(400);
+    }
+
+    /** @test */
+    public function posting_to_register_with_json_when_SDK_errors_returns_json_with_error()
+    {
+        $this->setupStormpathApplication();
+        $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
+
+        $this->json(
+            'post',
+            config('stormpath.web.register.uri'),
+            [
+                '_token' => csrf_token(),
+                config('stormpath.web.register.form.fields.username.name') => 'testUsername',
+                config('stormpath.web.register.form.fields.givenName.name')=>'Test',
+                config('stormpath.web.register.form.fields.middleName.name') => 'Middle',
+                config('stormpath.web.register.form.fields.surname.name') => 'Account',
+                config('stormpath.web.register.form.fields.email.name') => 'test@test.com',
+                config('stormpath.web.register.form.fields.password.name') => 'superP4ss!',
+                config('stormpath.web.register.form.fields.passwordConfirm.name') => 'superP4ss!'
+            ]
+        )
+            ->seeJson();
+
+
+        $this->see('errors');
+        $this->dontSee('test@test.com');
+
+        $this->assertResponseStatus(409);
+        $account->delete();
+    }
+
 
 }
