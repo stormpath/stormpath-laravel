@@ -107,4 +107,72 @@ class LoginControllerTest extends TestCase
         $this->assertRedirectedTo(config('stormpath.web.logout.nextUri'));
         $account->delete();
     }
+
+    /** @test */
+    public function request_to_login_with_json_accept_returns_json_response()
+    {
+        $this->setupStormpathApplication();
+
+        $this->json('get', config('stormpath.web.login.uri'))
+            ->seeJson();
+
+        $this->see('csrf');
+        $this->see('login');
+        $this->see('password');
+        $this->see('accountStores');
+        $this->assertResponseOk();
+
+    }
+
+    /** @test */
+    public function posting_to_login_wiht_json_returns_account_object_as_json()
+    {
+        $this->setupStormpathApplication();
+        $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
+
+        $this->json(
+            'post',
+            config('stormpath.web.login.uri'),
+            [
+                '_token' => csrf_field(),
+                'login' => 'test@test.com',
+                'password' => 'superP4ss!'
+            ]
+        )
+            ->seeJson();
+
+        $this->dontSee('errors');
+        $this->see('account');
+        $this->see($account->username);
+        $this->assertResponseOk();
+
+
+        $account->delete();
+    }
+
+    /** @test */
+    public function posting_to_login_with_json_with_failed_login_returns_json_error()
+    {
+        $this->setupStormpathApplication();
+        $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
+
+        $this->json(
+            'post',
+            config('stormpath.web.login.uri'),
+            [
+                '_token' => csrf_field(),
+                'login' => 'test!@test.com',
+                'password' => 'superP4ss!'
+            ]
+        )
+            ->seeJson();
+
+        $this->see('errors');
+        $this->dontSee('account');
+
+        $this->assertResponseStatus(400);
+        $account->delete();
+    }
+
+
 }

@@ -65,12 +65,17 @@ class ChangePasswordController extends Controller
 
     public function postChangePassword()
     {
-        $newPassword = $this->request->get('password');
-        $token = $this->request->get('spToken');
+        $newPassword = $this->request->input('password');
+        $token = $this->request->input('spToken');
 
         $validator = $this->loginValidator();
 
         if($validator->fails()) {
+
+            if($this->request->wantsJson()) {
+                return $this->respondWithError('Validation Failed', 400, ['validatonErrors' => $validator->errors()]);
+            }
+
             return redirect()
                 ->to(config('stormpath.web.changePassword.uri').'?spToken='.$token)
                 ->withErrors($validator);
@@ -81,10 +86,16 @@ class ChangePasswordController extends Controller
         try {
             $application->resetPassword($token, $newPassword);
 
+            if($this->request->wantsJson()) {
+                return $this->respondOk();
+            }
             return redirect()
                 ->to(config('stormpath.web.changePassword.nextUri'));
 
         } catch (\Stormpath\Resource\ResourceError $re) {
+            if($this->request->wantsJson()) {
+                return $this->respondWithError($re->getMessage(), $re->getStatus());
+            }
             return redirect()
                 ->to(config('stormpath.web.changePassword.errorUri'))
                 ->withErrors(['errors'=>[$re->getMessage()]]);
@@ -117,6 +128,25 @@ class ChangePasswordController extends Controller
 
 
         return $validator;
+    }
+
+    private function respondOk()
+    {
+        return response()->json();
+    }
+
+    private function respondWithError($message, $statusCode = 400, $extra = [])
+    {
+        $error = [
+            'errors' => [
+                'message' => $message
+            ]
+        ];
+
+        if(!empty($extra)) {
+            $error['errors'] = array_merge($error['errors'], $extra);
+        }
+        return response()->json($error, $statusCode);
     }
 
 }

@@ -65,6 +65,11 @@ return [
             "domain" => null
         ],
 
+        "produces" => [
+          "text/html",
+          "application/json"
+        ],
+
         "register" => [
             "enabled" => true,
             "uri" => "/register",

@@ -48,6 +48,10 @@ class RegisterController extends Controller
 
     public function getRegister()
     {
+        if($this->request->wantsJson()) {
+            return $this->respondWithForm();
+        }
+
         $status = $this->request->get('status');
 
         return view( config('stormpath.web.register.view'), compact('status') );
@@ -58,6 +62,11 @@ class RegisterController extends Controller
         $validator = $this->registerValidator();
 
         if($validator->fails()) {
+
+            if($this->request->wantsJson()) {
+                return $this->respondWithError('Validation Failed', 400, ['validatonErrors' => $validator->errors()]);
+            }
+
             return redirect()
                 ->to(config('stormpath.web.register.uri'))
                 ->withErrors($validator)
@@ -71,6 +80,10 @@ class RegisterController extends Controller
             $application = app('stormpath.application');
 
             $account = $application->createAccount($account);
+
+            if($this->request->wantsJson()) {
+                return $this->respondWithAccount($account);
+            }
 
             if(config('stormpath.web.verifyEmail.enabled') == true) {
                 return redirect()
@@ -116,6 +129,9 @@ class RegisterController extends Controller
 
 
         } catch(\Stormpath\Resource\ResourceError $re) {
+            if($this->request->wantsJson()) {
+                return $this->respondWithError($re->getMessage(), $re->getStatus());
+            }
             return redirect()
                 ->to(config('stormpath.web.register.uri'))
                 ->withErrors(['errors'=>[$re->getMessage()]])
@@ -167,10 +183,99 @@ class RegisterController extends Controller
         $registerFields = config('stormpath.web.register.form.fields');
         foreach($registerFields as $spfield=>$field) {
             if($field['required'] == true) {
-                $registerArray[$spfield] = $this->request->get($field['name']);
+                $registerArray[$spfield] = $this->request->input($field['name']);
             }
         }
 
         return $registerArray;
+    }
+
+    private function respondWithForm()
+    {
+        $application = app('stormpath.application');
+        $accountStoreArray = [];
+        $accountStores = $application->getAccountStoreMappings();
+        foreach($accountStores as $accountStore) {
+            $store = $accountStore->accountStore;
+            $provider = $store->provider;
+            $accountStoreArray[] = [
+                'href' => $store->href,
+                'name' => $store->name,
+                'provider' => [
+                    'href' => $provider->href,
+                    'providerId' => $provider->providerId,
+                    'clientId' => $provider->clientId
+                ]
+            ];
+        }
+
+        $fields = [];
+        $fields[] = [
+            'label' => 'csrf',
+            'name' => '_token',
+            'placeholder' => '',
+            'value' => csrf_token(),
+            'required' => true,
+            'type' => 'hidden'
+        ];
+        foreach(config('stormpath.web.register.form.fields') as $field) {
+            if($field['enabled'] == true) {
+                $fields[] = $field;
+            }
+        }
+
+        $data = [
+            'form' => [
+                'fields' => $fields
+            ],
+            'accountStores' => [
+                $accountStoreArray
+            ]
+        ];
+
+        return response()->json($data);
+    }
+
+    private function respondWithError($message, $statusCode = 400, $extra = [])
+    {
+        $error = [
+            'errors' => [
+                'message' => $message
+            ]
+        ];
+
+        if(!empty($extra)) {
+            $error['errors'] = array_merge($error['errors'], $extra);
+        }
+        return response()->json($error, $statusCode);
+    }
+
+
+    private function respondWithAccount($account)
+    {
+        $properties = [];
+        $blacklistProperties = [
+            'providerData',
+            'httpStatus',
+            'createdAt',
+            'modifiedAt'
+        ];
+
+        $propNames = $account->getPropertyNames();
+        foreach($propNames as $prop) {
+            if(in_array($prop, $blacklistProperties)) continue;
+            $properties[$prop] = $this->getPropertyValue($account, $prop);
+        }
+
+        return response()->json($properties);
+    }
+
+    private function getPropertyValue($account, $propName)
+    {
+        if(is_object($account->{$propName})) {
+            return ['href'=>$account->{$propName}->href];
+        }
+
+        return $account->{$propName};
     }
 }

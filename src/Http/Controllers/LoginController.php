@@ -49,12 +49,17 @@ class LoginController extends Controller
      */
     public function __construct(Request $request, Validator $validator)
     {
+        $this->middleware('stormpath.produces');
         $this->request = $request;
         $this->validator = $validator;
     }
 
     public function getLogin()
     {
+        if($this->request->wantsJson()) {
+            return $this->respondWithForm();
+        }
+
         $status = $this->request->get('status');
 
         return view( config('stormpath.web.login.view'), compact('status') );
@@ -62,7 +67,6 @@ class LoginController extends Controller
 
     public function postLogin()
     {
-
         $validator = $this->loginValidator();
 
         if($validator->fails()) {
@@ -73,7 +77,12 @@ class LoginController extends Controller
         }
 
         try {
-            $result = $this->authenticate($this->request->get('login'), $this->request->get('password'));
+            $result = $this->authenticate($this->request->input('login'), $this->request->input('password'));
+
+            if($this->request->wantsJson()) {
+                $account = $result->getAccessToken()->getAccount();
+                return $this->respondWithAccount($account);
+            }
 
             return redirect()
                 ->intended(config('stormpath.web.login.nextUri'))
@@ -103,6 +112,11 @@ class LoginController extends Controller
                 );
 
         } catch (\Stormpath\Resource\ResourceError $re) {
+
+            if($this->request->wantsJson()) {
+                return $this->respondWithError($re->getMessage(), $re->getStatus());
+            }
+
             return redirect()
                 ->to(config('stormpath.web.login.uri'))
                 ->withErrors(['errors'=>[$re->getMessage()]])
@@ -136,5 +150,99 @@ class LoginController extends Controller
 
 
         return $validator;
+    }
+
+    private function respondWithForm()
+    {
+        $application = app('stormpath.application');
+        $accountStoreArray = [];
+        $accountStores = $application->getAccountStoreMappings();
+        foreach($accountStores as $accountStore) {
+            $store = $accountStore->accountStore;
+            $provider = $store->provider;
+            $accountStoreArray[] = [
+                'href' => $store->href,
+                'name' => $store->name,
+                'provider' => [
+                    'href' => $provider->href,
+                    'providerId' => $provider->providerId,
+                    'clientId' => $provider->clientId
+                ]
+            ];
+        }
+
+        $data = [
+            'form' => [
+                'fields' => [
+                    [
+                        'label' => 'Username or Email',
+                        'name' => 'login',
+                        'placeholder' => 'Username or Email',
+                        'required' => true,
+                        'type' => 'text'
+                    ],
+                    [
+                        'label' => 'Password',
+                        'name' => 'password',
+                        'placeholder' => 'Password',
+                        'required' => true,
+                        'type' => 'password'
+                    ],
+                    [
+                        'label' => 'csrf',
+                        'name' => '_token',
+                        'placeholder' => '',
+                        'value' => csrf_token(),
+                        'required' => true,
+                        'type' => 'hidden'
+                    ]
+                ]
+            ],
+            'accountStores' => [
+                $accountStoreArray
+            ],
+
+        ];
+
+        return response()->json($data);
+
+    }
+
+    private function respondWithError($message, $statusCode = 400)
+    {
+        $error = [
+            'errors' => [
+                'message' => $message
+            ]
+        ];
+        return response()->json($error, $statusCode);
+    }
+
+    private function respondWithAccount($account)
+    {
+        $properties = [];
+        $blacklistProperties = [
+            'providerData',
+            'httpStatus',
+            'createdAt',
+            'modifiedAt'
+        ];
+
+        $propNames = $account->getPropertyNames();
+        foreach($propNames as $prop) {
+            if(in_array($prop, $blacklistProperties)) continue;
+            $properties[$prop] = $this->getPropertyValue($account, $prop);
+        }
+
+        return response()->json($properties);
+    }
+
+    private function getPropertyValue($account, $propName)
+    {
+        if(is_object($account->{$propName})) {
+            return ['href'=>$account->{$propName}->href];
+        }
+
+        return $account->{$propName};
     }
 }
