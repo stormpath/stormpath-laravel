@@ -4,7 +4,7 @@ namespace Stormpath\Laravel\Tests\Http\Controllers;
 
 use Stormpath\Laravel\Tests\TestCase;
 
-class ResetPasswordControllerTest extends TestCase
+class ChangePasswordControllerTest extends TestCase
 {
     public function getEnvironmentSetUp($app)
     {
@@ -96,6 +96,57 @@ class ResetPasswordControllerTest extends TestCase
             ]);
 
         $this->assertSessionHasErrors(['errors'=>'This password reset request does not exist. Please request a new password reset.']);
+    }
+
+    /** @test */
+    public function posting_to_change_password_endpoint_with_auto_login_false_will_return_200_and_empty_body()
+    {
+        $this->setupStormpathApplication();
+        $account = $this->createAccount();
+        $token = $this->createValidToken($account);
+
+        $this->json('post', route('stormpath.changePassword').'?spToken='.$token, [
+            'password'=>'s0methingEls3!',
+            'password_confirmation'=>'s0methingEls3!'
+        ]);
+
+        $this->assertResponseOk();
+
+
+    }
+
+    /** @test */
+    public function causing_validation_error_during_json_reset_triggers_a_400_error_with_validation_messages()
+    {
+        $this->setupStormpathApplication();
+        $account = $this->createAccount();
+        $token = $this->createValidToken($account);
+
+        $this->json('post', route('stormpath.changePassword').'?spToken='.$token, [
+            'password'=>'s0methingEls3!!!!!',
+            'password_confirmation'=>'s0methingEls3!'
+        ]);
+
+        $this->see('errors');
+        $this->see('validatonErrors');
+        $this->assertResponseStatus(400);
+
+    }
+
+    /** @test */
+    public function an_error_from_the_sdk_during_json_will_return_json_response_with_status_code()
+    {
+        $this->setupStormpathApplication();
+        $account = $this->createAccount();
+        $token = $this->createValidToken($account);
+
+        $this->json('post', route('stormpath.changePassword').'?spToken='.$token, [
+            'password'=>'s0',
+            'password_confirmation'=>'s0'
+        ]);
+
+        $this->see('errors');
+        $this->assertResponseStatus(400);
     }
 
     /**

@@ -24,7 +24,7 @@ use Stormpath\Stormpath;
 class StormpathLaravelServiceProvider extends ServiceProvider
 {
     const INTEGRATION_NAME = 'stormpath-laravel';
-    const INTEGRATION_VERSION = '0.1.0-RC1';
+    const INTEGRATION_VERSION = '0.1.0-RC2';
 
 
     /**
@@ -49,6 +49,7 @@ class StormpathLaravelServiceProvider extends ServiceProvider
     {
         $this->app['router']->middleware('stormpath.auth', \Stormpath\Laravel\Http\Middleware\Authenticate::class);
         $this->app['router']->middleware('stormpath.guest', \Stormpath\Laravel\Http\Middleware\RedirectIfAuthenticated::class);
+        $this->app['router']->middleware('stormpath.produces', \Stormpath\Laravel\Http\Middleware\Produces::class);
         $this->registerConfig();
         $this->registerClient();
         $this->registerApplication();

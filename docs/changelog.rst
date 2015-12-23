@@ -5,6 +5,14 @@ Change Log
 
 All library changes, in descending order. something
 
+Version 0.1.0.RC2
+--------------------
+
+**Released on December 23, 2015.**
+
+- Added JSON Responses to Login, Register, Change Password Routes.
+- Add ability to specify what Accept methods you want to allow via config
+
 Version 0.1.0.RC1
 --------------------
 
