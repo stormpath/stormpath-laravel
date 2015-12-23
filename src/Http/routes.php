@@ -32,8 +32,8 @@
  |--------------------------------------------------------------------------
  */
 if (config('stormpath.web.login.enabled')) {
-    $this->app->router->get( config('stormpath.web.login.uri'), ['middleware'=>'stormpath.guest', 'as' => 'stormpath.login', 'uses' => 'Stormpath\Laravel\Http\Controllers\LoginController@getLogin'] );
-    $this->app->router->post( config('stormpath.web.login.uri'), ['middleware'=>'stormpath.guest', 'as' => 'stormpath.login', 'uses' => 'Stormpath\Laravel\Http\Controllers\LoginController@postLogin'] );
+    $this->app->router->get(config('stormpath.web.login.uri'), ['middleware' => 'stormpath.guest', 'as' => 'stormpath.login', 'uses' => 'Stormpath\Laravel\Http\Controllers\LoginController@getLogin']);
+    $this->app->router->post(config('stormpath.web.login.uri'), ['middleware' => 'stormpath.guest', 'as' => 'stormpath.login', 'uses' => 'Stormpath\Laravel\Http\Controllers\LoginController@postLogin']);
 }
 
 /*
@@ -42,8 +42,8 @@ if (config('stormpath.web.login.enabled')) {
  |--------------------------------------------------------------------------
  */
 if (config('stormpath.web.logout.enabled')) {
-    $this->app->router->get( config('stormpath.web.logout.uri'), ['as' => 'stormpath.logout', 'uses' => 'Stormpath\Laravel\Http\Controllers\LoginController@getLogout'] );
-    }
+    $this->app->router->get(config('stormpath.web.logout.uri'), ['as' => 'stormpath.logout', 'uses' => 'Stormpath\Laravel\Http\Controllers\LoginController@getLogout']);
+}
 
 /*
  |--------------------------------------------------------------------------
@@ -51,8 +51,8 @@ if (config('stormpath.web.logout.enabled')) {
  |--------------------------------------------------------------------------
  */
 if (config('stormpath.web.register.enabled')) {
-    $this->app->router->get( config('stormpath.web.register.uri'), ['middleware'=>'stormpath.guest', 'as' => 'stormpath.register', 'uses' => 'Stormpath\Laravel\Http\Controllers\RegisterController@getRegister'] );
-    $this->app->router->post( config('stormpath.web.register.uri'), ['middleware'=>'stormpath.guest', 'as' => 'stormpath.register', 'uses' => 'Stormpath\Laravel\Http\Controllers\RegisterController@postRegister'] );
+    $this->app->router->get(config('stormpath.web.register.uri'), ['middleware' => 'stormpath.guest', 'as' => 'stormpath.register', 'uses' => 'Stormpath\Laravel\Http\Controllers\RegisterController@getRegister']);
+    $this->app->router->post(config('stormpath.web.register.uri'), ['middleware' => 'stormpath.guest', 'as' => 'stormpath.register', 'uses' => 'Stormpath\Laravel\Http\Controllers\RegisterController@postRegister']);
 }
 
 /*
@@ -61,8 +61,8 @@ if (config('stormpath.web.register.enabled')) {
  |--------------------------------------------------------------------------
  */
 if (config('stormpath.web.forgotPassword.enabled')) {
-    $this->app->router->get( config('stormpath.web.forgotPassword.uri'), ['middleware'=>'stormpath.guest', 'as' => 'stormpath.forgotPassword', 'uses' => 'Stormpath\Laravel\Http\Controllers\ForgotPasswordController@getForgotPassword'] );
-    $this->app->router->post( config('stormpath.web.forgotPassword.uri'), ['middleware'=>'stormpath.guest', 'as' => 'stormpath.forgotPassword', 'uses' => 'Stormpath\Laravel\Http\Controllers\ForgotPasswordController@postForgotPassword'] );
+    $this->app->router->get(config('stormpath.web.forgotPassword.uri'), ['middleware' => 'stormpath.guest', 'as' => 'stormpath.forgotPassword', 'uses' => 'Stormpath\Laravel\Http\Controllers\ForgotPasswordController@getForgotPassword']);
+    $this->app->router->post(config('stormpath.web.forgotPassword.uri'), ['middleware' => 'stormpath.guest', 'as' => 'stormpath.forgotPassword', 'uses' => 'Stormpath\Laravel\Http\Controllers\ForgotPasswordController@postForgotPassword']);
 }
 
 /*
@@ -71,6 +71,16 @@ if (config('stormpath.web.forgotPassword.enabled')) {
  |--------------------------------------------------------------------------
  */
 if (config('stormpath.web.changePassword.enabled')) {
-    $this->app->router->get( config('stormpath.web.changePassword.uri'), ['middleware'=>'stormpath.guest', 'as' => 'stormpath.changePassword', 'uses' => 'Stormpath\Laravel\Http\Controllers\ChangePasswordController@getChangePassword'] );
-    $this->app->router->post( config('stormpath.web.changePassword.uri'), ['middleware'=>'stormpath.guest', 'as' => 'stormpath.changePassword', 'uses' => 'Stormpath\Laravel\Http\Controllers\ChangePasswordController@postChangePassword'] );
+    $this->app->router->get(config('stormpath.web.changePassword.uri'), ['middleware' => 'stormpath.guest', 'as' => 'stormpath.changePassword', 'uses' => 'Stormpath\Laravel\Http\Controllers\ChangePasswordController@getChangePassword']);
+    $this->app->router->post(config('stormpath.web.changePassword.uri'), ['middleware' => 'stormpath.guest', 'as' => 'stormpath.changePassword', 'uses' => 'Stormpath\Laravel\Http\Controllers\ChangePasswordController@postChangePassword']);
 }
+
+/*
+ |--------------------------------------------------------------------------
+ | ID Site Response Route
+ |--------------------------------------------------------------------------
+ */
+if (config('stormpath.web.idSite.enabled')) {
+    $this->app->router->get(config('stormpath.web.idSite.uri'), ['as' => 'stormpath.idSiteResponse', 'uses' => 'Stormpath\Laravel\Http\Controllers\IdSiteController@response']);
+}
+
