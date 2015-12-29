@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-
+Route::group(['middleware' => ['web']], function ($router) {
 /*
  |--------------------------------------------------------------------------
  | Stormpath Laravel Routes
@@ -74,3 +74,4 @@ if (config('stormpath.web.changePassword.enabled')) {
     $this->app->router->get( config('stormpath.web.changePassword.uri'), ['middleware'=>'stormpath.guest', 'as' => 'stormpath.changePassword', 'uses' => 'Stormpath\Laravel\Http\Controllers\ChangePasswordController@getChangePassword'] );
     $this->app->router->post( config('stormpath.web.changePassword.uri'), ['middleware'=>'stormpath.guest', 'as' => 'stormpath.changePassword', 'uses' => 'Stormpath\Laravel\Http\Controllers\ChangePasswordController@postChangePassword'] );
 }
+});
