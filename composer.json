@@ -22,15 +22,15 @@
     "require": {
         "php": ">=5.5",
         "stormpath/sdk": "~1.12",
-        "illuminate/http": "~5.1",
-        "illuminate/routing": "~5.1",
-        "illuminate/validation": "~5.1",
-        "illuminate/support": "~5.1"
+        "illuminate/http": "~5.1|~5.2",
+        "illuminate/routing": "~5.1|~5.2",
+        "illuminate/validation": "~5.1|~5.2",
+        "illuminate/support": "~5.1|~5.2"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0",
         "mockery/mockery": "~0.9",
-        "orchestra/testbench": "~3.1"
+        "orchestra/testbench": "~3.2"
     },
     "autoload": {
         "psr-4": {
