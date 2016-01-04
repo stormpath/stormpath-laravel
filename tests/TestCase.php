@@ -27,9 +27,6 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     public function getEnvironmentSetUp($app)
     {
         parent::getEnvironmentSetUp($app);
-
-        $app->make('Illuminate\Contracts\Http\Kernel')->pushMiddleware('Illuminate\Session\Middleware\StartSession');
-
     }
 
 
