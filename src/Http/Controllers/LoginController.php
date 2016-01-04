@@ -56,6 +56,10 @@ class LoginController extends Controller
 
     public function getLogin()
     {
+        if( config('stormpath.web.idSite.enabled') ) {
+            return redirect(app('stormpath.application')->createIdSiteUrl(['callbackUri'=>route('stormpath.idSiteResponse')]));
+        }
+
         if($this->request->wantsJson()) {
             return $this->respondWithForm();
         }
@@ -126,6 +130,10 @@ class LoginController extends Controller
 
     public function getLogout()
     {
+        if( config('stormpath.web.idSite.enabled') ) {
+            return redirect(app('stormpath.application')->createIdSiteUrl(['logout'=>true, 'callbackUri'=>route('stormpath.idSiteResponse')]));
+        }
+
         return redirect()
             ->to(config('stormpath.web.logout.nextUri'))
             ->withCookies([

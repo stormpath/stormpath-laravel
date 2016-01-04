@@ -37,6 +37,9 @@ class ForgotPasswordController extends Controller
 
     public function getForgotPassword()
     {
+        if( config('stormpath.web.idSite.enabled') ) {
+            return redirect(app('stormpath.application')->createIdSiteUrl(['path'=>config('stormpath.web.idSite.forgotUri'), 'callbackUri'=>route('stormpath.idSiteResponse')]));
+        }
         $status = $this->request->get('status');
         return view( config('stormpath.web.forgotPassword.view'), compact('status') );
     }

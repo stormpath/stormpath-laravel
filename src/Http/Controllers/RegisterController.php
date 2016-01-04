@@ -48,6 +48,10 @@ class RegisterController extends Controller
 
     public function getRegister()
     {
+        if( config('stormpath.web.idSite.enabled') ) {
+            return redirect(app('stormpath.application')->createIdSiteUrl(['path'=>config('stormpath.web.idSite.registerUri'), 'callbackUri'=>route('stormpath.idSiteResponse')]));
+        }
+
         if($this->request->wantsJson()) {
             return $this->respondWithForm();
         }
