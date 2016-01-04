@@ -31,7 +31,7 @@ $version = $laravel::VERSION;
 
 $middleware = [];
 if(version_compare($version, "5.2.0" , ">=")) {
-//    $middleware = ['middleware' => ['web']];
+    $middleware = ['middleware' => ['web']];
 }
 
 $this->app->router->group($middleware, function() {
