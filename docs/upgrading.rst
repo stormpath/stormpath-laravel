@@ -6,6 +6,10 @@ Upgrade Guide
 This page contains specific upgrading instructions to help you migrate between
 Stormpath-Laravel releases.
 
+Version 0.1.0.RC2 -> Version 0.1.0.RC3
+--------------------------------------
+No Changes Needed
+
 Version 0.1.0.RC1 -> Version 0.1.0.RC2
 --------------------------------------
 Republish vendor config file.
