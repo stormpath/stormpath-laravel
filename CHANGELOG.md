@@ -3,8 +3,17 @@ Change Log
 
 All library changes, in descending order.
 
+Version 0.1.0.RC3
+-----------------
+
+**Released on January 4, 2016.**
+
+- Added check in routes for Laravel 5.2 (Fixes #16)
+- Added options includes in composer for Laravel 5.2 (Fixes #17)
+- Added ID Site Support (Fixes #7)
+
 Version 0.1.0.RC2
---------------------
+-----------------
 
 **Released on December 23, 2015.**
 
@@ -13,7 +22,7 @@ Version 0.1.0.RC2
 
 
 Version 0.1.0.RC1
---------------------
+-----------------
 
 **Released on December 15, 2015.**
 
