@@ -25,4 +25,7 @@
             </exclude>
         </whitelist>
     </filter>
+    <listeners>
+        <listener class="TestListener" file="tests/Listeners/TestListener.php"/>
+    </listeners>
 </phpunit>
