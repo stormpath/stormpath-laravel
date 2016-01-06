@@ -5,6 +5,16 @@ Change Log
 
 All library changes, in descending order. something
 
+Version 0.1.0
+-------------
+
+**Released on January 6, 2016.**
+
+- Initial Stable Release
+- Ability to get currently logged in user from app
+- Update Documentation
+
+
 Version 0.1.0.RC3
 -----------------
 
