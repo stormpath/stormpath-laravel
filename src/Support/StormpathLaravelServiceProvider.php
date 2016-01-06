@@ -53,6 +53,7 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerClient();
         $this->registerApplication();
+        $this->registerUser();
     }
 
     public function provides()
@@ -107,6 +108,25 @@ class StormpathLaravelServiceProvider extends ServiceProvider
             $application = \Stormpath\Resource\Application::get(config( 'stormpath.application.href' ));
             $this->enhanceConfig($application);
             return $application;
+
+        });
+    }
+
+    private function registerUser()
+    {
+        $this->app->bind('stormpath.user', function($app) {
+            $cookie = $app->request->cookie(config('stormpath.web.accessTokenCookie.name'));
+
+            if(null === $cookie) {
+                return null;
+            }
+
+            try {
+                $result = (new \Stormpath\Oauth\VerifyAccessToken(app('stormpath.application')))->verify($cookie->getValue());
+                return $result->getAccount();
+            } catch (\Exception $e) {}
+
+            return null;
 
         });
     }
