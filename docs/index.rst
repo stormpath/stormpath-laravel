@@ -13,6 +13,11 @@ user, start here!
    introduction
    setup
    quickstart
+   user_data
+   registration
+   login
+   logout
+   password_reset
    help
    contributors
 

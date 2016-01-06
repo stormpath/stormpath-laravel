@@ -110,6 +110,58 @@ class StormpathLaravelServiceProviderTest extends TestCase
         $this->assertTrue(config('stormpath.web.verifyEmail.enabled'));
     }
 
+    /** @test */
+    public function a_user_can_be_reterived_from_provider()
+    {
+        $this->setupStormpathApplication();
+        $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
+
+        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest('test@test.com', 'superP4ss!');
+        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
+        $result =  $auth->authenticate($passwordGrant);
+
+        $this->call('GET', 'login',[], $this->cookiesToSend($result));
+
+        $user = app('stormpath.user');
+
+        $this->assertNotNull($user);
+        $this->assertEquals('test@test.com', $user->email);
+    }
+
+    /** @test */
+    public function attempt_to_get_user_with_bad_access_token_returns_null()
+    {
+        $this->setupStormpathApplication();
+        $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
+
+        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest('test@test.com', 'superP4ss!');
+        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
+        $result =  $auth->authenticate($passwordGrant);
+
+        $this->call('GET', 'login',[], $this->badCookiesToSend());
+
+        $user = app('stormpath.user');
+
+        $this->assertNull($user);
+    }
+
+    /** @test */
+    public function attempt_to_get_user_with_no_access_token_returns_null()
+    {
+        $this->setupStormpathApplication();
+        $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
+
+        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest('test@test.com', 'superP4ss!');
+        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
+        $result =  $auth->authenticate($passwordGrant);
+
+        $this->call('GET', 'login');
+
+        $user = app('stormpath.user');
+
+        $this->assertNull($user);
+    }
+
 
 
     /**
@@ -125,4 +177,57 @@ class StormpathLaravelServiceProviderTest extends TestCase
         $provider->boot();
         return $provider;
     }
+
+    private function cookiesToSend($result)
+    {
+        return [
+            config('stormpath.web.accessTokenCookie.name') =>
+                cookie(
+                    config('stormpath.web.accessTokenCookie.name'),
+                    $result->getAccessTokenString(),
+                    $result->getExpiresIn(),
+                    config('stormpath.web.accessTokenCookie.path'),
+                    config('stormpath.web.accessTokenCookie.domain'),
+                    config('stormpath.web.accessTokenCookie.secure'),
+                    config('stormpath.web.accessTokenCookie.httpOnly')
+                ),
+            config('stormpath.web.refreshTokenCookie.name') =>
+                cookie(
+                    config('stormpath.web.refreshTokenCookie.name'),
+                    $result->getRefreshTokenString(),
+                    $result->getExpiresIn(),
+                    config('stormpath.web.refreshTokenCookie.path'),
+                    config('stormpath.web.refreshTokenCookie.domain'),
+                    config('stormpath.web.refreshTokenCookie.secure'),
+                    config('stormpath.web.refreshTokenCookie.httpOnly')
+                )
+        ];
+    }
+
+    private function badCookiesToSend()
+    {
+        return [
+            config('stormpath.web.accessTokenCookie.name') =>
+                cookie(
+                    config('stormpath.web.accessTokenCookie.name'),
+                    '123',
+                    '3600',
+                    config('stormpath.web.accessTokenCookie.path'),
+                    config('stormpath.web.accessTokenCookie.domain'),
+                    config('stormpath.web.accessTokenCookie.secure'),
+                    config('stormpath.web.accessTokenCookie.httpOnly')
+                ),
+            config('stormpath.web.refreshTokenCookie.name') =>
+                cookie(
+                    config('stormpath.web.refreshTokenCookie.name'),
+                    'abc',
+                    '3600',
+                    config('stormpath.web.refreshTokenCookie.path'),
+                    config('stormpath.web.refreshTokenCookie.domain'),
+                    config('stormpath.web.refreshTokenCookie.secure'),
+                    config('stormpath.web.refreshTokenCookie.httpOnly')
+                )
+        ];
+    }
+
 }
