@@ -1,4 +1,3 @@
-[![Production Ready](https://img.shields.io/badge/Production%20Ready-YES-green.svg)](https://github.com/stormpath/stormpath-laravel/)
 [![Build Status](https://api.travis-ci.org/stormpath/stormpath-laravel.svg?branch=master,develop)](https://travis-ci.org/stormpath/stormpath-laravel)
 [![Codecov](https://img.shields.io/codecov/c/github/stormpath/stormpath-laravel.svg)](https://codecov.io/github/stormpath/stormpath-laravel)
 [![Latest Stable Version](https://poser.pugx.org/stormpath/laravel/v/stable.svg)](https://packagist.org/packages/stormpath/laravel)
