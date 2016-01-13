@@ -21,6 +21,8 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Validation\Factory as Validator;
 use Stormpath\Laravel\Http\Traits\AuthenticatesUser;
+use Event;
+use Stormpath\Laravel\Events\UserIsRegistering;
 
 class RegisterController extends Controller
 {
@@ -78,6 +80,11 @@ class RegisterController extends Controller
         }
         try {
             $registerFields = $this->setRegisterFields();
+
+            // the form has passed validation. It's time to fire the
+            // `UserIsRegistering` event
+            //
+            Event::fire(new UserIsRegistering($registerFields));
 
             $account = \Stormpath\Resource\Account::instantiate($registerFields);
 
