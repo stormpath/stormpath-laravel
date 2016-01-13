@@ -90,8 +90,26 @@ class LoginControllerEventTest extends TestCase
                 $this->assertLessThan(time(), $cookie->getExpiresTime());
             }
         }
+    /**
+     * @test
+     * @expectedException \Stormpath\Laravel\Exceptions\ActionAbortedException
+    */
+    public function it_aborts_the_logout_if_the_UserIsLoggingOut_event_listener_returns_false()
+    {
+        \Event::listen(\Stormpath\Laravel\Events\UserIsLoggingOut::class, function ($event) {
+            return false;
+        });
 
-        $this->assertRedirectedTo(config('stormpath.web.logout.nextUri'));
+        $this->setupStormpathApplication();
+        $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
+        $this->post('login', ['login' => 'test@test.com', 'password' => 'superP4ss!']);
+
+        $this->call('GET', config('stormpath.web.logout.uri'));
+
+        // assert that the cookies still exist (ie. the user has not been logged
+        // out)
+        $this->seeCookie(config('stormpath.web.accessTokenCookie.name'));
+        $this->seeCookie(config('stormpath.web.refreshTokenCookie.name'));
         $account->delete();
     }
 
