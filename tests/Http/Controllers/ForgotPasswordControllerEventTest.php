@@ -28,11 +28,6 @@ class ForgotPasswordControllerEventTest extends TestCase
         config(['stormpath.web.forgotPassword.enabled'=>true]);
     }
 
-/*
-it will trigger the UserHasRequestedPasswordReset event when the password request is submitted
-*/
-
-
     /** @test */
     public function it_will_trigger_the_UserHasRequestedPasswordReset_event_when_the_password_request_is_submitted()
     {
@@ -46,7 +41,6 @@ it will trigger the UserHasRequestedPasswordReset event when the password reques
         $this->followRedirects();
         $this->seePageIs(config('stormpath.web.forgotPassword.nextUri'));
         $this->see('Password Reset Requested');
-
     }
 
     /**
