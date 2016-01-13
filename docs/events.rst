@@ -18,19 +18,19 @@ Stormpath operations:
 | Event                    | Class                             | Description                                          |
 +==========================+===================================+======================================================+
 | *registering*            | ``UserIsRegistering``             | A potential new user has completed the registration  |
-|                          |                                   | form and submitted it. The form data has passed      |
+| (cancellable)            |                                   | form and submitted it. The form data has passed      |
 |                          |                                   | validation.                                          |
 +--------------------------+-----------------------------------+------------------------------------------------------+
 | *registered*             | ``UserHasRegistered``             | A new user has registered.                           |
 +--------------------------+-----------------------------------+------------------------------------------------------+
 | *loggingIn*              | ``UserIsLoggingIn``               | A user has completed the login form and submitted it.|
-|                          |                                   | The form data has passed the initial validation, but |
+| (cancellable)            |                                   | The form data has passed the initial validation, but |
 |                          |                                   | the user has not been authenticated yet.             |
 +--------------------------+-----------------------------------+------------------------------------------------------+
 | *loggedIn*               | ``UserHasLoggedIn``               | A user has successfully logged in.                   |
 +--------------------------+-----------------------------------+------------------------------------------------------+
 | *loggingOut*             | ``UserIsLoggingOut``              | A user has visited the ``logout`` URL but has not    |
-|                          |                                   | been logged out yet.                                 |
+| (cancellable)            |                                   | been logged out yet.                                 |
 +--------------------------+-----------------------------------+------------------------------------------------------+
 | *loggedOut*              | ``UserHasLoggedOut``              | A user has successfully logged out.                  |
 +--------------------------+-----------------------------------+------------------------------------------------------+
@@ -68,7 +68,8 @@ Terminating Event Actions
 
 There may be times when it is necessary to halt processing based on some
 processing you are doing in your listener. To do this, simply return ``false``
-from the ``handle`` method of your listener.
+from the ``handle`` method of your listener. Note that this will only have an
+effect for the events that are marked as "cancellable" in the table above.
 
 For example, maybe you want to prevent a user from registering if their first
 name is "Bob". Your handler should look like this::
