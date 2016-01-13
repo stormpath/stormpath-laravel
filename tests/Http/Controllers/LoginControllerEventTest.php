@@ -88,6 +88,12 @@ class LoginControllerEventTest extends TestCase
                 $this->assertLessThan(time(), $cookie->getExpiresTime());
             }
         }
+
+        $this->assertRedirectedTo(config('stormpath.web.logout.nextUri'));
+        $account->delete();
+    }
+
+
     /**
      * @test
      * @expectedException \Stormpath\Laravel\Exceptions\ActionAbortedException
