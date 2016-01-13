@@ -22,6 +22,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Validation\Factory as Validator;
 use Stormpath\Laravel\Http\Traits\AuthenticatesUser;
 use Event;
+use Stormpath\Laravel\Exceptions\ActionAbortedException;
 use Stormpath\Laravel\Events\UserIsRegistering;
 use Stormpath\Laravel\Events\UserHasRegistered;
 
@@ -85,7 +86,10 @@ class RegisterController extends Controller
             // the form has passed validation. It's time to fire the
             // `UserIsRegistering` event
             //
-            Event::fire(new UserIsRegistering($registerFields));
+            $result = Event::fire(new UserIsRegistering($registerFields), [], true);
+            if ($result===false) {
+                throw new ActionAbortedException;
+            }
 
             $account = \Stormpath\Resource\Account::instantiate($registerFields);
 
