@@ -118,8 +118,7 @@ important data is retrieved via an accessor function.
 +-----------------------------------+----------------+------------------------------------------------------+
 | ``UserHasLoggedOut``              | n/a            | No parameters                                        |
 +-----------------------------------+----------------+------------------------------------------------------+
-| ``UserHasRequestedPasswordReset`` | ``getAccount`` | ``Stormpath\Resource\Account`` - The account object  |
-|                                   |                | for the user who has requested the password reset    |
+| ``UserHasRequestedPasswordReset`` | ``getData``    | ``array`` - The form data entered by the user        |
 +-----------------------------------+----------------+------------------------------------------------------+
 | ``UserHasResetPassword``          | ``getAccount`` | ``Stormpath\Resource\Account`` - The account object  |
 |                                   |                | for the user who has reset their password            |
