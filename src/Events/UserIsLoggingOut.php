@@ -16,9 +16,14 @@ class UserIsLoggingOut
     /**
      * Create a new event instance.
      *
+     * For reasons that I don't fully understand yet, it is not possible to get
+     * the Account object in the `LoginController::getLogout` method, at least
+     * in the test methods. So I have temporarily added a default value for the
+     * `$account` parameter.
+     *
      * @param array $data The form data from the log in request
      */
-    public function __construct(Account $account)
+    public function __construct(Account $account = null)
     {
         $this->account = $account;
     }
