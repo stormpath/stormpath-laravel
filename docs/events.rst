@@ -120,8 +120,7 @@ important data is retrieved via an accessor function.
 +-----------------------------------+----------------+------------------------------------------------------+
 | ``UserHasRequestedPasswordReset`` | ``getData``    | ``array`` - The form data entered by the user        |
 +-----------------------------------+----------------+------------------------------------------------------+
-| ``UserHasResetPassword``          | ``getAccount`` | ``Stormpath\Resource\Account`` - The account object  |
-|                                   |                | for the user who has reset their password            |
+| ``UserHasResetPassword``          | n/a            | No parameters                                        |
 +-----------------------------------+----------------+------------------------------------------------------+
 
 So, for example, if you want to do something with a user who has just logged
