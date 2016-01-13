@@ -22,7 +22,6 @@ use Stormpath\Stormpath;
 
 class RegisterControllerTest extends TestCase
 {
-
     public function getEnvironmentSetUp($app)
     {
         parent::getEnvironmentSetUp($app);
@@ -31,11 +30,6 @@ class RegisterControllerTest extends TestCase
 
     }
 
-
-/*
-it fires the userIsRegistering event before a successful registration
-it fires the userHasRegistered event after successful registration
-*/
     /** @test */
     public function it_fires_the_UserIsRegistering_event_before_a_successful_registration()
     {
