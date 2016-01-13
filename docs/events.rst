@@ -98,7 +98,7 @@ says "No Bobs Allowed!"
 Event Class Parameters
 ----------------------
 
-Each of the event classes includes data related to the event occurring. The
+Most of the event classes include data related to the event occurring. The
 important data is retrieved via an accessor function.
 
 +-----------------------------------+----------------+------------------------------------------------------+
@@ -114,11 +114,9 @@ important data is retrieved via an accessor function.
 | ``UserHasLoggedIn``               | ``getAccount`` | ``Stormpath\Resource\Account`` - The account object  |
 |                                   |                | for the user who has just logged in                  |
 +-----------------------------------+----------------+------------------------------------------------------+
-| ``UserIsLoggingOut``              | ``getAccount`` | ``Stormpath\Resource\Account`` - The account object  |
-|                                   |                | for the user who is requesting to log out            |
+| ``UserIsLoggingOut``              | n/a            | No parameters                                        |
 +-----------------------------------+----------------+------------------------------------------------------+
-| ``UserHasLoggedOut``              | ``getAccount`` | ``Stormpath\Resource\Account`` - The account object  |
-|                                   |                | for the user who just logged out                     |
+| ``UserHasLoggedOut``              | n/a            | No parameters                                        |
 +-----------------------------------+----------------+------------------------------------------------------+
 | ``UserHasRequestedPasswordReset`` | ``getAccount`` | ``Stormpath\Resource\Account`` - The account object  |
 |                                   |                | for the user who has requested the password reset    |
