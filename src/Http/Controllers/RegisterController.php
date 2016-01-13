@@ -86,8 +86,7 @@ class RegisterController extends Controller
             // the form has passed validation. It's time to fire the
             // `UserIsRegistering` event
             //
-            $result = Event::fire(new UserIsRegistering($registerFields), [], true);
-            if ($result===false) {
+            if (false===Event::fire(new UserIsRegistering($registerFields), [], true)) {
                 throw new ActionAbortedException;
             }
 
