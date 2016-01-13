@@ -26,6 +26,9 @@ use Illuminate\Validation\Factory as Validator;
 use Stormpath\Laravel\Http\Traits\AuthenticatesUser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Event;
+use Stormpath\Laravel\Exceptions\ActionAbortedException;
+use Stormpath\Laravel\Events\UserIsLoggingIn;
 
 class LoginController extends Controller
 {
@@ -81,6 +84,11 @@ class LoginController extends Controller
         }
 
         try {
+            // the login request data has passed validation. Time to fire the
+            // UserIsLoggingIn event
+            //
+            Event::fire(new UserIsLoggingIn(['login'=> $this->request->input('login'), 'password'=> $this->request->input('password')]));
+
             $result = $this->authenticate($this->request->input('login'), $this->request->input('password'));
 
             if($this->request->wantsJson()) {
