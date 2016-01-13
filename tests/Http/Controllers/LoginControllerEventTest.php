@@ -69,4 +69,31 @@ class LoginControllerEventTest extends TestCase
         $account->delete();
     }
 
+
+    /** @test */
+    public function it_fires_the_UserIsLoggingOut_event_before_logging_out_the_user()
+    {
+        $this->expectsEvents(\Stormpath\Laravel\Events\UserIsLoggingOut::class);
+
+        $this->setupStormpathApplication();
+        $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
+        $this->visit('login')
+            ->fillForm('Log In',['login' => 'test@test.com', 'password' => 'superP4ss!']);
+
+
+        $this->call('GET', config('stormpath.web.logout.uri'));
+
+        $headers = $this->response->headers;
+        $cookies = $headers->getCookies();
+        foreach($cookies as $cookie) {
+            if($cookie->getName() == config('stormpath.web.accessTokenCookie.name') || $cookie->getName() == config('stormpath.web.refreshTokenCookie.name')) {
+                $this->assertLessThan(time(), $cookie->getExpiresTime());
+            }
+        }
+
+        $this->assertRedirectedTo(config('stormpath.web.logout.nextUri'));
+        $account->delete();
+    }
+
+
 }
