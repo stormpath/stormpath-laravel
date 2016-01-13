@@ -60,6 +60,33 @@ it fires the userHasRegistered event after successful registration
         $this->assertRedirectedTo(config('stormpath.web.register.nextUri'));
     }
 
+    /**
+     * @test
+     * @expectedException \Stormpath\Laravel\Exceptions\ActionAbortedException
+    */
+    public function it_aborts_registration_when_the_listener_returns_false_on_userIsRegistering_event()
+    {
+        \Event::listen(\Stormpath\Laravel\Events\UserIsRegistering::class, function ($event) {
+            return false;
+        });
+
+        $this->setupStormpathApplication();
+        config(["stormpath.web.register.autoAuthorize"=>true]);
+
+        $this->post('register', [
+            config('stormpath.web.register.form.fields.username.name') => 'testUsername',
+            config('stormpath.web.register.form.fields.givenName.name')=>'Test',
+            config('stormpath.web.register.form.fields.middleName.name') => 'Middle',
+            config('stormpath.web.register.form.fields.surname.name') => 'Account',
+            config('stormpath.web.register.form.fields.email.name') => 'test@account.com',
+            config('stormpath.web.register.form.fields.password.name') => 'superP4ss!',
+            config('stormpath.web.register.form.fields.passwordConfirm.name') => 'superP4ss!'
+        ]);
+
+        $this->seeNotCookie(config('stormpath.web.accessTokenCookie.name'));
+        $this->seeNotCookie(config('stormpath.web.refreshTokenCookie.name'));
+    }
+
     /** @test */
     public function it_fires_the_userHasRegistered_event_after_successful_registration()
     {
