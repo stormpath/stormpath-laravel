@@ -29,6 +29,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Event;
 use Stormpath\Laravel\Exceptions\ActionAbortedException;
 use Stormpath\Laravel\Events\UserIsLoggingIn;
+use Stormpath\Laravel\Events\UserHasLoggedIn;
 
 class LoginController extends Controller
 {
@@ -93,8 +94,11 @@ class LoginController extends Controller
 
             $result = $this->authenticate($this->request->input('login'), $this->request->input('password'));
 
+            $account = $result->getAccessToken()->getAccount();
+
+            Event::fire(new UserHasLoggedIn($account));
+
             if($this->request->wantsJson()) {
-                $account = $result->getAccessToken()->getAccount();
                 return $this->respondWithAccount($account);
             }
 
