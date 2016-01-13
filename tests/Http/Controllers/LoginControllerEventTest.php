@@ -42,4 +42,23 @@ it fires the UserHasLoggedIn event on successful login
         $account->delete();
     }
 
+    /**
+     * @test
+     * @expectedException \Stormpath\Laravel\Exceptions\ActionAbortedException
+    */
+    public function it_aborts_the_login_if_the_UserIsLoggingIn_event_listener_returns_false()
+    {
+        \Event::listen(\Stormpath\Laravel\Events\UserIsLoggingIn::class, function ($event) {
+            return false;
+        });
+
+        $this->setupStormpathApplication();
+        $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
+        $this->post('login', ['login' => 'test@test.com', 'password' => 'superP4ss!']);
+
+        $this->seeCookie(config('stormpath.web.accessTokenCookie.name'));
+        $this->seeCookie(config('stormpath.web.refreshTokenCookie.name'));
+        $account->delete();
+    }
+
 }
