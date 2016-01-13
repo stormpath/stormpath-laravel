@@ -21,12 +21,6 @@ use Stormpath\Laravel\Tests\TestCase;
 
 class LoginControllerEventTest extends TestCase
 {
-/*
-it fires the UserIsLoggingIn event before authentication
-it aborts the login if the UserIsLoggingIn event listener returns false
-it fires the UserHasLoggedIn event on successful login
-*/
-
 
     /** @test */
     public function it_fires_the_UserIsLoggingIn_event_before_authentication()
