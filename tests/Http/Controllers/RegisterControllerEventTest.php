@@ -58,7 +58,7 @@ class RegisterControllerEventTest extends TestCase
      * @test
      * @expectedException \Stormpath\Laravel\Exceptions\ActionAbortedException
     */
-    public function it_aborts_registration_when_the_listener_returns_false_on_userIsRegistering_event()
+    public function it_aborts_registration_when_the_listener_returns_false_on_UserIsRegistering_event()
     {
         \Event::listen(\Stormpath\Laravel\Events\UserIsRegistering::class, function ($event) {
             return false;
@@ -82,7 +82,7 @@ class RegisterControllerEventTest extends TestCase
     }
 
     /** @test */
-    public function it_fires_the_userHasRegistered_event_after_successful_registration()
+    public function it_fires_the_UserHasRegistered_event_after_successful_registration()
     {
         $this->expectsEvents(\Stormpath\Laravel\Events\UserHasRegistered::class);
 
