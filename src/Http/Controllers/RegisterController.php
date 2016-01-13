@@ -23,6 +23,7 @@ use Illuminate\Validation\Factory as Validator;
 use Stormpath\Laravel\Http\Traits\AuthenticatesUser;
 use Event;
 use Stormpath\Laravel\Events\UserIsRegistering;
+use Stormpath\Laravel\Events\UserHasRegistered;
 
 class RegisterController extends Controller
 {
@@ -91,6 +92,11 @@ class RegisterController extends Controller
             $application = app('stormpath.application');
 
             $account = $application->createAccount($account);
+
+            // the account has been created. Time to fire the
+            // `UserHasRegistered` event.
+            //
+            Event::fire(new UserHasRegistered($account));
 
             if($this->request->wantsJson()) {
                 return $this->respondWithAccount($account);
