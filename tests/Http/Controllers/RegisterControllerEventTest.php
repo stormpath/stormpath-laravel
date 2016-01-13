@@ -37,7 +37,7 @@ it fires the userIsRegistering event before a successful registration
 it fires the userHasRegistered event after successful registration
 */
     /** @test */
-    public function it_fires_the_userIsRegistering_event_before_a_successful_registration()
+    public function it_fires_the_UserIsRegistering_event_before_a_successful_registration()
     {
         $this->expectsEvents(\Stormpath\Laravel\Events\UserIsRegistering::class);
 
