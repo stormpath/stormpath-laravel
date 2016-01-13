@@ -14,31 +14,31 @@ Available Events
 The following events (and their corresponding classes) are triggered during
 Stormpath operations:
 
-+--------------------------+-----------------------------------+------------------------------------------------------+
-| Event                    | Class                             | Description                                          |
-+==========================+===================================+======================================================+
-| *registering*            | ``UserIsRegistering``             | A potential new user has completed the registration  |
-| (cancellable)            |                                   | form and submitted it. The form data has passed      |
-|                          |                                   | validation.                                          |
-+--------------------------+-----------------------------------+------------------------------------------------------+
-| *registered*             | ``UserHasRegistered``             | A new user has registered.                           |
-+--------------------------+-----------------------------------+------------------------------------------------------+
-| *loggingIn*              | ``UserIsLoggingIn``               | A user has completed the login form and submitted it.|
-| (cancellable)            |                                   | The form data has passed the initial validation, but |
-|                          |                                   | the user has not been authenticated yet.             |
-+--------------------------+-----------------------------------+------------------------------------------------------+
-| *loggedIn*               | ``UserHasLoggedIn``               | A user has successfully logged in.                   |
-+--------------------------+-----------------------------------+------------------------------------------------------+
-| *loggingOut*             | ``UserIsLoggingOut``              | A user has visited the ``logout`` URL but has not    |
-| (cancellable)            |                                   | been logged out yet.                                 |
-+--------------------------+-----------------------------------+------------------------------------------------------+
-| *loggedOut*              | ``UserHasLoggedOut``              | A user has successfully logged out.                  |
-+--------------------------+-----------------------------------+------------------------------------------------------+
-| *requestedPasswordReset* | ``UserHasRequestedPasswordReset`` | A user has completed the password reset form and the |
-|                          |                                   | password reset email has been sent.                  |
-+--------------------------+-----------------------------------+------------------------------------------------------+
-| *resetPassword*          | ``UserHasResetPassword``          | A user has successfully reset their password.        |
-+--------------------------+-----------------------------------+------------------------------------------------------+
++-----------------------------------+------------------------------------------------------+
+| Class                             | Description                                          |
++===================================+======================================================+
+| ``UserIsRegistering``             | A potential new user has completed the registration  |
+| (cancellable)                     | form and submitted it. The form data has passed      |
+|                                   | validation.                                          |
++-----------------------------------+------------------------------------------------------+
+| ``UserHasRegistered``             | A new user has registered.                           |
++-----------------------------------+------------------------------------------------------+
+| ``UserIsLoggingIn``               | A user has completed the login form and submitted it.|
+| (cancellable)                     | The form data has passed the initial validation, but |
+|                                   | the user has not been authenticated yet.             |
++-----------------------------------+------------------------------------------------------+
+| ``UserHasLoggedIn``               | A user has successfully logged in.                   |
++-----------------------------------+------------------------------------------------------+
+| ``UserIsLoggingOut``              | A user has visited the ``logout`` URL but has not    |
+| (cancellable)                     | been logged out yet.                                 |
++-----------------------------------+------------------------------------------------------+
+| ``UserHasLoggedOut``              | A user has successfully logged out.                  |
++-----------------------------------+------------------------------------------------------+
+| ``UserHasRequestedPasswordReset`` | A user has completed the password reset form and the |
+|                                   | password reset email has been sent.                  |
++-----------------------------------+------------------------------------------------------+
+| ``UserHasResetPassword``          | A user has successfully reset their password.        |
++-----------------------------------+------------------------------------------------------+
 
 Note that all of the class names above are in the ``Stormpath\Laravel\Events``
 namespace.
