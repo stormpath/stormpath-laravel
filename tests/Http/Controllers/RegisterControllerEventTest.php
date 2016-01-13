@@ -20,7 +20,7 @@ namespace Stormpath\Tests\Http\Controllers;
 use Stormpath\Laravel\Tests\TestCase;
 use Stormpath\Stormpath;
 
-class RegisterControllerTest extends TestCase
+class RegisterControllerEventTest extends TestCase
 {
     public function getEnvironmentSetUp($app)
     {
