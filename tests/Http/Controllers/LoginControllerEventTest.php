@@ -77,9 +77,7 @@ class LoginControllerEventTest extends TestCase
 
         $this->setupStormpathApplication();
         $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
-        $this->visit('login')
-            ->fillForm('Log In',['login' => 'test@test.com', 'password' => 'superP4ss!']);
-
+        $this->post('login', ['login' => 'test@test.com', 'password' => 'superP4ss!']);
 
         $this->call('GET', config('stormpath.web.logout.uri'));
 
