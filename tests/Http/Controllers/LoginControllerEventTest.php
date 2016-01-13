@@ -61,4 +61,18 @@ it fires the UserHasLoggedIn event on successful login
         $account->delete();
     }
 
+    /** @test */
+    public function it_fires_the_UserHasLoggedIn_event_after_authentication()
+    {
+        $this->expectsEvents(\Stormpath\Laravel\Events\UserHasLoggedIn::class);
+
+        $this->setupStormpathApplication();
+        $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
+        $this->post('login', ['login' => 'test@test.com', 'password' => 'superP4ss!']);
+
+        $this->seeCookie(config('stormpath.web.accessTokenCookie.name'));
+        $this->seeCookie(config('stormpath.web.refreshTokenCookie.name'));
+        $account->delete();
+    }
+
 }
