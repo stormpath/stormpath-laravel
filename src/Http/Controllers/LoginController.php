@@ -87,7 +87,9 @@ class LoginController extends Controller
             // the login request data has passed validation. Time to fire the
             // UserIsLoggingIn event
             //
-            Event::fire(new UserIsLoggingIn(['login'=> $this->request->input('login'), 'password'=> $this->request->input('password')]));
+            if (false===Event::fire(new UserIsLoggingIn(['login'=> $this->request->input('login'), 'password'=> $this->request->input('password')]), [], true)) {
+                throw new ActionAbortedException;
+            }
 
             $result = $this->authenticate($this->request->input('login'), $this->request->input('password'));
 
