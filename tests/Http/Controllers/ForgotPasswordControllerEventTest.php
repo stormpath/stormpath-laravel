@@ -34,7 +34,7 @@ it will trigger the UserHasRequestedPasswordReset event when the password reques
 
 
     /** @test */
-    public function a_valid_email_will_redirect_to_login_screen_with_status_forgot_and_display_message()
+    public function it_will_trigger_the_UserHasRequestedPasswordReset_event_when_the_password_request_is_submitted()
     {
         $this->expectsEvents(\Stormpath\Laravel\Events\UserHasRequestedPasswordReset::class);
 
