@@ -69,7 +69,6 @@ class LoginControllerEventTest extends TestCase
         $account->delete();
     }
 
-
     /** @test */
     public function it_fires_the_UserIsLoggingOut_event_before_logging_out_the_user()
     {
@@ -93,7 +92,6 @@ class LoginControllerEventTest extends TestCase
         $account->delete();
     }
 
-
     /**
      * @test
      * @expectedException \Stormpath\Laravel\Exceptions\ActionAbortedException
@@ -116,6 +114,4 @@ class LoginControllerEventTest extends TestCase
         $this->seeCookie(config('stormpath.web.refreshTokenCookie.name'));
         $account->delete();
     }
-
-
 }
