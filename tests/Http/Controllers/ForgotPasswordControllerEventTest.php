@@ -48,4 +48,19 @@ it will trigger the UserHasRequestedPasswordReset event when the password reques
         $this->see('Password Reset Requested');
 
     }
+
+    /**
+     * @test
+     * @expectedException \Stormpath\Laravel\Exceptions\ActionAbortedException
+    */
+    public function it_will_abort_when_the_UserHasRequestedPasswordReset_listener_returns_false()
+    {
+        \Event::listen(\Stormpath\Laravel\Events\UserHasRequestedPasswordReset::class, function ($event) {
+            return false;
+        });
+
+        $this->setupStormpathApplication();
+        $this->createAccount(['email'=>'test@test.com']);
+        $this->post(route('stormpath.forgotPassword'), ['email'=>'test@test.com']);
+    }
 }
