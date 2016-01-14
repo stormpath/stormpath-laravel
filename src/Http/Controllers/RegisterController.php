@@ -96,6 +96,43 @@ class RegisterController extends Controller
 
             $account = $application->createAccount($account);
 
+            // the account has been created. Now I need to add any non-standard
+            // fields from the `$registerFields` array to the
+            // `$account->customData` object and re-save the account
+
+            // a flag to track whether custom data has been added - if we don't
+            // add any custom data, we don't need to re-save the account
+            //
+            $customDataAdded = false;
+
+            // what follows here is a bit of a kludge. There is no easy way to
+            // determine which values in the `$registerFields` array are
+            // "normal" data and which are custom data for an account. This is
+            // because the `instantiate` method simply sends all the data to the
+            // server & doesn't check to see which values are used and which are
+            // not. So in the loop below, I am checking each item in the
+            // `$registerFields` array - if it exists as a property on the
+            // `$account` object, then it doesn't need to be added as a custom
+            // data value.
+            //
+            foreach ($registerFields as $key=>$value) {
+                // make sure we're not adding the password or passwordConfirm
+                // fields
+                //
+                if ($key!='password' && $key!='passwordConfirm') {
+                    if ($account->{$key}!=$registerFields[$key]) {
+                        $account->customData->{$key} = $value;
+                        $customDataAdded = true;
+                    }
+                }
+            }
+
+            // was any custom data added? if so, save the account object
+            //
+            if ($customDataAdded) {
+                $account->save();
+            }
+
             // the account has been created. Time to fire the
             // `UserHasRegistered` event.
             //
