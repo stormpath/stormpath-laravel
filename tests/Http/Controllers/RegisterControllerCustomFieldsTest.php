@@ -77,9 +77,10 @@ class RegisterControllerCustomFieldsTest extends TestCase
             config('stormpath.web.register.form.fields.email.name') => 'test@account.com',
             config('stormpath.web.register.form.fields.password.name') => 'superP4ss!',
             config('stormpath.web.register.form.fields.passwordConfirm.name') => 'superP4ss!',
-            'customData1' => 'some',
-            'customData2' => 'custom',
-            'customData3' => 'data',
+
+            config('stormpath.web.register.form.fields.customData1.name') => 'a value',
+            config('stormpath.web.register.form.fields.customData2.name') => 'another value',
+            config('stormpath.web.register.form.fields.customData3.name') => 'something',
         ]);
 
         // get the application object
@@ -96,9 +97,10 @@ class RegisterControllerCustomFieldsTest extends TestCase
         $account = $accounts->getIterator()->current();
 
         // test the custom data values
-        $this->assertEquals('some', $account->customData->customData1);
-        $this->assertEquals('custom', $account->customData->customData2);
-        $this->assertEquals('data', $account->customData->customData3);
+        $this->assertEquals('a value', $account->customData->customData1);
+        $this->assertEquals('another value', $account->customData->customData2);
+        $this->assertEquals('something', $account->customData->customData3);
+
     }
 
 }
