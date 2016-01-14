@@ -36,6 +36,39 @@ class RegisterControllerCustomFieldsTest extends TestCase
     {
         $this->setupStormpathApplication();
 
+        // update the form fields config to add my customData fields
+        config([
+            'stormpath.web.register.form.fields.customData1' => [
+                'enabled' => true,
+                'name' => 'customData1',
+                'placeholder' => 'customData1',
+                'required' => true,
+                'type' => 'text',
+            ]
+        ]);
+
+        config([
+            'stormpath.web.register.form.fields.customData2' => [
+                'enabled' => true,
+                'name' => 'customData2',
+                'placeholder' => 'customData2',
+                'required' => true,
+                'type' => 'text',
+            ]
+        ]);
+
+        config([
+            'stormpath.web.register.form.fields.customData3' => [
+                'enabled' => true,
+                'name' => 'customData3',
+                'placeholder' => 'customData3',
+                'required' => true,
+                'type' => 'text',
+            ]
+        ]);
+
+
+
         $this->post('register', [
             config('stormpath.web.register.form.fields.username.name') => 'testUsername',
             config('stormpath.web.register.form.fields.givenName.name')=>'Test',
