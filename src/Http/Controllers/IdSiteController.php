@@ -19,6 +19,7 @@ namespace Stormpath\Laravel\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Stormpath\Laravel\Exceptions\IdSiteException;
 use Stormpath\Laravel\Http\Traits\AuthenticatesUser;
 
 class IdSiteController extends Controller
@@ -101,6 +102,3 @@ class IdSiteController extends Controller
             ]);
     }
 }
-
-class IdSiteException extends \Exception {}
-
