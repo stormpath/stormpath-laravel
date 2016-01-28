@@ -18,6 +18,7 @@ user, start here!
    login
    logout
    password_reset
+   events
    help
    contributors
 
@@ -59,4 +60,3 @@ limitations under the License.
 .. _GitHub Repository: http://github.com/stormpath/stormpath-laravel
 .. _develop: http://github.com/stormpath/stormpath-laravel/tree/develop
 .. _Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0.html
-

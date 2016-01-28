@@ -21,6 +21,10 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Validation\Factory as Validator;
 use Stormpath\Laravel\Http\Traits\AuthenticatesUser;
+use Event;
+use Stormpath\Laravel\Exceptions\ActionAbortedException;
+use Stormpath\Laravel\Events\UserIsRegistering;
+use Stormpath\Laravel\Events\UserHasRegistered;
 
 class RegisterController extends Controller
 {
@@ -79,11 +83,23 @@ class RegisterController extends Controller
         try {
             $registerFields = $this->setRegisterFields();
 
+            // the form has passed validation. It's time to fire the
+            // `UserIsRegistering` event
+            //
+            if (false===Event::fire(new UserIsRegistering($registerFields), [], true)) {
+                throw new ActionAbortedException;
+            }
+
             $account = \Stormpath\Resource\Account::instantiate($registerFields);
 
             $application = app('stormpath.application');
 
             $account = $application->createAccount($account);
+
+            // the account has been created. Time to fire the
+            // `UserHasRegistered` event.
+            //
+            Event::fire(new UserHasRegistered($account));
 
             if($this->request->wantsJson()) {
                 return $this->respondWithAccount($account);

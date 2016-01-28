@@ -50,7 +50,7 @@ Follow these steps to add Stormpath user authentication to your Laravel app.
 7. **Configure It**
 
   To modify the configuration of the package, you will need to publish the config file. Run the following in your terminal:
-  
+
   ```bash
   $ php artisan vendor:publish
   ```
@@ -64,12 +64,12 @@ Follow these steps to add Stormpath user authentication to your Laravel app.
   ```
 
   If the user tries to access this route without being logged in, they will be redirected to the login page.
-  
+
   If you want to make sure ONLY guests can use the route, You can use `stormpath.guest` as a middleware:
   ```php
     Route::get('/page', ['middleware'=>'stormpath.guest']);
   ```
-  
+
   If the user tries to access this route while logged in, they will be redirected to the home page.
 
 9. **Login**

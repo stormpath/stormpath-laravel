@@ -125,7 +125,7 @@ class LoginControllerTest extends TestCase
     }
 
     /** @test */
-    public function posting_to_login_wiht_json_returns_account_object_as_json()
+    public function posting_to_login_with_json_returns_account_object_as_json()
     {
         $this->setupStormpathApplication();
         $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
