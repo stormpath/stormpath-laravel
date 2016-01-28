@@ -19,9 +19,16 @@ namespace Stormpath\Laravel\Http\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Cookie\CookieJar;
 
 class RedirectIfAuthenticated
 {
+    private $cookieJar;
+
+    public function __construct(CookieJar $cookieJar)
+    {
+        $this->cookieJar = $cookieJar;
+    }
 
     /**
      * Handle an incoming request.
@@ -42,10 +49,68 @@ class RedirectIfAuthenticated
 
     public function isAuthenticated($request)
     {
-        if(!$request->cookie(config('stormpath.web.accessTokenCookie.name'))) {
-            return false;
+        $cookie = null;
+
+        $cookie = $request->cookie(config('stormpath.web.accessTokenCookie.name'));
+        if($cookie instanceof \Symfony\Component\HttpFoundation\Cookie)
+            $cookie = $cookie->getValue();
+
+        if(null === $cookie) {
+            $cookie = $this->refreshCookie($request);
         }
 
-        return true;
+        // validation that the cookie is a valid cookie
+        try {
+            (new \Stormpath\Oauth\VerifyAccessToken(app('stormpath.application')))->verify($cookie);
+            return true;
+        } catch (\Exception $re) {
+            return false;
+        }
+    }
+
+    private function refreshCookie($request)
+    {
+        try {
+            $spApplication = app('stormpath.application');
+        } catch (\Exception $e) {
+            return null;
+        }
+
+        $cookie = $request->cookie(config('stormpath.web.refreshTokenCookie.name'));
+        if($cookie instanceof \Symfony\Component\HttpFoundation\Cookie)
+            $cookie = $cookie->getValue();
+
+        try {
+            $refreshGrant = new \Stormpath\Oauth\RefreshGrantRequest($cookie);
+            $auth = new \Stormpath\Oauth\RefreshGrantAuthenticator($spApplication);
+            $result = $auth->authenticate($refreshGrant);
+
+            $this->setNewAccessToken($request, $result);
+
+            return $result->getAccessTokenString();
+
+        } catch(\Stormpath\Resource\ResourceError $re) {
+            return null;
+        }
+    }
+
+    private function setNewAccessToken($request, $cookies)
+    {
+        $this->cookieJar->queue(
+            cookie(
+                config('stormpath.web.accessTokenCookie.name'),
+                $cookies->getAccessTokenString(),
+                $cookies->getExpiresIn(),
+                config('stormpath.web.accessTokenCookie.path'),
+                config('stormpath.web.accessTokenCookie.domain'),
+                config('stormpath.web.accessTokenCookie.secure'),
+                config('stormpath.web.accessTokenCookie.httpOnly')
+            )
+
+        );
+
+
+        $request->cookies->add([config('stormpath.web.accessTokenCookie.name') => $cookies->getAccessTokenString() ]);
+
     }
 }

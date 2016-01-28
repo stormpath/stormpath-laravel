@@ -75,6 +75,13 @@ class StormpathLaravelServiceProviderTest extends TestCase
     }
 
     /** @test */
+    public function it_returns_null_when_getting_user_without_an_application_set()
+    {
+        $user = app('stormpath.user');
+        $this->assertNull($user);
+    }
+
+    /** @test */
     public function it_sets_verify_email_config_to_false_by_default()
     {
         $this->setupStormpathApplication();
@@ -162,7 +169,23 @@ class StormpathLaravelServiceProviderTest extends TestCase
         $this->assertNull($user);
     }
 
+    /** @test */
+    public function it_will_refresh_the_access_token_if_expired()
+    {
+        $this->setupStormpathApplication();
+        $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
 
+        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest('test@test.com', 'superP4ss!');
+        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
+        $result =  $auth->authenticate($passwordGrant);
+
+        $this->call('GET', 'login',[], $this->cookiesToSendRefreshOnly($result));
+
+        $user = app('stormpath.user');
+
+        $this->assertNotNull($user);
+
+    }
 
     /**
      * @param Application $app
@@ -222,6 +245,22 @@ class StormpathLaravelServiceProviderTest extends TestCase
                     config('stormpath.web.refreshTokenCookie.name'),
                     'abc',
                     '3600',
+                    config('stormpath.web.refreshTokenCookie.path'),
+                    config('stormpath.web.refreshTokenCookie.domain'),
+                    config('stormpath.web.refreshTokenCookie.secure'),
+                    config('stormpath.web.refreshTokenCookie.httpOnly')
+                )
+        ];
+    }
+
+    private function cookiesToSendRefreshOnly($result)
+    {
+        return [
+            config('stormpath.web.refreshTokenCookie.name') =>
+                cookie(
+                    config('stormpath.web.refreshTokenCookie.name'),
+                    $result->getRefreshTokenString(),
+                    $result->getExpiresIn(),
                     config('stormpath.web.refreshTokenCookie.path'),
                     config('stormpath.web.refreshTokenCookie.domain'),
                     config('stormpath.web.refreshTokenCookie.secure'),
