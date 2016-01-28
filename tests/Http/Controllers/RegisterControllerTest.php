@@ -337,4 +337,77 @@ class RegisterControllerTest extends TestCase
     }
 
 
+    /** @test */
+    public function it_saves_custom_fields_in_customData_upon_successful_registration()
+    {
+        $this->setupStormpathApplication();
+
+        // update the form fields config to add my customData fields
+        config([
+            'stormpath.web.register.form.fields.customData1' => [
+                'enabled' => true,
+                'name' => 'customData1',
+                'placeholder' => 'customData1',
+                'required' => true,
+                'type' => 'text',
+            ]
+        ]);
+
+        config([
+            'stormpath.web.register.form.fields.customData2' => [
+                'enabled' => true,
+                'name' => 'customData2',
+                'placeholder' => 'customData2',
+                'required' => true,
+                'type' => 'text',
+            ]
+        ]);
+
+        config([
+            'stormpath.web.register.form.fields.customData3' => [
+                'enabled' => true,
+                'name' => 'customData3',
+                'placeholder' => 'customData3',
+                'required' => true,
+                'type' => 'text',
+            ]
+        ]);
+
+
+
+        $this->post('register', [
+            config('stormpath.web.register.form.fields.username.name') => 'testUsername',
+            config('stormpath.web.register.form.fields.givenName.name')=>'Test',
+            config('stormpath.web.register.form.fields.middleName.name') => 'Middle',
+            config('stormpath.web.register.form.fields.surname.name') => 'Account',
+            config('stormpath.web.register.form.fields.email.name') => 'test@account.com',
+            config('stormpath.web.register.form.fields.password.name') => 'superP4ss!',
+            config('stormpath.web.register.form.fields.passwordConfirm.name') => 'superP4ss!',
+
+            config('stormpath.web.register.form.fields.customData1.name') => 'a value',
+            config('stormpath.web.register.form.fields.customData2.name') => 'another value',
+            config('stormpath.web.register.form.fields.customData3.name') => 'something',
+        ]);
+
+        // get the application object
+        $application = app('stormpath.application');
+
+        // find the account we just created
+        $accounts = $application->accounts;
+        $accounts->search = [config('stormpath.web.register.form.fields.email.name') => 'test@account.com'];
+
+        // make sure we got exactly 1 account in this search
+        $this->assertEquals(1, $accounts->getSize());
+
+        // get the account
+        $account = $accounts->getIterator()->current();
+
+        // test the custom data values
+        $this->assertEquals('a value', $account->customData->customData1);
+        $this->assertEquals('another value', $account->customData->customData2);
+        $this->assertEquals('something', $account->customData->customData3);
+
+    }
+
+
 }
