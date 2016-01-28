@@ -31,6 +31,13 @@ Brian has contributed to the core of this package.
 
 - Github: https://github.com/bretterer
 
+Kryten0807
+**********
+
+Kryten0807 allowed for the use of events in the integration.
+
+- Github: https://github.com/Kryten0807
+
 
 
 .. _Stormpath: https://stormpath.com/
