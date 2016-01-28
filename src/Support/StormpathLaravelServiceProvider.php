@@ -122,7 +122,10 @@ class StormpathLaravelServiceProvider extends ServiceProvider
             }
 
             try {
-                $result = (new \Stormpath\Oauth\VerifyAccessToken(app('stormpath.application')))->verify($cookie->getValue());
+                if($cookie instanceof \Symfony\Component\HttpFoundation\Cookie) {
+                    $cookie = $cookie->getValue();
+                }
+                $result = (new \Stormpath\Oauth\VerifyAccessToken(app('stormpath.application')))->verify($cookie);
                 return $result->getAccount();
             } catch (\Exception $e) {}
 
