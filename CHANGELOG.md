@@ -3,6 +3,17 @@ Change Log
 
 All library changes, in descending order.
 
+Version 0.2.0
+-------------
+
+**Released on January 28, 2016.**
+
+- Added Events (thanks @Kryten0807)
+- Added ability to create custom data during registration (thanks @Kryten0807) (Fixes #25)
+- Update Documentation
+- Fixed #28 to allow refreshing access_token
+- Added tests for ID Site (Fixes #29)
+
 Version 0.1.0
 -------------
 
