@@ -20,6 +20,9 @@ namespace Stormpath\Laravel\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Stormpath\Resource\ResourceError;
+use Event;
+use Stormpath\Laravel\Exceptions\ActionAbortedException;
+use Stormpath\Laravel\Events\UserHasRequestedPasswordReset;
 
 class ForgotPasswordController extends Controller
 {
@@ -47,6 +50,13 @@ class ForgotPasswordController extends Controller
     public function postForgotPassword(Request $request)
     {
         try {
+            // we're about to post the "forgot password" request. Fire the
+            // `UserHasRequestedPasswordReset` event
+            //
+            if (false===Event::fire(new UserHasRequestedPasswordReset(['email' => $request->get('email')]), [], true)) {
+                throw new ActionAbortedException;
+            }
+
             $application = app( 'stormpath.application' );
             $application->sendPasswordResetEmail($request->get('email'));
 
