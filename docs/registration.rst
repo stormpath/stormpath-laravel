@@ -52,7 +52,19 @@ entirely.  We'll cover each use case in detail.
 
 You can also specify your own custom fields. In this case, the custom data will
 be saved with the account and will be accessible via the ``customData`` property 
-of the account.
+of the account. To add your own fields, add the following to the register config
+section for each one of the fields you would like to add:
+
+.. code-block:: php
+
+    'stormpath.web.register.form.fields.customData1' => [
+        'enabled' => true,
+        'name' => 'customData1',
+        'placeholder' => 'customData1',
+        'required' => true,
+        'type' => 'text',
+    ]
+
 
 Password Strength Rules
 -----------------------
