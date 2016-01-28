@@ -21,6 +21,8 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Stormpath\Laravel\Http\Traits\AuthenticatesUser;
 use Illuminate\Validation\Factory as Validator;
+use Event;
+use Stormpath\Laravel\Events\UserHasResetPassword;
 
 class ChangePasswordController extends Controller
 {
@@ -85,6 +87,11 @@ class ChangePasswordController extends Controller
 
         try {
             $application->resetPassword($token, $newPassword);
+
+            // the password has been changed. Time to fire the
+            // `UserHasResetPassword` event
+            //
+            Event::fire(new UserHasResetPassword);
 
             if($this->request->wantsJson()) {
                 return $this->respondOk();

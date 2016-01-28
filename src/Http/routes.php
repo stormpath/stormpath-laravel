@@ -83,4 +83,14 @@ $this->app->router->group($middleware, function() {
         $this->app->router->get(config('stormpath.web.changePassword.uri'), ['middleware' => 'stormpath.guest', 'as' => 'stormpath.changePassword', 'uses' => 'Stormpath\Laravel\Http\Controllers\ChangePasswordController@getChangePassword']);
         $this->app->router->post(config('stormpath.web.changePassword.uri'), ['middleware' => 'stormpath.guest', 'as' => 'stormpath.changePassword', 'uses' => 'Stormpath\Laravel\Http\Controllers\ChangePasswordController@postChangePassword']);
     }
+
+    /*
+     |--------------------------------------------------------------------------
+     | ID Site Response Route
+     |--------------------------------------------------------------------------
+     */
+        if (config('stormpath.web.idSite.enabled')) {
+            $this->app->router->get(config('stormpath.web.idSite.uri'), ['as' => 'stormpath.idSiteResponse', 'uses' => 'Stormpath\Laravel\Http\Controllers\IdSiteController@response']);
+        }
+
 });
