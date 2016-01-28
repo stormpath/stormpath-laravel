@@ -48,8 +48,11 @@ required by the user:
 
 While email and password will always be required, you do not need to require
 givenName and surname.  These can be configured as optional fields, or omitted
-entirely.  You can also specify your own custom fields.  We'll cover each use
-case in detail.
+entirely.  We'll cover each use case in detail.
+
+You can also specify your own custom fields. In this case, the custom data will
+be saved with the account and will be accessible via the ``customData`` property 
+of the account.
 
 Password Strength Rules
 -----------------------
