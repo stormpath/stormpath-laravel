@@ -53,6 +53,7 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerClient();
         $this->registerApplication();
+        $this->checkForSocialProviders();
         $this->registerUser();
     }
 
@@ -196,13 +197,74 @@ class StormpathLaravelServiceProvider extends ServiceProvider
             }
         }
 
-
         config(['stormpath.web.verifyEmail.enabled'=>$value]);
     }
 
     private function isValidApplicationHref()
     {
         return !! strpos(config( 'stormpath.application.href' ), '/applications/');
+    }
+
+    private function checkForSocialProviders()
+    {
+//        config(['stormpath.web.socialProviders.enabled' => true]);
+//
+//        $this->configFacebookDirectory();
+//        config(['stormpath.web.socialProviders.facebook.enabled' => true]);
+//        config(['stormpath.web.socialProviders.google.enabled' => true]);
+//        config(['stormpath.web.socialProviders.github.enabled' => true]);
+//        config(['stormpath.web.socialProviders.linkedin.enabled' => true]);
+
+
+        $directories = $this->getDirectories();
+
+        if(null === $directories) return null;
+
+        foreach($directories as $directory) {
+            $accountStore = $directory->accountStore;
+            $provider = $accountStore->provider;
+            $providerId = $provider->providerId;
+
+            if($providerId == 'stormpath' || $providerId == 'saml') continue;
+
+            if($accountStore->status != Stormpath::ENABLED) continue;
+
+            config(['stormpath.web.socialProviders.enabled' => true]);
+
+            switch($providerId) {
+                case 'facebook' :
+                    $this->setupFacebookProvider($accountStore);
+                    break;
+                case 'google' :
+                    $this->setupGoogleProvider($accountStore);
+                    break;
+            }
+
+        }
+    }
+
+    private function getDirectories()
+    {
+        $spApplication = app('stormpath.application');
+
+        return $spApplication->getAccountStoreMappings();
+    }
+
+    private function setupFacebookProvider($accountStore)
+    {
+        config(['stormpath.web.socialProviders.facebook.enabled' => true]);
+        config(['stormpath.web.socialProviders.facebook.name' => $accountStore->name]);
+        config(['stormpath.web.socialProviders.facebook.clientId' => $accountStore->provider->getProperty('clientId')]);
+        config(['stormpath.web.socialProviders.facebook.clientSecret' => $accountStore->provider->getProperty('clientSecret')]);
+    }
+
+    private function setupGoogleProvider($accountStore)
+    {
+        config(['stormpath.web.socialProviders.google.enabled' => true]);
+        config(['stormpath.web.socialProviders.google.name' => $accountStore->name]);
+        config(['stormpath.web.socialProviders.google.clientId' => $accountStore->provider->getProperty('clientId')]);
+        config(['stormpath.web.socialProviders.google.clientSecret' => $accountStore->provider->getProperty('clientSecret')]);
+        config(['stormpath.web.socialProviders.google.callbackUri' => $accountStore->provider->getProperty('redirectUri')]);
     }
 
 
