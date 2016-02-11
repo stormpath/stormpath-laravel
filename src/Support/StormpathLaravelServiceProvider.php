@@ -53,7 +53,11 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerClient();
         $this->registerApplication();
-        $this->checkForSocialProviders();
+
+
+        if(config('stormpath.application.href') !== null)
+            $this->checkForSocialProviders();
+
         $this->registerUser();
     }
 
@@ -207,15 +211,6 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
     private function checkForSocialProviders()
     {
-//        config(['stormpath.web.socialProviders.enabled' => true]);
-//
-//        $this->configFacebookDirectory();
-//        config(['stormpath.web.socialProviders.facebook.enabled' => true]);
-//        config(['stormpath.web.socialProviders.google.enabled' => true]);
-//        config(['stormpath.web.socialProviders.github.enabled' => true]);
-//        config(['stormpath.web.socialProviders.linkedin.enabled' => true]);
-
-
         $directories = $this->getDirectories();
 
         if(null === $directories) return null;
@@ -237,6 +232,9 @@ class StormpathLaravelServiceProvider extends ServiceProvider
                     break;
                 case 'google' :
                     $this->setupGoogleProvider($accountStore);
+                    break;
+                case 'linkedin' :
+                    $this->setupLinkedinProvider($accountStore);
                     break;
             }
 
@@ -265,6 +263,15 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         config(['stormpath.web.socialProviders.google.clientId' => $accountStore->provider->getProperty('clientId')]);
         config(['stormpath.web.socialProviders.google.clientSecret' => $accountStore->provider->getProperty('clientSecret')]);
         config(['stormpath.web.socialProviders.google.callbackUri' => $accountStore->provider->getProperty('redirectUri')]);
+    }
+
+    private function setupLinkedinProvider($accountStore)
+    {
+        config(['stormpath.web.socialProviders.linkedin.enabled' => true]);
+        config(['stormpath.web.socialProviders.linkedin.name' => $accountStore->name]);
+        config(['stormpath.web.socialProviders.linkedin.clientId' => $accountStore->provider->getProperty('clientId')]);
+        config(['stormpath.web.socialProviders.linkedin.clientSecret' => $accountStore->provider->getProperty('clientSecret')]);
+        config(['stormpath.web.socialProviders.linkedin.callbackUri' => $accountStore->provider->getProperty('redirectUri')]);
     }
 
 

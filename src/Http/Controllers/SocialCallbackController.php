@@ -17,29 +17,47 @@
 
 namespace Stormpath\Laravel\Http\Controllers;
 
+use Illuminate\Cookie\CookieJar;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Stormpath\Laravel\Http\Helpers\IdSiteSessionHelper;
+use Stormpath\Resource\AccessToken;
 
 class SocialCallbackController extends Controller
 {
     private $application;
+    private $cookieJar;
 
-    public function __construct()
+    public function __construct(CookieJar $cookieJar, $application = null)
     {
-        $this->application = app('stormpath.application');
+        $this->cookieJar = $cookieJar;
+        $this->application = $application;
+
+        if(null === $this->application)
+            $this->application = app('stormpath.application');
+
     }
 
     public function facebook(Request $request)
     {
-        $providerAccountRequest = new \Stormpath\Provider\FacebookProviderAccountRequest(array(
-            "accessToken" => $request->get('access_token')
-        ));
+        try {
+            $providerAccountRequest = new \Stormpath\Provider\FacebookProviderAccountRequest(array(
+                "accessToken" => $request->get('access_token')
+            ));
 
-        $result = $this->application->getAccount($providerAccountRequest);
+            $result = $this->application->getAccount($providerAccountRequest);
 
-        $idSiteSession = new IdSiteSessionHelper();
-        $session = $idSiteSession->create($result->account);
+            $idSiteSession = new IdSiteSessionHelper();
+            $accessTokens = $idSiteSession->create($result->account);
+
+            $this->setCookies($accessTokens);
+
+            return redirect()->to(config('stormpath.web.login.nextUri'));
+
+        } catch (\Stormpath\Resource\ResourceError $re) {
+            return redirect()->to(config('stormpath.web.login.uri'));
+        }
+
 
     }
 
@@ -52,13 +70,65 @@ class SocialCallbackController extends Controller
 
             $result = $this->application->getAccount($providerAccountRequest);
 
-            dd($result);
-        } catch (\Stormpath\Resource\ResourceError $re) {
-            dd($re);
-        }
-//        $idSiteSession = new IdSiteSessionHelper();
-//        $session = $idSiteSession->create($result->account);
+            $idSiteSession = new IdSiteSessionHelper();
+            $accessTokens = $idSiteSession->create($result->account);
 
+            $this->setCookies($accessTokens);
+
+            return redirect()->to(config('stormpath.web.login.nextUri'));
+        } catch (\Stormpath\Resource\ResourceError $re) {
+            return redirect()->to(config('stormpath.web.login.uri'));
+        }
+
+    }
+
+    public function linkedin(Request $request)
+    {
+        try {
+            $providerAccountRequest = new \Stormpath\Provider\LinkedInProviderAccountRequest(array(
+                "code" => $request->get('code')
+            ));
+
+            $result = $this->application->getAccount($providerAccountRequest);
+
+            $idSiteSession = new IdSiteSessionHelper();
+            $accessTokens = $idSiteSession->create($result->account);
+
+            $this->setCookies($accessTokens);
+
+            return redirect()->to(config('stormpath.web.login.nextUri'));
+        } catch (\Stormpath\Resource\ResourceError $re) {
+            return redirect()->to(config('stormpath.web.login.uri'));
+        }
+    }
+
+    private function setCookies(AccessToken $accessTokens)
+    {
+        $this->cookieJar->queue(
+            cookie(
+                config('stormpath.web.accessTokenCookie.name'),
+                $accessTokens->access_token,
+                3600,
+                config('stormpath.web.accessTokenCookie.path'),
+                config('stormpath.web.accessTokenCookie.domain'),
+                config('stormpath.web.accessTokenCookie.secure'),
+                config('stormpath.web.accessTokenCookie.httpOnly')
+            )
+
+        );
+
+        $this->cookieJar->queue(
+            cookie(
+                config('stormpath.web.refreshTokenCookie.name'),
+                $accessTokens->refresh_token,
+                7200,
+                config('stormpath.web.refreshTokenCookie.path'),
+                config('stormpath.web.refreshTokenCookie.domain'),
+                config('stormpath.web.refreshTokenCookie.secure'),
+                config('stormpath.web.refreshTokenCookie.httpOnly')
+            )
+
+        );
     }
 
 }

@@ -100,8 +100,7 @@ $this->app->router->group($middleware, function() {
      */
     if (config('stormpath.web.socialProviders.enabled')) {
         $this->app->router->get('callbacks/facebook', ['as' => 'stormpath.callbacks.facebook', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@facebook']);
-        $this->app->router->get('callbacks/github', ['as' => 'stormpath.callbacks.google', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@github']);
-        $this->app->router->get('callbacks/linkedin', ['as' => 'stormpath.callbacks.linkedin', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@linedin']);
+        $this->app->router->get('callbacks/linkedin', ['as' => 'stormpath.callbacks.linkedin', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@linkedin']);
         $this->app->router->get('callbacks/google', ['as' => 'stormpath.callbacks.google', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@google']);
     }
 

@@ -17,7 +17,7 @@
 
 namespace Stormpath\Laravel\Http\Helpers;
 
-use Stormpath\Resource\Resource;
+use Stormpath\Laravel\Exceptions\SocialLoginException;
 use Stormpath\Stormpath;
 
 class IdSiteSessionHelper
@@ -40,36 +40,15 @@ class IdSiteSessionHelper
             $idSiteRequest->stormpathToken = $jwt;
             $idSiteRequest->grantType = 'stormpath_token';
 
-            $result = app('stormpath.client')->getDataStore()->create($application->href . '/oauth/token', $idSiteRequest, Stormpath::ACCESS_TOKEN);
+            return app('stormpath.client')->getDataStore()->create($application->href . '/oauth/token', $idSiteRequest, Stormpath::ACCESS_TOKEN);
 
-            dd($result);
+
         } catch (\Exception $e) {
-            dd($e);
+            throw new SocialLoginException($e->getMessage());
         }
 
     }
 
 
 
-}
-
-class IdSiteRequest extends Resource
-{
-    public function setStormpathToken($token) {
-        $this->setProperty('token', $token);
-    }
-
-    public function setGrantType($type)
-    {
-        $this->setProperty('grant_type', $type);
-    }
-
-    public function getStormpathToken() {
-        $this->getProperty('token');
-    }
-
-    public function getGrantType()
-    {
-        $this->getProperty('grant_type');
-    }
 }

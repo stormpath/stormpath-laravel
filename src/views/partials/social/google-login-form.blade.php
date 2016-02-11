@@ -1,4 +1,4 @@
-<button class="btn btn-social btn-google" onClick="googleLogin()"> Google</button>
+<button class="btn btn-social btn-google" onClick="googleLogin()"> {{ config('stormpath.web.socialProviders.google.name') }}</button>
 
 <script type="text/javascript">
     /**

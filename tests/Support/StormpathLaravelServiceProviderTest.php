@@ -25,6 +25,12 @@ use Stormpath\Stormpath;
 
 class StormpathLaravelServiceProviderTest extends TestCase
 {
+    public function getEnvironmentSetUp($app)
+    {
+        parent::getEnvironmentSetUp($app);
+
+    }
+
     /** @test */
     public function it_tells_us_what_it_provides()
     {
@@ -185,6 +191,124 @@ class StormpathLaravelServiceProviderTest extends TestCase
 
         $this->assertNotNull($user);
 
+    }
+
+    /** @test */
+    public function it_successfully_set_social_providers_data()
+    {
+        $this->setupStormpathApplication();
+        $google = $this->createGoogleDirectory();
+        $facebook = $this->createFacebookDirectory();
+        $linkedin = $this->createLinkedinDirectory();
+
+        $provider = new StormpathLaravelServiceProvider($this->app);
+        $this->app->register($provider);
+        $provider->boot();
+        $provider->register();
+
+        $this->assertTrue(config('stormpath.web.socialProviders.enabled'));
+        
+        $this->assertTrue(config('stormpath.web.socialProviders.google.enabled'));
+        $this->assertArrayHasKey('name',config('stormpath.web.socialProviders.google'));
+        $this->assertArrayHasKey('clientId',config('stormpath.web.socialProviders.google'));
+        $this->assertArrayHasKey('callbackUri',config('stormpath.web.socialProviders.google'));
+        $this->assertArrayHasKey('clientSecret',config('stormpath.web.socialProviders.google'));
+
+        $this->assertTrue(config('stormpath.web.socialProviders.facebook.enabled'));
+        $this->assertArrayHasKey('name',config('stormpath.web.socialProviders.facebook'));
+        $this->assertArrayHasKey('clientId',config('stormpath.web.socialProviders.facebook'));
+        $this->assertArrayHasKey('clientSecret',config('stormpath.web.socialProviders.facebook'));
+
+        $this->assertTrue(config('stormpath.web.socialProviders.linkedin.enabled'));
+        $this->assertArrayHasKey('name',config('stormpath.web.socialProviders.linkedin'));
+        $this->assertArrayHasKey('clientId',config('stormpath.web.socialProviders.linkedin'));
+        $this->assertArrayHasKey('callbackUri',config('stormpath.web.socialProviders.linkedin'));
+        $this->assertArrayHasKey('clientSecret',config('stormpath.web.socialProviders.linkedin'));
+
+
+        $google->delete();
+        $facebook->delete();
+        $linkedin->delete();
+
+
+    }
+
+
+    private function createGoogleDirectory()
+    {
+        $provider = \Stormpath\Resource\GoogleProvider::instantiate([
+            'clientId' => '857385-m8vk0fn2r7jmjo.apps.googleusercontent.com',
+            'clientSecret' => 'ehs7_-bA7OWQSQ4',
+            'redirectUri' => 'https://myapplication.com/authenticate'
+        ]);
+
+        $directory = \Stormpath\Resource\Directory::instantiate([
+            'name' => 'A Google Directory',
+            'description' => 'My Google Directory',
+            'provider' => $provider
+        ]);
+
+        $tenant = app('stormpath.client')->tenant;
+        $directory = $tenant->createDirectory($directory);
+
+        $accountStoreMapping = app('stormpath.client')->
+        dataStore->
+        instantiate(\Stormpath\Stormpath::ACCOUNT_STORE_MAPPING);
+
+        $accountStoreMapping->accountStore = $directory; // this could also be a group
+        app('stormpath.application')->createAccountStoreMapping($accountStoreMapping);
+
+        return $directory;
+    }
+
+    private function createFacebookDirectory()
+    {
+        $provider = \Stormpath\Resource\FacebookProvider::instantiate([
+            'clientId' => '1011854538839621',
+            'clientSecret' => '82c16954b0d88216127d66ac44bbc3a8'
+        ]);
+
+        $directory = \Stormpath\Resource\Directory::instantiate([
+            'name' => 'A Facebook Directory',
+            'description' => 'My Facebook Directory',
+            'provider' => $provider
+        ]);
+
+        $tenant = app('stormpath.client')->tenant;
+        $directory = $tenant->createDirectory($directory);
+
+        $accountStoreMapping = app('stormpath.client')->
+        dataStore->
+        instantiate(\Stormpath\Stormpath::ACCOUNT_STORE_MAPPING);
+
+        $accountStoreMapping->accountStore = $directory; // this could also be a group
+        app('stormpath.application')->createAccountStoreMapping($accountStoreMapping);
+        return $directory;
+    }
+
+    private function createLinkedinDirectory()
+    {
+        $provider = \Stormpath\Resource\LinkedInProvider::instantiate([
+            'clientId' => '857385m8vk0fn2r7j',
+            'clientSecret' => 'ehs7bA7OWQSQ4'
+        ]);
+
+        $directory = \Stormpath\Resource\Directory::instantiate([
+            'name' => 'A LinkedIn Directory',
+            'description' => 'My LinkedIn Directory',
+            'provider' => $provider
+        ]);
+
+        $tenant = app('stormpath.client')->tenant;
+        $directory = $tenant->createDirectory($directory);
+
+        $accountStoreMapping = app('stormpath.client')->
+        dataStore->
+        instantiate(\Stormpath\Stormpath::ACCOUNT_STORE_MAPPING);
+
+        $accountStoreMapping->accountStore = $directory; // this could also be a group
+        app('stormpath.application')->createAccountStoreMapping($accountStoreMapping);
+        return $directory;
     }
 
     /**
