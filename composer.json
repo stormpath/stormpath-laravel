@@ -25,7 +25,8 @@
         "illuminate/http": "~5.1|~5.2",
         "illuminate/routing": "~5.1|~5.2",
         "illuminate/validation": "~5.1|~5.2",
-        "illuminate/support": "~5.1|~5.2"
+        "illuminate/support": "~5.1|~5.2",
+        "bretterer/iso_duration_converter": "^0.1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0",

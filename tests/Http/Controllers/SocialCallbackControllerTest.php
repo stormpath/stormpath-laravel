@@ -36,10 +36,10 @@ class SocialCallbackControllerTest extends TestCase
         $account = $this->createAccount();
         $accountObject = new \stdClass();
         $accountObject->account = $account;
-        $cookieJar = new \Illuminate\Cookie\CookieJar;
+        $cookieJar = app('cookie');
 
         $application = \Mockery::mock('Stormpath\Resource\Application');
-        $controller = new SocialCallbackController($cookieJar, $application);
+        $controller = new SocialCallbackController($application);
 
         $application->shouldReceive('getAccount')->once()->andReturn($accountObject);
 
@@ -70,10 +70,10 @@ class SocialCallbackControllerTest extends TestCase
         $account = $this->createAccount();
         $accountObject = new \stdClass();
         $accountObject->account = $account;
-        $cookieJar = new \Illuminate\Cookie\CookieJar;
+        $cookieJar = app('cookie');
 
         $application = \Mockery::mock('Stormpath\Resource\Application');
-        $controller = new SocialCallbackController($cookieJar, $application);
+        $controller = new SocialCallbackController($application);
 
         $application->shouldReceive('getAccount')->once()->andReturn($accountObject);
 
@@ -103,10 +103,10 @@ class SocialCallbackControllerTest extends TestCase
         $account = $this->createAccount();
         $accountObject = new \stdClass();
         $accountObject->account = $account;
-        $cookieJar = new \Illuminate\Cookie\CookieJar;
+        $cookieJar = app('cookie');
 
         $application = \Mockery::mock('Stormpath\Resource\Application');
-        $controller = new SocialCallbackController($cookieJar, $application);
+        $controller = new SocialCallbackController($application);
 
         $application->shouldReceive('getAccount')->once()->andReturn($accountObject);
 
