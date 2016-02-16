@@ -199,7 +199,7 @@ class StormpathLaravelServiceProviderTest extends TestCase
         $this->setupStormpathApplication();
         $google = $this->createGoogleDirectory();
         $facebook = $this->createFacebookDirectory();
-        $linkedin = $this->createLinkedinDirectory();
+//        $linkedin = $this->createLinkedinDirectory();
 
         $provider = new StormpathLaravelServiceProvider($this->app);
         $this->app->register($provider);
@@ -219,16 +219,16 @@ class StormpathLaravelServiceProviderTest extends TestCase
         $this->assertArrayHasKey('clientId',config('stormpath.web.socialProviders.facebook'));
         $this->assertArrayHasKey('clientSecret',config('stormpath.web.socialProviders.facebook'));
 
-        $this->assertTrue(config('stormpath.web.socialProviders.linkedin.enabled'));
-        $this->assertArrayHasKey('name',config('stormpath.web.socialProviders.linkedin'));
-        $this->assertArrayHasKey('clientId',config('stormpath.web.socialProviders.linkedin'));
-        $this->assertArrayHasKey('callbackUri',config('stormpath.web.socialProviders.linkedin'));
-        $this->assertArrayHasKey('clientSecret',config('stormpath.web.socialProviders.linkedin'));
+//        $this->assertTrue(config('stormpath.web.socialProviders.linkedin.enabled'));
+//        $this->assertArrayHasKey('name',config('stormpath.web.socialProviders.linkedin'));
+//        $this->assertArrayHasKey('clientId',config('stormpath.web.socialProviders.linkedin'));
+//        $this->assertArrayHasKey('callbackUri',config('stormpath.web.socialProviders.linkedin'));
+//        $this->assertArrayHasKey('clientSecret',config('stormpath.web.socialProviders.linkedin'));
 
 
         $google->delete();
         $facebook->delete();
-        $linkedin->delete();
+//        $linkedin->delete();
 
 
     }

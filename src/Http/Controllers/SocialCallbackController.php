@@ -96,7 +96,6 @@ class SocialCallbackController extends Controller
 
     public function google(Request $request)
     {
-//        dd($request->get('code'));
         try {
             $providerAccountRequest = new \Stormpath\Provider\GoogleProviderAccountRequest(array(
                 "code" => $request->get('code')
@@ -137,30 +136,33 @@ class SocialCallbackController extends Controller
     {
         $properties = ['account'=>[]];
         $blacklistProperties = [
-            'providerData',
             'httpStatus',
-            'createdAt',
-            'modifiedAt'
+            'account',
+            'applications',
+            'apiKeys',
+            'emailVerificationToken'
         ];
 
         $propNames = $account->getPropertyNames();
         foreach($propNames as $prop) {
             if(in_array($prop, $blacklistProperties)) continue;
+            if(is_object($account->{$prop})) continue;
+
             $properties['account'][$prop] = $this->getPropertyValue($account, $prop);
         }
-
-
 
         return response()->json($properties);
     }
 
-    private function getPropertyValue($account, $propName)
+    private function getPropertyValue($account, $prop)
     {
-        if(is_object($account->{$propName})) {
-            return ['href'=>$account->{$propName}->href];
-        }
+        $value = null;
 
-        return $account->{$propName};
+        $value = $account->getProperty($prop);
+
+        return $value;
+
     }
+
 
 }

@@ -39,7 +39,7 @@ class RoutesTest extends TestCase
     {
         $this->get('callbacks/google?code=123')->assertRedirectedTo(config('stormpath.web.login.uri'));
         $this->get('callbacks/facebook?access_token=123')->assertRedirectedTo(config('stormpath.web.login.uri'));
-        $this->get('callbacks/linkedin?code=123')->assertRedirectedTo(config('stormpath.web.login.uri'));
+//        $this->get('callbacks/linkedin?code=123')->assertRedirectedTo(config('stormpath.web.login.uri'));
     }
 
 }

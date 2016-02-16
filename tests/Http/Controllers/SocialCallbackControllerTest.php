@@ -43,8 +43,8 @@ class SocialCallbackControllerTest extends TestCase
 
         $application->shouldReceive('getAccount')->once()->andReturn($accountObject);
 
-        $request = new Request();
-        $request->get('access_token', '123');
+        $request = app('request');
+        $request->initialize(['accessToken'=>'123']);
 
         $response = $controller->facebook($request);
 
@@ -77,8 +77,8 @@ class SocialCallbackControllerTest extends TestCase
 
         $application->shouldReceive('getAccount')->once()->andReturn($accountObject);
 
-        $request = new Request();
-        $request->get('code', '123');
+        $request = app('request');
+        $request->initialize(['code'=>'123']);
 
         $response = $controller->google($request);
 
@@ -99,6 +99,7 @@ class SocialCallbackControllerTest extends TestCase
     /** @test */
     public function linkedin_callback_will_set_tokens()
     {
+        $this->markTestSkipped('Linkedin Social Provider Disabled currently!');
         $this->setupStormpathApplication();
         $account = $this->createAccount();
         $accountObject = new \stdClass();
