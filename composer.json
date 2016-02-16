@@ -26,7 +26,10 @@
         "illuminate/routing": "~5.1|~5.2",
         "illuminate/validation": "~5.1|~5.2",
         "illuminate/support": "~5.1|~5.2",
-        "bretterer/iso_duration_converter": "^0.1.0"
+        "bretterer/iso_duration_converter": "^0.1.0",
+        "league/oauth2-facebook": "~1.0",
+        "league/oauth2-google": "~1.0",
+        "league/oauth2-linkedin": "~0.4"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0",

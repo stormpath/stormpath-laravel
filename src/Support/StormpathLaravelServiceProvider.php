@@ -233,9 +233,6 @@ class StormpathLaravelServiceProvider extends ServiceProvider
                 case 'google' :
                     $this->setupGoogleProvider($accountStore);
                     break;
-                case 'linkedin' :
-                    $this->setupLinkedinProvider($accountStore);
-                    break;
             }
 
         }
@@ -263,15 +260,6 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         config(['stormpath.web.socialProviders.google.clientId' => $accountStore->provider->getProperty('clientId')]);
         config(['stormpath.web.socialProviders.google.clientSecret' => $accountStore->provider->getProperty('clientSecret')]);
         config(['stormpath.web.socialProviders.google.callbackUri' => $accountStore->provider->getProperty('redirectUri')]);
-    }
-
-    private function setupLinkedinProvider($accountStore)
-    {
-        config(['stormpath.web.socialProviders.linkedin.enabled' => true]);
-        config(['stormpath.web.socialProviders.linkedin.name' => $accountStore->name]);
-        config(['stormpath.web.socialProviders.linkedin.clientId' => $accountStore->provider->getProperty('clientId')]);
-        config(['stormpath.web.socialProviders.linkedin.clientSecret' => $accountStore->provider->getProperty('clientSecret')]);
-        config(['stormpath.web.socialProviders.linkedin.callbackUri' => $accountStore->provider->getProperty('redirectUri')]);
     }
 
 

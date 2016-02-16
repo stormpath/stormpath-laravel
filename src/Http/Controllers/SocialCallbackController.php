@@ -24,6 +24,7 @@ use Stormpath\Laravel\Http\Helpers\IdSiteSessionHelper;
 use Stormpath\Laravel\Http\Traits\Cookies;
 use Stormpath\Provider\ProviderAccountRequest;
 use Stormpath\Resource\AccessToken;
+use Stormpath\Resource\Account;
 
 class SocialCallbackController extends Controller
 {
@@ -42,31 +43,72 @@ class SocialCallbackController extends Controller
 
     public function facebook(Request $request)
     {
+        if($request->has('accessToken')) {
+            return $this->facebookAccessTokenLogin($request->get('accessToken'));
+        }
+
+        if($request->has('code')) {
+            return $this->facebookCodeLogin($request->get('code'));
+        }
+
+        return redirect()->to(config('stormpath.web.login.uri'));
+
+    }
+
+    protected function facebookCodeLogin($code)
+    {
+        $provider = new \League\OAuth2\Client\Provider\Facebook([
+            'clientId'          => config('stormpath.web.socialProviders.facebook.clientId'),
+            'clientSecret'      => config('stormpath.web.socialProviders.facebook.clientSecret'),
+            'redirectUri'       => url(config('stormpath.web.socialProviders.callbackRoot').'/facebook'),
+            'graphApiVersion'   => 'v2.5',
+        ]);
+
+        $token = $provider->getAccessToken('authorization_code', [
+            'code' => $code
+        ]);
+
+        return $this->facebookAccessTokenLogin($token->getToken());
+    }
+
+    protected function facebookAccessTokenLogin($token)
+    {
         try {
             $providerAccountRequest = new \Stormpath\Provider\FacebookProviderAccountRequest(array(
-                "accessToken" => $request->get('access_token')
+                "accessToken" => $token
             ));
 
-            $this->sendProviderAccountRequest($providerAccountRequest);
+            $account = $this->sendProviderAccountRequest($providerAccountRequest);
+
+            if(app('request')->wantsJson()) {
+                return $this->respondWithAccount($account);
+            }
+
+            $this->setCookies($account);
 
 
             return redirect()->to(config('stormpath.web.login.nextUri'));
 
         } catch (\Stormpath\Resource\ResourceError $re) {
-            return redirect()->to(config('stormpath.web.login.uri'));
+            redirect()->to(config('stormpath.web.login.uri'));
         }
-
-
     }
 
     public function google(Request $request)
     {
+//        dd($request->get('code'));
         try {
             $providerAccountRequest = new \Stormpath\Provider\GoogleProviderAccountRequest(array(
                 "code" => $request->get('code')
             ));
 
-            $this->sendProviderAccountRequest($providerAccountRequest);
+            $account = $this->sendProviderAccountRequest($providerAccountRequest);
+
+            if(app('request')->wantsJson()) {
+                return $this->respondWithAccount($account);
+            }
+
+            $this->setCookies($account);
 
             return redirect()->to(config('stormpath.web.login.nextUri'));
         } catch (\Stormpath\Resource\ResourceError $re) {
@@ -75,30 +117,50 @@ class SocialCallbackController extends Controller
 
     }
 
-    public function linkedin(Request $request)
-    {
-        try {
-            $providerAccountRequest = new \Stormpath\Provider\LinkedInProviderAccountRequest(array(
-                "code" => $request->get('code')
-            ));
 
-            $this->sendProviderAccountRequest($providerAccountRequest);
-
-            return redirect()->to(config('stormpath.web.login.nextUri'));
-        } catch (\Stormpath\Resource\ResourceError $re) {
-            return redirect()->to(config('stormpath.web.login.uri'));
-        }
-    }
-
-    public function sendProviderAccountRequest(ProviderAccountRequest $providerAccountRequest)
+    protected function sendProviderAccountRequest(ProviderAccountRequest $providerAccountRequest)
     {
         $result = $this->application->getAccount($providerAccountRequest);
+        return $result->account;
+    }
 
+    protected function setCookies(Account $account)
+    {
         $idSiteSession = new IdSiteSessionHelper();
-        $accessTokens = $idSiteSession->create($result->account);
+        $accessTokens = $idSiteSession->create($account);
 
         $this->queueAccessToken($accessTokens->access_token);
         $this->queueRefreshToken($accessTokens->refresh_token);
+    }
+
+    private function respondWithAccount(Account $account)
+    {
+        $properties = ['account'=>[]];
+        $blacklistProperties = [
+            'providerData',
+            'httpStatus',
+            'createdAt',
+            'modifiedAt'
+        ];
+
+        $propNames = $account->getPropertyNames();
+        foreach($propNames as $prop) {
+            if(in_array($prop, $blacklistProperties)) continue;
+            $properties['account'][$prop] = $this->getPropertyValue($account, $prop);
+        }
+
+
+
+        return response()->json($properties);
+    }
+
+    private function getPropertyValue($account, $propName)
+    {
+        if(is_object($account->{$propName})) {
+            return ['href'=>$account->{$propName}->href];
+        }
+
+        return $account->{$propName};
     }
 
 }

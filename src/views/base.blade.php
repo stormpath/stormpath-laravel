@@ -186,7 +186,7 @@
         .view input[type="color"],
         .view input[type="date"],
         .view input[type="datetime"]
-      .view input[type="datetime-local"],
+        .view input[type="datetime-local"],
         .view input[type="email"],
         .view input[type="month"],
         .view input[type="number"],
@@ -377,7 +377,8 @@
             }
         }
 
-        .login-view .social-area button {
+        .login-view .social-area button,
+        .login-view .social-area a.btn-social {
             display: block;
             width: 100%;
             margin-bottom: 15px;

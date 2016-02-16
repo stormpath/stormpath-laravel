@@ -95,13 +95,24 @@ $this->app->router->group($middleware, function() {
 
     /*
      |--------------------------------------------------------------------------
+     | Social Provider Routes
+     |--------------------------------------------------------------------------
+     */
+    if (config('stormpath.web.socialProviders.enabled')) {
+        $this->app->router->get(config('stormpath.web.login.uri') . '/facebook', ['as' => 'stormpath.login.facebook', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialController@facebook']);
+        $this->app->router->get(config('stormpath.web.login.uri') . '/google', ['as' => 'stormpath.login.google', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialController@google']);
+        $this->app->router->get(config('stormpath.web.login.uri') . '/linkedin', ['as' => 'stormpath.login.linkedin', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialController@linkedin']);
+    }
+
+    /*
+     |--------------------------------------------------------------------------
      | Social Callback Routes
      |--------------------------------------------------------------------------
      */
     if (config('stormpath.web.socialProviders.enabled')) {
-        $this->app->router->get('callbacks/facebook', ['as' => 'stormpath.callbacks.facebook', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@facebook']);
-        $this->app->router->get('callbacks/linkedin', ['as' => 'stormpath.callbacks.linkedin', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@linkedin']);
-        $this->app->router->get('callbacks/google', ['as' => 'stormpath.callbacks.google', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@google']);
+        $this->app->router->get(config('stormpath.web.socialProviders.callbackRoot') . '/facebook', ['as' => 'stormpath.callbacks.facebook', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@facebook']);
+        $this->app->router->get(config('stormpath.web.socialProviders.callbackRoot') . '/linkedin', ['as' => 'stormpath.callbacks.linkedin', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@linkedin']);
+        $this->app->router->get(config('stormpath.web.socialProviders.callbackRoot') . '/google', ['as' => 'stormpath.callbacks.google', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@google']);
     }
 
 });

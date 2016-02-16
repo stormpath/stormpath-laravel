@@ -185,6 +185,10 @@ return [
             "registerUri" => "/#/register"
         ],
 
+        "socialProviders" => [
+            "callbackRoot" => "/callbacks",
+        ],
+
         "me" => [
             "enabled" => false,
             "uri" => "/me"

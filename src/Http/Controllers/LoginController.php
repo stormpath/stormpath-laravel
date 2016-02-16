@@ -76,6 +76,11 @@ class LoginController extends Controller
 
     public function postLogin()
     {
+        if($this->isSocialLoginAttempt()) {
+            return $this->doSocialLogin();
+        }
+
+
         $validator = $this->loginValidator();
 
         if($validator->fails()) {
@@ -283,5 +288,38 @@ class LoginController extends Controller
         }
 
         return $account->{$propName};
+    }
+
+    private function isSocialLoginAttempt()
+    {
+        $attempt = $this->request->has('providerId');
+
+        if(!$attempt) {
+            return false;
+        }
+
+        switch ($provider = $this->request->input('providerId'))
+        {
+            case 'google' :
+            case 'facebook' :
+                return true;
+            case 'stormpath' :
+                throw new \InvalidArgumentException("Please use the standard login/password method instead");
+            default :
+                throw new \InvalidArgumentException("The social provider {$provider} is not supported");
+        }
+    }
+
+    private function doSocialLogin()
+    {
+        switch ($provider = $this->request->input('providerId'))
+        {
+            case 'google' :
+                return app(SocialCallbackController::class)->google($this->request);
+            case 'facebook' :
+                return app(SocialCallbackController::class)->facebook($this->request);
+
+
+        }
     }
 }
