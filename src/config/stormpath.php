@@ -45,7 +45,8 @@ return [
             ],
 
             "password" => [
-                "enabled" => true
+                "enabled" => true,
+                "validationStrategy" => "stormpath"
             ]
         ],
 
@@ -77,51 +78,51 @@ return [
             "autoAuthorize" => false,
             "form" => [
                 "fields" => [
-                    "username" => [
-                        "enabled" => false,
-                        "name" => "username",
-                        "placeholder" => "Username",
-                        "required" => false,
-                        "type" => "text"
-                    ],
                     "givenName" => [
                         "enabled" => true,
-                        "name" => "givenName",
+                        "label" => "First Name",
                         "placeholder" => "First Name",
                         "required" => true,
                         "type" => "text"
                     ],
                     "middleName" => [
                         "enabled" => false,
-                        "name" => "middleName",
+                        "label" => "Middle Name",
                         "placeholder" => "Middle Name",
                         "required" => true,
                         "type" => "text"
                     ],
                     "surname" => [
                         "enabled" => true,
-                        "name" => "surname",
+                        "label" => "Last Name",
                         "placeholder" => "Last Name",
                         "required" => true,
                         "type" => "text"
                     ],
+                    "username" => [
+                        "enabled" => false,
+                        "label" => "Username",
+                        "placeholder" => "Username",
+                        "required" => false,
+                        "type" => "text"
+                    ],
                     "email" => [
                         "enabled" => true,
-                        "name" => "email",
+                        "label" => "Email",
                         "placeholder" => "Email",
                         "required" => true,
                         "type" => "email"
                     ],
                     "password" => [
                         "enabled" => true,
-                        "name" => "password",
+                        "label" => "Password",
                         "placeholder" => "Password",
                         "required" => true,
                         "type" => "password"
                     ],
-                    "passwordConfirm" => [
-                        "enabled" => true,
-                        "name" => "password_confirmation",
+                    "confirmPassword" => [
+                        "enabled" => false,
+                        "label" => "Confirm Password",
                         "placeholder" => "Confirm Password",
                         "required" => true,
                         "type" => "password"
@@ -129,13 +130,13 @@ return [
                 ]
             ],
             "fieldOrder" => [
-                "username",
                 "givenName",
                 "middleName",
                 "surname",
+                "username",
                 "email",
                 "password",
-                "passwordConfirm"
+                "confirmPassword"
             ],
             "view" => "stormpath::register"
         ],
@@ -190,7 +191,7 @@ return [
         ],
 
         "me" => [
-            "enabled" => false,
+            "enabled" => true,
             "uri" => "/me"
         ]
 

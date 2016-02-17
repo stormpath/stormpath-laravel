@@ -124,4 +124,13 @@ $this->app->router->group($middleware, function() {
         $this->app->router->post(config('stormpath.web.oauth2.uri'), ['as' => 'stormpath.oauth.token', 'uses' => 'Stormpath\Laravel\Http\Controllers\OauthController@getTokens']);
     }
 
+    /*
+     |--------------------------------------------------------------------------
+     | Me Routes
+     |--------------------------------------------------------------------------
+     */
+    if (config('stormpath.web.me.enabled')) {
+        $this->app->router->get(config('stormpath.web.me.uri'), ['middleware' => 'stormpath.auth', 'as' => 'stormpath.me', 'uses' => 'Stormpath\Laravel\Http\Controllers\MeController@getMe']);
+    }
+
 });
