@@ -33,13 +33,15 @@ class OauthController extends Controller
     {
         $grantType = $this->getGrantType($request);
 
-        if(!$this->isValidGrantType($grantType)) {
-            return $this->respondUnsupportedGrantType();
+        switch($grantType) {
+            case 'password' :
+                return $this->doPasswordGrantType($request);
+            case 'client_credentials' :
+                return $this->doClientCredentialsGrantType($request);
+            default :
+                return $this->respondUnsupportedGrantType();
         }
 
-        $method = $this->buildGrantTypeMethodName($grantType);
-
-        return $this->{$method}($request);
     }
 
     private function doClientCredentialsGrantType($request)
@@ -47,7 +49,6 @@ class OauthController extends Controller
         try {
             $request = \Stormpath\Authc\Api\Request::createFromGlobals();
             $result = (new OAuthRequestAuthenticator(app('stormpath.application')))->authenticate($request);
-            dd('here');
 
             $tokenResponse = $result->tokenResponse;
             return $tokenResponse->toJson();
@@ -79,30 +80,6 @@ class OauthController extends Controller
     private function getGrantType($request)
     {
         return $request->input('grant_type');
-    }
-
-    private function isValidGrantType($grantType)
-    {
-
-
-        if(!in_array($grantType, $this->validGrantTypes)) {
-            return false;
-        }
-
-        return config("stormpath.web.oauth2.{$grantType}");
-    }
-
-    /**
-     * @param $grantType
-     * @return mixed|string
-     */
-    private function buildGrantTypeMethodName($grantType)
-    {
-        $method = str_replace('_', ' ', $grantType);
-        $method = ucwords($method);
-        $method = str_replace(' ', '', $method);
-        $method = "do{$method}GrantType";
-        return $method;
     }
 
     private function respondWithInvalidLogin()
