@@ -115,4 +115,13 @@ $this->app->router->group($middleware, function() {
         $this->app->router->get(config('stormpath.web.socialProviders.callbackRoot') . '/google', ['as' => 'stormpath.callbacks.google', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@google']);
     }
 
+    /*
+     |--------------------------------------------------------------------------
+     | Oauth Routes
+     |--------------------------------------------------------------------------
+     */
+    if (config('stormpath.web.oauth2.enabled')) {
+        $this->app->router->post(config('stormpath.web.oauth2.uri'), ['as' => 'stormpath.oauth.token', 'uses' => 'Stormpath\Laravel\Http\Controllers\OauthController@getTokens']);
+    }
+
 });
