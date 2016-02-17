@@ -58,7 +58,7 @@ class OauthController extends Controller
 
     private function doPasswordGrantType($request)
     {
-        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest($request->input('login'), $request->input('password'));
+        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest($request->input('username'), $request->input('password'));
         $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
         $result = $auth->authenticate($passwordGrant);
 
