@@ -119,7 +119,7 @@ class RegisterController extends Controller
                 // make sure we're not adding the password or passwordConfirm
                 // fields
                 //
-                if ($key!='password' && $key!='passwordConfirm') {
+                if ($key!='password' && $key!='confirmPassword') {
                     if ($account->{$key}!=$registerFields[$key]) {
                         $account->customData->{$key} = $value;
                         $customDataAdded = true;
@@ -204,9 +204,9 @@ class RegisterController extends Controller
 
         $registerField = config('stormpath.web.register.form.fields');
 
-        foreach($registerField as $field) {
+        foreach($registerField as $key => $field) {
             if($field['enabled'] == true && $field['required'] == true) {
-                $rules[$field['name']] = 'required';
+                $rules[$key] = 'required';
             }
         }
 
@@ -240,7 +240,7 @@ class RegisterController extends Controller
         $registerFields = config('stormpath.web.register.form.fields');
         foreach($registerFields as $spfield=>$field) {
             if($field['required'] == true) {
-                $registerArray[$spfield] = $this->request->input($field['name']);
+                $registerArray[$spfield] = $this->request->input($spfield);
             }
         }
 
