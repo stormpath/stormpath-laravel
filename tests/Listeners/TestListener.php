@@ -19,7 +19,7 @@ class TestListener extends PHPUnit_Framework_BaseTestListener
     public function __destruct() {
 
         if(!empty($this->errors)) {
-            $this->printer->write("Debug Information for Errors:");
+            $this->printer->write("Debug Information for Errors:\n");
 
             foreach($this->errors as $error) {
                 $this->printer->write("{$error}");
