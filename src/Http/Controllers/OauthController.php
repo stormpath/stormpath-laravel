@@ -59,15 +59,14 @@ class OauthController extends Controller
 
     private function doPasswordGrantType($request)
     {
-        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest($request->input('username'), $request->input('password'));
-        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
-        $result = $auth->authenticate($passwordGrant);
-
-        if(!$result instanceof OauthGrantAuthenticationResult) {
-            return $this->respondWithInvalidLogin();
+        try {
+            $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest($request->input('username'), $request->input('password'));
+            $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
+            $result = $auth->authenticate($passwordGrant);
+            return $this->respondWithAccessTokens($result);
+        } catch (\Exception $e) {
+            return $this->respondWithInvalidLogin($e);
         }
-
-        return $this->respondWithAccessTokens($result);
     }
 
     private function respondUnsupportedGrantType()
@@ -82,11 +81,11 @@ class OauthController extends Controller
         return $request->input('grant_type');
     }
 
-    private function respondWithInvalidLogin()
+    private function respondWithInvalidLogin($e)
     {
         return response()->json([
-            'message' => 'Could not successfully log you in.',
-            'error' => 'invalid_request'
+            'message' => $e->getMessage(),
+            'error' => 'invalid_grant'
         ]);
     }
 
