@@ -25,6 +25,7 @@ use Event;
 use Stormpath\Laravel\Exceptions\ActionAbortedException;
 use Stormpath\Laravel\Events\UserIsRegistering;
 use Stormpath\Laravel\Events\UserHasRegistered;
+use Stormpath\Resource\Account;
 
 class RegisterController extends Controller
 {
@@ -72,7 +73,7 @@ class RegisterController extends Controller
         if($validator->fails()) {
 
             if($this->request->wantsJson()) {
-                return $this->respondWithError('Validation Failed', 400, ['validatonErrors' => $validator->errors()]);
+                return $this->respondWithValidationErrorForJson($validator);
             }
 
             return redirect()
@@ -216,12 +217,12 @@ class RegisterController extends Controller
         $messages[config('stormpath.web.register.form.fields.surname.name').'.required'] = 'Surname is required.';
         $messages[config('stormpath.web.register.form.fields.email.name').'.required'] = 'Email is required.';
         $messages[config('stormpath.web.register.form.fields.password.name').'.required'] = 'Password is required.';
-        $messages[config('stormpath.web.register.form.fields.passwordConfirm.name').'.required'] = 'Password confirmation is required.';
+        $messages[config('stormpath.web.register.form.fields.confirmPassword.name').'.required'] = 'Password confirmation is required.';
 
 
-        if( config('stormpath.web.register.form.fields.passwordConfirm.required') ) {
-            $rules['password'] = 'required|confirmed';
-            $messages['password.confirmed'] = 'Passwords are not the same.';
+        if( config('stormpath.web.register.form.fields.confirmPassword.required') ) {
+            $rules['password'] = 'required|same:confirmPassword';
+            $messages['password.same'] = 'Passwords are not the same.';
         }
 
         $validator = $this->validator->make(
@@ -308,31 +309,45 @@ class RegisterController extends Controller
     }
 
 
-    private function respondWithAccount($account)
+    private function respondWithAccount(Account $account)
     {
-        $properties = [];
+        $properties = ['account'=>[]];
         $blacklistProperties = [
-            'providerData',
             'httpStatus',
-            'createdAt',
-            'modifiedAt'
+            'account',
+            'applications',
+            'apiKeys',
+            'emailVerificationToken',
+            'providerData'
         ];
 
         $propNames = $account->getPropertyNames();
         foreach($propNames as $prop) {
             if(in_array($prop, $blacklistProperties)) continue;
-            $properties[$prop] = $this->getPropertyValue($account, $prop);
+            if(is_object($account->{$prop})) continue;
+
+            $properties['account'][$prop] = $this->getPropertyValue($account, $prop);
         }
 
         return response()->json($properties);
     }
 
-    private function getPropertyValue($account, $propName)
+    private function getPropertyValue($account, $prop)
     {
-        if(is_object($account->{$propName})) {
-            return ['href'=>$account->{$propName}->href];
-        }
+        $value = null;
 
-        return $account->{$propName};
+        $value = $account->getProperty($prop);
+
+        return $value;
+
+    }
+
+    private function respondWithValidationErrorForJson($validator)
+    {
+
+        return response()->json([
+            'message' => $validator->errors()->first(),
+            'status' => 400
+        ], 400);
     }
 }

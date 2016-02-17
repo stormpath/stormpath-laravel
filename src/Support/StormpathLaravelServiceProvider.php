@@ -19,6 +19,8 @@ namespace Stormpath\Laravel\Support;
 
 use Illuminate\Support\ServiceProvider;
 use Stormpath\Client;
+use Stormpath\Laravel\Http\Helpers\IdSiteModel;
+use Stormpath\Resource\AccountCreationPolicy;
 use Stormpath\Stormpath;
 
 class StormpathLaravelServiceProvider extends ServiceProvider
@@ -26,19 +28,6 @@ class StormpathLaravelServiceProvider extends ServiceProvider
     const INTEGRATION_NAME = 'stormpath-laravel';
     const INTEGRATION_VERSION = '0.2.0';
 
-
-    /**
-     * Perform post-registration booting of services.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-
-        $this->loadRoutes();
-
-        $this->loadViewsFrom(__DIR__.'/../views', 'stormpath');
-    }
 
     /**
      * Register the service provider.
@@ -55,10 +44,21 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         $this->registerApplication();
 
 
-        if(config('stormpath.application.href') !== null)
-            $this->checkForSocialProviders();
+        $this->checkForSocialProviders();
 
         $this->registerUser();
+    }
+
+    /**
+     * Perform post-registration booting of services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+
+        $this->loadRoutes();
+        $this->loadViewsFrom(__DIR__.'/../views', 'stormpath');
     }
 
     public function provides()
@@ -71,6 +71,7 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
     private function loadRoutes()
     {
+
         require __DIR__ . '/../Http/routes.php';
     }
 
@@ -110,7 +111,8 @@ class StormpathLaravelServiceProvider extends ServiceProvider
                 throw new \InvalidArgumentException(config('stormpath.application.href') . ' is not a valid Stormpath Application HREF.');
             }
 
-            $application = \Stormpath\Resource\Application::get(config( 'stormpath.application.href' ));
+            $application = \Stormpath\Resource\Application::get(config( 'stormpath.application.href'));
+
             $this->enhanceConfig($application);
             return $application;
 
@@ -189,17 +191,19 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
     private function enhanceConfig($application)
     {
-        $value = false;
+        $asm = $application->getDefaultAccountStoreMapping();
 
-        $accountStoreMappings = $application->accountStoreMappings;
-
-        if ($accountStoreMappings) {
-            foreach ($accountStoreMappings as $asm) {
-                $directory = $asm->accountStore;
-                $acp = $directory->accountCreationPolicy;
-                $value = $acp->verificationEmailStatus == Stormpath::ENABLED ? true : $value;
-            }
+        if(null === $asm && config('stormpath.web.register.enabled')) {
+            throw new \InvalidArgumentException('No default account store is mapped to the specified application. A default account store is required for registration.');
         }
+
+        if(!config('stormpath.web.register.enabled')) {
+            return false;
+        }
+
+        $directory = \Stormpath\Resource\Directory::get($asm->accountStore->href, ['expand'=>'accountCreationPolicy']);
+
+        $value = $directory->verificationEmailStatus == Stormpath::ENABLED ?: false;
 
         config(['stormpath.web.verifyEmail.enabled'=>$value]);
     }
@@ -211,55 +215,40 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
     private function checkForSocialProviders()
     {
-        $directories = $this->getDirectories();
+        $model = IdSiteModel::get(app('stormpath.application')->getProperty('idSiteModel')->href);
+        $providers = $model->getProperty('providers');
 
-        if(null === $directories) return null;
 
-        foreach($directories as $directory) {
-            $accountStore = $directory->accountStore;
-            $provider = $accountStore->provider;
-            $providerId = $provider->providerId;
-
-            if($providerId == 'stormpath' || $providerId == 'saml') continue;
-
-            if($accountStore->status != Stormpath::ENABLED) continue;
-
+        foreach($providers as $provider) {
             config(['stormpath.web.socialProviders.enabled' => true]);
+            require __DIR__ . '/../Http/socialRoutes.php';
 
-            switch($providerId) {
+            switch ($provider->providerId) {
                 case 'facebook' :
-                    $this->setupFacebookProvider($accountStore);
+                    $this->setupFacebookProvider($provider);
                     break;
                 case 'google' :
-                    $this->setupGoogleProvider($accountStore);
+                    $this->setupGoogleProvider($provider);
                     break;
             }
-
         }
+
+
     }
 
-    private function getDirectories()
-    {
-        $spApplication = app('stormpath.application');
-
-        return $spApplication->getAccountStoreMappings();
-    }
-
-    private function setupFacebookProvider($accountStore)
+    private function setupFacebookProvider($provider)
     {
         config(['stormpath.web.socialProviders.facebook.enabled' => true]);
-        config(['stormpath.web.socialProviders.facebook.name' => $accountStore->name]);
-        config(['stormpath.web.socialProviders.facebook.clientId' => $accountStore->provider->getProperty('clientId')]);
-        config(['stormpath.web.socialProviders.facebook.clientSecret' => $accountStore->provider->getProperty('clientSecret')]);
+        config(['stormpath.web.socialProviders.facebook.name' => 'Facebook']);
+        config(['stormpath.web.socialProviders.facebook.clientId' => $provider->clientId]);
     }
 
-    private function setupGoogleProvider($accountStore)
+    private function setupGoogleProvider($provider)
     {
         config(['stormpath.web.socialProviders.google.enabled' => true]);
-        config(['stormpath.web.socialProviders.google.name' => $accountStore->name]);
-        config(['stormpath.web.socialProviders.google.clientId' => $accountStore->provider->getProperty('clientId')]);
-        config(['stormpath.web.socialProviders.google.clientSecret' => $accountStore->provider->getProperty('clientSecret')]);
-        config(['stormpath.web.socialProviders.google.callbackUri' => $accountStore->provider->getProperty('redirectUri')]);
+        config(['stormpath.web.socialProviders.google.name' => 'Google']);
+        config(['stormpath.web.socialProviders.google.clientId' => $provider->clientId]);
+        config(['stormpath.web.socialProviders.google.callbackUri' => $provider->redirectUri]);
     }
 
 

@@ -24,6 +24,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Factory as Validator;
 use Stormpath\Laravel\Http\Traits\AuthenticatesUser;
+use Stormpath\Resource\Account;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Event;
@@ -83,7 +84,13 @@ class LoginController extends Controller
 
         $validator = $this->loginValidator();
 
+
+
         if($validator->fails()) {
+            if($this->request->wantsJson()) {
+                return $this->respondWithValidationErrorForJson($validator);
+            }
+
             return redirect()
                 ->to(config('stormpath.web.login.uri'))
                 ->withErrors($validator)
@@ -255,39 +262,43 @@ class LoginController extends Controller
     private function respondWithError($message, $statusCode = 400)
     {
         $error = [
-            'errors' => [
-                'message' => $message
-            ]
+            'message' => $message,
+            'status' => $statusCode
         ];
         return response()->json($error, $statusCode);
     }
 
-    private function respondWithAccount($account)
+    private function respondWithAccount(Account $account)
     {
-        $properties = [];
+        $properties = ['account'=>[]];
         $blacklistProperties = [
-            'providerData',
             'httpStatus',
-            'createdAt',
-            'modifiedAt'
+            'account',
+            'applications',
+            'apiKeys',
+            'emailVerificationToken',
+            'providerData'
         ];
 
         $propNames = $account->getPropertyNames();
         foreach($propNames as $prop) {
             if(in_array($prop, $blacklistProperties)) continue;
-            $properties[$prop] = $this->getPropertyValue($account, $prop);
+            if(is_object($account->{$prop})) continue;
+
+            $properties['account'][$prop] = $this->getPropertyValue($account, $prop);
         }
 
         return response()->json($properties);
     }
 
-    private function getPropertyValue($account, $propName)
+    private function getPropertyValue($account, $prop)
     {
-        if(is_object($account->{$propName})) {
-            return ['href'=>$account->{$propName}->href];
-        }
+        $value = null;
 
-        return $account->{$propName};
+        $value = $account->getProperty($prop);
+
+        return $value;
+
     }
 
     private function isSocialLoginAttempt()
@@ -321,5 +332,14 @@ class LoginController extends Controller
 
 
         }
+    }
+
+    private function respondWithValidationErrorForJson($validator)
+    {
+
+        return response()->json([
+            'message' => $validator->errors()->first(),
+            'status' => 400
+        ], 400);
     }
 }

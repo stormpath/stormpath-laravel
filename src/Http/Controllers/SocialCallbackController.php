@@ -20,6 +20,7 @@ namespace Stormpath\Laravel\Http\Controllers;
 use Illuminate\Cookie\CookieJar;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Stormpath\Laravel\Http\Helpers\FacebookProviderAccountRequest;
 use Stormpath\Laravel\Http\Helpers\IdSiteSessionHelper;
 use Stormpath\Laravel\Http\Traits\Cookies;
 use Stormpath\Provider\ProviderAccountRequest;
@@ -43,55 +44,27 @@ class SocialCallbackController extends Controller
 
     public function facebook(Request $request)
     {
-        if($request->has('accessToken')) {
-            return $this->facebookAccessTokenLogin($request->get('accessToken'));
-        }
-
-        if($request->has('code')) {
-            return $this->facebookCodeLogin($request->get('code'));
-        }
-
-        return redirect()->to(config('stormpath.web.login.uri'));
-
-    }
-
-    protected function facebookCodeLogin($code)
-    {
-        $provider = new \League\OAuth2\Client\Provider\Facebook([
-            'clientId'          => config('stormpath.web.socialProviders.facebook.clientId'),
-            'clientSecret'      => config('stormpath.web.socialProviders.facebook.clientSecret'),
-            'redirectUri'       => url(config('stormpath.web.socialProviders.callbackRoot').'/facebook'),
-            'graphApiVersion'   => 'v2.5',
-        ]);
-
-        $token = $provider->getAccessToken('authorization_code', [
-            'code' => $code
-        ]);
-
-        return $this->facebookAccessTokenLogin($token->getToken());
-    }
-
-    protected function facebookAccessTokenLogin($token)
-    {
         try {
-            $providerAccountRequest = new \Stormpath\Provider\FacebookProviderAccountRequest(array(
-                "accessToken" => $token
+            $providerAccountRequest = new FacebookProviderAccountRequest(array(
+                "accessToken" => $request->get('access_token'),
+                "code" => $request->get('code')
             ));
 
             $account = $this->sendProviderAccountRequest($providerAccountRequest);
+
+            $this->setCookies($account);
 
             if(app('request')->wantsJson()) {
                 return $this->respondWithAccount($account);
             }
 
-            $this->setCookies($account);
-
 
             return redirect()->to(config('stormpath.web.login.nextUri'));
-
         } catch (\Stormpath\Resource\ResourceError $re) {
-            redirect()->to(config('stormpath.web.login.uri'));
+            dd($re);
+            return redirect()->to(config('stormpath.web.login.uri'));
         }
+
     }
 
     public function google(Request $request)
@@ -103,11 +76,12 @@ class SocialCallbackController extends Controller
 
             $account = $this->sendProviderAccountRequest($providerAccountRequest);
 
+            $this->setCookies($account);
+
             if(app('request')->wantsJson()) {
                 return $this->respondWithAccount($account);
             }
 
-            $this->setCookies($account);
 
             return redirect()->to(config('stormpath.web.login.nextUri'));
         } catch (\Stormpath\Resource\ResourceError $re) {
@@ -140,7 +114,8 @@ class SocialCallbackController extends Controller
             'account',
             'applications',
             'apiKeys',
-            'emailVerificationToken'
+            'emailVerificationToken',
+            'providerData'
         ];
 
         $propNames = $account->getPropertyNames();
