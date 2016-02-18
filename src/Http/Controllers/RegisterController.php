@@ -220,7 +220,7 @@ class RegisterController extends Controller
         $messages[config('stormpath.web.register.form.fields.confirmPassword.name').'.required'] = 'Password confirmation is required.';
 
 
-        if( config('stormpath.web.register.form.fields.confirmPassword.required') ) {
+        if( config('stormpath.web.register.form.fields.confirmPassword.enabled') ) {
             $rules['password'] = 'required|same:confirmPassword';
             $messages['password.same'] = 'Passwords are not the same.';
         }

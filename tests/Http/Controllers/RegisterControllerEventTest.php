@@ -45,7 +45,7 @@ class RegisterControllerEventTest extends TestCase
             config('stormpath.web.register.form.fields.surname.name') => 'Account',
             config('stormpath.web.register.form.fields.email.name') => 'test@account.com',
             config('stormpath.web.register.form.fields.password.name') => 'superP4ss!',
-            config('stormpath.web.register.form.fields.passwordConfirm.name') => 'superP4ss!'
+            config('stormpath.web.register.form.fields.confirmPassword.name') => 'superP4ss!'
         ]);
 
         $this->seeCookie(config('stormpath.web.accessTokenCookie.name'));
@@ -74,7 +74,7 @@ class RegisterControllerEventTest extends TestCase
             config('stormpath.web.register.form.fields.surname.name') => 'Account',
             config('stormpath.web.register.form.fields.email.name') => 'test@account.com',
             config('stormpath.web.register.form.fields.password.name') => 'superP4ss!',
-            config('stormpath.web.register.form.fields.passwordConfirm.name') => 'superP4ss!'
+            config('stormpath.web.register.form.fields.confirmPassword.name') => 'superP4ss!'
         ]);
 
         $this->seeNotCookie(config('stormpath.web.accessTokenCookie.name'));
@@ -96,7 +96,7 @@ class RegisterControllerEventTest extends TestCase
             config('stormpath.web.register.form.fields.surname.name') => 'Account',
             config('stormpath.web.register.form.fields.email.name') => 'test@account.com',
             config('stormpath.web.register.form.fields.password.name') => 'superP4ss!',
-            config('stormpath.web.register.form.fields.passwordConfirm.name') => 'superP4ss!'
+            config('stormpath.web.register.form.fields.confirmPassword.name') => 'superP4ss!'
         ]);
 
         $this->seeCookie(config('stormpath.web.accessTokenCookie.name'));

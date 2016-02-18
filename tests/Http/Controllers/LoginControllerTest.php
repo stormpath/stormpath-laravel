@@ -167,7 +167,8 @@ class LoginControllerTest extends TestCase
         )
             ->seeJson();
 
-        $this->see('errors');
+        $this->see('message');
+        $this->see('status');
         $this->dontSee('account');
 
         $this->assertResponseStatus(400);

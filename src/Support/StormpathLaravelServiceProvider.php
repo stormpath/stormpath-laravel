@@ -43,7 +43,6 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         $this->registerClient();
         $this->registerApplication();
 
-
         $this->checkForSocialProviders();
 
         $this->registerUser();
@@ -215,6 +214,8 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
     private function checkForSocialProviders()
     {
+        if(config('stormpath.application.href') == null)  return;
+
         $model = IdSiteModel::get(app('stormpath.application')->getProperty('idSiteModel')->href);
         $providers = $model->getProperty('providers');
 
