@@ -24,10 +24,6 @@ use Stormpath\Oauth\OauthGrantAuthenticationResult;
 
 class OauthController extends Controller
 {
-    private $validGrantTypes = [
-        'client_credentials',
-        'password'
-    ];
 
     public function getTokens(Request $request)
     {
@@ -38,6 +34,8 @@ class OauthController extends Controller
                 return $this->doPasswordGrantType($request);
             case 'client_credentials' :
                 return $this->doClientCredentialsGrantType($request);
+            case 'refresh_token' :
+                return $this->doRefreshGrantType($request);
             default :
                 return $this->respondUnsupportedGrantType();
         }
@@ -72,8 +70,9 @@ class OauthController extends Controller
     private function respondUnsupportedGrantType()
     {
         return response()->json([
+            'message' => 'The authorization grant type is not supported by the authorization server.',
             'error' => 'unsupported_grant_type'
-        ]);
+        ], 400);
     }
 
     private function getGrantType($request)
@@ -86,7 +85,7 @@ class OauthController extends Controller
         return response()->json([
             'message' => $e->getMessage(),
             'error' => 'invalid_grant'
-        ]);
+        ], 400);
     }
 
     private function respondWithAccessTokens(OauthGrantAuthenticationResult $result)
@@ -97,5 +96,30 @@ class OauthController extends Controller
             'refresh_token' => $result->getRefreshTokenString(),
             'token_type' => 'Bearer'
         ]);
+    }
+
+    private function doRefreshGrantType($request)
+    {
+        if(null === $request->input('refresh_token')) {
+            return $this->respondWithInvalidRequest('The refresh_token parameter is required.');
+        }
+        try {
+            $refreshGrant = new \Stormpath\Oauth\RefreshGrantRequest($request->input('refresh_token'));
+
+            $auth = new \Stormpath\Oauth\RefreshGrantAuthenticator(app('stormpath.application'));
+            $result = $auth->authenticate($refreshGrant);
+            return $this->respondWithAccessTokens($result);
+        } catch (\Exception $e) {
+            $this->respondWithInvalidLogin($e);
+        }
+
+    }
+
+    private function respondWithInvalidRequest($message = 'Invalid Request')
+    {
+        return response()->json([
+            'message' => $message,
+            'error' => 'invalid_request'
+        ], 400);
     }
 }
