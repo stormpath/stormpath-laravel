@@ -202,7 +202,7 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
         $directory = \Stormpath\Resource\Directory::get($asm->accountStore->href, ['expand'=>'accountCreationPolicy']);
 
-        $value = $directory->verificationEmailStatus == Stormpath::ENABLED ?: false;
+        $value = $directory->accountCreationPolicy->verificationEmailStatus == Stormpath::ENABLED ?: false;
 
         config(['stormpath.web.verifyEmail.enabled'=>$value]);
     }

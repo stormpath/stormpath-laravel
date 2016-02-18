@@ -81,6 +81,7 @@ class RegisterController extends Controller
                 ->withErrors($validator)
                 ->withInput();
         }
+
         try {
             $registerFields = $this->setRegisterFields();
 
@@ -202,6 +203,7 @@ class RegisterController extends Controller
     {
         $rules = [];
         $messages = [];
+        $input = $this->request->all();
 
         $registerField = config('stormpath.web.register.form.fields');
 
@@ -211,13 +213,13 @@ class RegisterController extends Controller
             }
         }
 
-        $messages[config('stormpath.web.register.form.fields.username.name').'.required'] = 'Username is required.';
-        $messages[config('stormpath.web.register.form.fields.givenName.name').'.required'] = 'Given name is required.';
-        $messages[config('stormpath.web.register.form.fields.middleName.name').'.required'] = 'Middle name is required.';
-        $messages[config('stormpath.web.register.form.fields.surname.name').'.required'] = 'Surname is required.';
-        $messages[config('stormpath.web.register.form.fields.email.name').'.required'] = 'Email is required.';
-        $messages[config('stormpath.web.register.form.fields.password.name').'.required'] = 'Password is required.';
-        $messages[config('stormpath.web.register.form.fields.confirmPassword.name').'.required'] = 'Password confirmation is required.';
+        $messages['username.required'] = 'Username is required.';
+        $messages['givenName.required'] = 'Given name is required.';
+        $messages['middleName.required'] = 'Middle name is required.';
+        $messages['surname.required'] = 'Surname is required.';
+        $messages['email.required'] = 'Email is required.';
+        $messages['password.required'] = 'Password is required.';
+        $messages['confirmPassword.required'] = 'Password confirmation is required.';
 
 
         if( config('stormpath.web.register.form.fields.confirmPassword.enabled') ) {

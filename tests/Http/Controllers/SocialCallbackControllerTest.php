@@ -96,38 +96,4 @@ class SocialCallbackControllerTest extends TestCase
         \Mockery::close();
     }
 
-    /** @test */
-    public function linkedin_callback_will_set_tokens()
-    {
-        $this->markTestSkipped('Linkedin Social Provider Disabled currently!');
-        $this->setupStormpathApplication();
-        $account = $this->createAccount();
-        $accountObject = new \stdClass();
-        $accountObject->account = $account;
-        $cookieJar = app('cookie');
-
-        $application = \Mockery::mock('Stormpath\Resource\Application');
-        $controller = new SocialCallbackController($application);
-
-        $application->shouldReceive('getAccount')->once()->andReturn($accountObject);
-
-        $request = new Request();
-        $request->get('code', '123');
-
-        $response = $controller->linkedin($request);
-
-        $this->assertInstanceOf('Illuminate\Http\RedirectResponse', $response);
-        $this->assertEquals(302, $response->getStatusCode());
-        $this->assertTrue($response->headers->contains('location', url(config('stormpath.web.login.nextUri'))));
-
-        $this->assertTrue($cookieJar->hasQueued('access_token'));
-        $this->assertTrue($cookieJar->hasQueued('refresh_token'));
-
-        $account->delete();
-        $cookieJar->unqueue('access_token');
-        $cookieJar->unqueue('refresh_token');
-
-        \Mockery::close();
-    }
-
 }
