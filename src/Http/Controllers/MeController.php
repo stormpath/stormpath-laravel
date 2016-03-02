@@ -17,6 +17,7 @@
 
 namespace Stormpath\Laravel\Http\Controllers;
 
+use Illuminate\Encryption\Encrypter;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Stormpath\Resource\Account;
@@ -50,7 +51,6 @@ class MeController extends Controller
             'httpStatus',
             'account',
             'applications',
-            'apiKeys',
             'emailVerificationToken',
             'providerData'
         ];
@@ -58,7 +58,16 @@ class MeController extends Controller
         $propNames = $account->getPropertyNames();
         foreach($propNames as $prop) {
             if(in_array($prop, $blacklistProperties)) continue;
-            if(is_object($account->{$prop})) continue;
+            if(is_object($account->{$prop})) {
+                $class = $account->{$prop};
+                $path = explode('\\', $class);
+                $property = lcfirst(array_pop($path));
+                if(config("stormpath.web.me.expand.{$property}") === true) {
+                    dump($account->{$prop});
+                }
+
+                continue;
+            }
 
             $properties['account'][$prop] = $this->getPropertyValue($account, $prop);
         }
@@ -84,7 +93,9 @@ class MeController extends Controller
 
         $jwt = \JWT::decode($accessToken, config('stormpath.config.apiKey.secret'), ['HS256']);
 
+        $expands = [];
 
+        foreach(config('stormpath.web.'))
         $account = \Stormpath\Resource\Account::get($jwt->sub);
         return $account;
     }

@@ -94,6 +94,7 @@ class RegisterController extends Controller
 
             $account = \Stormpath\Resource\Account::instantiate($registerFields);
 
+            app('cache.store')->forget('stormpath.application');
             $application = app('stormpath.application');
 
             $account = $application->createAccount($account);
@@ -252,22 +253,22 @@ class RegisterController extends Controller
 
     private function respondWithForm()
     {
-        $application = app('stormpath.application');
-        $accountStoreArray = [];
-        $accountStores = $application->getAccountStoreMappings();
-        foreach($accountStores as $accountStore) {
-            $store = $accountStore->accountStore;
-            $provider = $store->provider;
-            $accountStoreArray[] = [
-                'href' => $store->href,
-                'name' => $store->name,
-                'provider' => [
-                    'href' => $provider->href,
-                    'providerId' => $provider->providerId,
-                    'clientId' => $provider->clientId
-                ]
-            ];
-        }
+//        $application = app('stormpath.application');
+//        $accountStoreArray = [];
+//        $accountStores = $application->getAccountStoreMappings();
+//        foreach($accountStores as $accountStore) {
+//            $store = $accountStore->accountStore;
+//            $provider = $store->provider;
+//            $accountStoreArray[] = [
+//                'href' => $store->href,
+//                'name' => $store->name,
+//                'provider' => [
+//                    'href' => $provider->href,
+//                    'providerId' => $provider->providerId,
+//                    'clientId' => $provider->clientId
+//                ]
+//            ];
+//        }
 
         $fields = [];
         $fields[] = [
@@ -288,9 +289,9 @@ class RegisterController extends Controller
             'form' => [
                 'fields' => $fields
             ],
-            'accountStores' => [
-                $accountStoreArray
-            ]
+//            'accountStores' => [
+//                $accountStoreArray
+//            ]
         ];
 
         return response()->json($data);

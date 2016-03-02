@@ -37,8 +37,11 @@ class SocialCallbackController extends Controller
     {
         $this->application = $application;
 
-        if(null === $this->application)
+        app('cache.store')->forget('stormpath.application');
+
+        if(null === $this->application) {
             $this->application = app('stormpath.application');
+        }
 
     }
 
@@ -58,8 +61,9 @@ class SocialCallbackController extends Controller
                 return $this->respondWithAccount($account);
             }
 
+            return redirect()
+                ->intended(config('stormpath.web.login.nextUri'));
 
-            return redirect()->to(config('stormpath.web.login.nextUri'));
         } catch (\Stormpath\Resource\ResourceError $re) {
             dd($re);
             return redirect()->to(config('stormpath.web.login.uri'));
@@ -102,8 +106,8 @@ class SocialCallbackController extends Controller
         $idSiteSession = new IdSiteSessionHelper();
         $accessTokens = $idSiteSession->create($account);
 
-        $this->queueAccessToken($accessTokens->access_token);
-        $this->queueRefreshToken($accessTokens->refresh_token);
+        $this->queueAccessToken($accessTokens->getProperty('access_token'));
+        $this->queueRefreshToken($accessTokens->getProperty('refresh_token'));
     }
 
     private function respondWithAccount(Account $account)
@@ -137,6 +141,39 @@ class SocialCallbackController extends Controller
 
         return $value;
 
+    }
+
+    private function returnSuccessLogin($account)
+    {
+        $idSiteSession = new IdSiteSessionHelper();
+        $accessTokens = $idSiteSession->create($account);
+
+        return redirect()
+            ->intended(config('stormpath.web.login.nextUri'))
+            ->withCookies(
+                [
+                    config('stormpath.web.accessTokenCookie.name') =>
+                        cookie(
+                            config('stormpath.web.accessTokenCookie.name'),
+                            $accessTokens->access_token,
+                            3600,
+                            config('stormpath.web.accessTokenCookie.path'),
+                            config('stormpath.web.accessTokenCookie.domain'),
+                            config('stormpath.web.accessTokenCookie.secure'),
+                            config('stormpath.web.accessTokenCookie.httpOnly')
+                        ),
+                    config('stormpath.web.refreshTokenCookie.name') =>
+                        cookie(
+                            config('stormpath.web.refreshTokenCookie.name'),
+                            $accessTokens->refresh_token,
+                            3600,
+                            config('stormpath.web.refreshTokenCookie.path'),
+                            config('stormpath.web.refreshTokenCookie.domain'),
+                            config('stormpath.web.refreshTokenCookie.secure'),
+                            config('stormpath.web.refreshTokenCookie.httpOnly')
+                        )
+                ]
+            );
     }
 
 

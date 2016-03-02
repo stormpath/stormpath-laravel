@@ -36,6 +36,19 @@ trait Cookies
         $cookieJar->queue($cookie);
     }
 
+    public function makeAccessTokenCookie($accessToken)
+    {
+        return cookie(
+            config('stormpath.web.accessTokenCookie.name'),
+            $accessToken,
+            $this->getExpiresTime('accessToken') / 60,
+            config('stormpath.web.accessTokenCookie.path'),
+            config('stormpath.web.accessTokenCookie.domain'),
+            config('stormpath.web.accessTokenCookie.secure'),
+            config('stormpath.web.accessTokenCookie.httpOnly')
+        );
+    }
+
     public function queueRefreshToken($refreshToken)
     {
         $cookieJar = app('cookie');
@@ -51,6 +64,19 @@ trait Cookies
         );
 
         $cookieJar->queue($cookie);
+    }
+
+    public function makeRefreshTokenCookie($refreshToken)
+    {
+        return cookie(
+            config('stormpath.web.refreshTokenCookie.name'),
+            $refreshToken,
+            $this->getExpiresTime('refreshToken') / 60,
+            config('stormpath.web.refreshTokenCookie.path'),
+            config('stormpath.web.refreshTokenCookie.domain'),
+            config('stormpath.web.refreshTokenCookie.secure'),
+            config('stormpath.web.refreshTokenCookie.httpOnly')
+        );
     }
 
     private function getExpiresTime($type = 'accessToken')

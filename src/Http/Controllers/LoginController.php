@@ -205,22 +205,21 @@ class LoginController extends Controller
 
     private function respondWithForm()
     {
-        $application = app('stormpath.application');
-        $accountStoreArray = [];
-        $accountStores = $application->getAccountStoreMappings();
-        foreach($accountStores as $accountStore) {
-            $store = $accountStore->accountStore;
-            $provider = $store->provider;
-            $accountStoreArray[] = [
-                'href' => $store->href,
-                'name' => $store->name,
-                'provider' => [
-                    'href' => $provider->href,
-                    'providerId' => $provider->providerId,
-                    'clientId' => $provider->clientId
-                ]
-            ];
-        }
+//        $accountStoreArray = [];
+//        $accountStores = app('stormpath.application')->getAccountStoreMappings();
+//        foreach($accountStores as $accountStore) {
+//            $store = $accountStore->accountStore;
+//            $provider = $store->provider;
+//            $accountStoreArray[] = [
+//                'href' => $store->href,
+//                'name' => $store->name,
+//                'provider' => [
+//                    'href' => $provider->href,
+//                    'providerId' => $provider->providerId,
+//                    'clientId' => $provider->clientId
+//                ]
+//            ];
+//        }
 
         $data = [
             'form' => [
@@ -249,12 +248,11 @@ class LoginController extends Controller
                     ]
                 ]
             ],
-            'accountStores' => [
-                $accountStoreArray
-            ],
+//            'accountStores' => [
+//                $accountStoreArray
+//            ],
 
         ];
-
         return response()->json($data);
 
     }

@@ -192,7 +192,17 @@ return [
 
         "me" => [
             "enabled" => true,
-            "uri" => "/me"
+            "uri" => "/me",
+            "expand" => [
+                "apiKeys" => false,
+                "applications" => false,
+                "customData" => false,
+                "directory" => false,
+                "groupMemberships" => false,
+                "groups" => false,
+                "providerData" => false,
+                "tenant" => false
+            ]
         ]
 
     ]

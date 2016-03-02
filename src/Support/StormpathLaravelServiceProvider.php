@@ -20,15 +20,13 @@ namespace Stormpath\Laravel\Support;
 use Illuminate\Support\ServiceProvider;
 use Stormpath\Client;
 use Stormpath\Laravel\Http\Helpers\IdSiteModel;
-use Stormpath\Resource\AccountCreationPolicy;
-use Stormpath\Stormpath;
 
 class StormpathLaravelServiceProvider extends ServiceProvider
 {
     const INTEGRATION_NAME = 'stormpath-laravel';
     const INTEGRATION_VERSION = '0.2.0';
 
-
+    protected $defer = false;
     /**
      * Register the service provider.
      *
@@ -43,8 +41,6 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         $this->registerClient();
         $this->registerApplication();
 
-        $this->checkForSocialProviders();
-
         $this->registerUser();
     }
 
@@ -55,9 +51,10 @@ class StormpathLaravelServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-
         $this->loadRoutes();
         $this->loadViewsFrom(__DIR__.'/../views', 'stormpath');
+
+        $this->checkForSocialProviders();
     }
 
     public function provides()
@@ -70,7 +67,6 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
     private function loadRoutes()
     {
-
         require __DIR__ . '/../Http/routes.php';
     }
 
@@ -101,21 +97,24 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
     private function registerApplication()
     {
-        $this->app->bind('stormpath.application', function() {
-            if(config('stormpath.application.href') == null) {
+
+
+        $this->app->singleton('stormpath.application', function() {
+            if (config('stormpath.application.href') == null) {
                 throw new \InvalidArgumentException('Application href MUST be set.');
             }
 
-            if(!$this->isValidApplicationHref()) {
+            if (!$this->isValidApplicationHref()) {
                 throw new \InvalidArgumentException(config('stormpath.application.href') . ' is not a valid Stormpath Application HREF.');
             }
 
-            $application = \Stormpath\Resource\Application::get(config( 'stormpath.application.href'));
+//            $application = app('cache.store')->rememberForever('stormpath.application', function() {
+                return \Stormpath\Resource\Application::get(config('stormpath.application.href'));
+//            });
 
-            $this->enhanceConfig($application);
-            return $application;
-
+//            return $application;
         });
+
     }
 
     private function registerUser()
@@ -188,25 +187,6 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
     }
 
-    private function enhanceConfig($application)
-    {
-        $asm = $application->getDefaultAccountStoreMapping();
-
-        if(null === $asm && config('stormpath.web.register.enabled')) {
-            throw new \InvalidArgumentException('No default account store is mapped to the specified application. A default account store is required for registration.');
-        }
-
-        if(!config('stormpath.web.register.enabled')) {
-            return false;
-        }
-
-        $directory = \Stormpath\Resource\Directory::get($asm->accountStore->href, ['expand'=>'accountCreationPolicy']);
-
-        $value = $directory->accountCreationPolicy->verificationEmailStatus == Stormpath::ENABLED ?: false;
-
-        config(['stormpath.web.verifyEmail.enabled'=>$value]);
-    }
-
     private function isValidApplicationHref()
     {
         return !! strpos(config( 'stormpath.application.href' ), '/applications/');
@@ -216,7 +196,10 @@ class StormpathLaravelServiceProvider extends ServiceProvider
     {
         if(config('stormpath.application.href') == null)  return;
 
-        $model = IdSiteModel::get(app('stormpath.application')->getProperty('idSiteModel')->href);
+        $model = app('cache.store')->rememberForever('stormpath.idsitemodel', function() {
+            return IdSiteModel::get(app('stormpath.application')->getProperty('idSiteModel')->href);
+        });
+
         $providers = $model->getProperty('providers');
 
 
