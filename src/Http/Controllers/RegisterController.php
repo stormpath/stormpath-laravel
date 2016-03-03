@@ -351,11 +351,13 @@ class RegisterController extends Controller
     {
         $fields = [];
         $allowedFields = config('stormpath.web.register.form.fields');
+
         foreach($allowedFields as $key => $value) {
             //Enabled check when iOS SDK is updated to not use username in tests
 //            if($value['enabled'] == false) continue;
             $fields[] = $key;
         }
+        $fields[] = '_token';
 
         if(!empty($diff = array_diff(array_keys($submittedFields), array_values($fields)))) {
             return $diff;

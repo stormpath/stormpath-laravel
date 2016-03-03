@@ -271,7 +271,7 @@ class RegisterControllerTest extends TestCase
                 'surname' => 'Account',
                 'email' => 'test@account.com',
                 'password' => 'superP4ss!',
-                'passwordConfirm' => 'superP4ss!'
+                'confirmPassword' => 'superP4ss!'
             ]
         )
             ->seeJson();
@@ -324,7 +324,7 @@ class RegisterControllerTest extends TestCase
                 'surname' => 'Account',
                 'email' => 'test@test.com',
                 'password' => 'superP4ss!',
-                'passwordConfirm' => 'superP4ss!'
+                'confirmPassword' => 'superP4ss!'
             ]
         )
             ->seeJson();
@@ -384,7 +384,7 @@ class RegisterControllerTest extends TestCase
             'surname' => 'Account',
             'email' => 'test@account.com',
             'password' => 'superP4ss!',
-            'passwordConfirm' => 'superP4ss!',
+            'confirmPassword' => 'superP4ss!',
 
             'customData1' => 'a value',
             'customData2' => 'another value',
