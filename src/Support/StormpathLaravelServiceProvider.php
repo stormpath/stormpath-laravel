@@ -342,7 +342,7 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
 
         foreach($providers as $provider) {
-            config(['stormpath.web.socialProviders.enabled' => true]);
+            config(['stormpath.web.social.enabled' => true]);
             require __DIR__ . '/../Http/socialRoutes.php';
 
             switch ($provider->providerId) {
@@ -360,17 +360,17 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
     private function setupFacebookProvider($provider)
     {
-        config(['stormpath.web.socialProviders.facebook.enabled' => true]);
-        config(['stormpath.web.socialProviders.facebook.name' => 'Facebook']);
-        config(['stormpath.web.socialProviders.facebook.clientId' => $provider->clientId]);
+        config(['stormpath.web.social.facebook.enabled' => true]);
+        config(['stormpath.web.social.facebook.name' => 'Facebook']);
+        config(['stormpath.web.social.facebook.clientId' => $provider->clientId]);
     }
 
     private function setupGoogleProvider($provider)
     {
-        config(['stormpath.web.socialProviders.google.enabled' => true]);
-        config(['stormpath.web.socialProviders.google.name' => 'Google']);
-        config(['stormpath.web.socialProviders.google.clientId' => $provider->clientId]);
-        config(['stormpath.web.socialProviders.google.callbackUri' => $provider->redirectUri]);
+        config(['stormpath.web.social.google.enabled' => true]);
+        config(['stormpath.web.social.google.name' => 'Google']);
+        config(['stormpath.web.social.google.clientId' => $provider->clientId]);
+        config(['stormpath.web.social.google.callbackUri' => $provider->redirectUri]);
     }
 
 

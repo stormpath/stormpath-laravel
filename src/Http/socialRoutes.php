@@ -23,25 +23,30 @@ if(version_compare($version, "5.2.0" , ">=")) {
 }
 
 $this->app->router->group($middleware, function() {
-    /*
-     |--------------------------------------------------------------------------
-     | Social Provider Routes
-     |--------------------------------------------------------------------------
-     */
-    if (config('stormpath.web.socialProviders.enabled')) {
-        $this->app->router->get(config('stormpath.web.login.uri') . '/facebook', ['as' => 'stormpath.login.facebook', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialController@facebook']);
-        $this->app->router->get(config('stormpath.web.login.uri') . '/google', ['as' => 'stormpath.login.google', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialController@google']);
-        $this->app->router->get(config('stormpath.web.login.uri') . '/linkedin', ['as' => 'stormpath.login.linkedin', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialController@linkedin']);
-    }
+//    /*
+//     |--------------------------------------------------------------------------
+//     | Social Provider Routes
+//     |--------------------------------------------------------------------------
+//     */
+//    if (config('stormpath.web.social.enabled')) {
+//        $this->app->router->get(config('stormpath.web.login.uri') . '/facebook', ['as' => 'stormpath.login.facebook', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialController@facebook']);
+//        $this->app->router->get(config('stormpath.web.login.uri') . '/google', ['as' => 'stormpath.login.google', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialController@google']);
+//        $this->app->router->get(config('stormpath.web.login.uri') . '/linkedin', ['as' => 'stormpath.login.linkedin', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialController@linkedin']);
+//    }
 
     /*
      |--------------------------------------------------------------------------
      | Social Callback Routes
      |--------------------------------------------------------------------------
      */
-    if (config('stormpath.web.socialProviders.enabled')) {
-        $this->app->router->get(config('stormpath.web.socialProviders.callbackRoot') . '/facebook', ['as' => 'stormpath.callbacks.facebook', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@facebook']);
-        $this->app->router->get(config('stormpath.web.socialProviders.callbackRoot') . '/linkedin', ['as' => 'stormpath.callbacks.linkedin', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@linkedin']);
-        $this->app->router->get(config('stormpath.web.socialProviders.callbackRoot') . '/google', ['as' => 'stormpath.callbacks.google', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@google']);
+    if (config('stormpath.web.social.enabled')) {
+        if (config('stormpath.web.social.facebook.enabled')) {
+            $this->app->router->get(config('stormpath.web.social.facebook.uri'), ['as' => 'stormpath.callbacks.facebook', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@facebook']);
+        }
+
+        if (config('stormpath.web.social.google.enabled')) {
+            $this->app->router->get(config('stormpath.web.social.google.uri'), ['as' => 'stormpath.callbacks.google', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@google']);
+        }
+
     }
 });

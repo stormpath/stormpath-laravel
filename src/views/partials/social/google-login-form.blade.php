@@ -1,4 +1,4 @@
-<button class="btn btn-social btn-google" onClick="googleLogin()"> {{ config('stormpath.web.socialProviders.google.name') }}</button>
+<button class="btn btn-social btn-google" onClick="googleLogin()"> {{ config('stormpath.web.social.google.name') }}</button>
 
 <script type="text/javascript">
     /**
@@ -9,20 +9,20 @@
      */
 
     function googleLogin() {
-        var clientId = '{{ config('stormpath.web.socialProviders.google.clientId') }}';
-        var googleScopes = '';
+        var clientId = '{{ config('stormpath.web.social.google.clientId') }}';
+        var googleScopes = '{{ config('stormpath.web.social.google.scope') }}';
         var hd = '';
         var scopes = '';
 
         if (googleScopes.length) {
-            scopes = '+' + googleScopes.split(',').join('+');
+            scopes = googleScopes.split(',').join('+');
         }
 
         var finalUrl = 'https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=' +
                 clientId +
-                '&scope=email+profile' + scopes +
+                '&scope=' + scopes +
                 '&include_granted_scopes=true&redirect_uri=' +
-                '{{ config('stormpath.web.socialProviders.google.callbackUri') }}';
+                '{{ config('stormpath.web.social.google.callbackUri') }}';
 
         if (hd) {
             finalUrl = finalUrl + '&hd=' + hd;

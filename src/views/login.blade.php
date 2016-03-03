@@ -4,7 +4,7 @@
 @section('description', 'Log into your account!')
 @section('bodytag', 'login')
 
-@if(config('stormpath.web.socialProviders.enabled'))
+@if(config('stormpath.web.social.enabled'))
     {{--*/ $socialProviders = true /*--}}
     {{--*/ $areaWrap = 'small col-sm-8' /*--}}
     {{--*/ $classLabel = 'col-sm-12' /*--}}

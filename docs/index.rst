@@ -17,6 +17,7 @@ user, start here!
    registration
    login
    logout
+   social_login
    password_reset
    events
    help

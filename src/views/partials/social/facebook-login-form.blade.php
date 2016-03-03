@@ -1,16 +1,11 @@
-<button class="btn btn-social btn-facebook" onClick="facebookLogin()"> {{ config('stormpath.web.socialProviders.facebook.name') }}</button>
+<button class="btn btn-social btn-facebook" onClick="facebookLogin()"> {{ config('stormpath.web.social.facebook.name') }}</button>
 
 <script>
     function facebookLogin() {
         var FB = window.FB;
-        var facebookScopes = '';
-        var scopes = [];
+        var scopes = '{{ config('stormpath.web.social.facebook.scope') }}';
 
-        if (facebookScopes.length) {
-            scopes = facebookScopes.join(',');
-        } else {
-            scopes = '';
-        }
+
 
         FB.login(function (response) {
             if (response.status === 'connected') {
@@ -26,12 +21,12 @@
                     window.location.replace('/callbacks/facebook?access_token=' + response.authResponse.accessToken);
                 }
             }
-        }, {scope: 'email' + (scopes ? ',' + scopes : '')});
+        }, {scope: scopes});
     }
 
     window.fbAsyncInit = function () {
         FB.init({
-            appId      : '{{config('stormpath.web.socialProviders.facebook.clientId') }}',
+            appId      : '{{config('stormpath.web.social.facebook.clientId') }}',
             cookie     : true,
             xfbml      : true,
             version    : 'v2.3'
