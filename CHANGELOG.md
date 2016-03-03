@@ -3,6 +3,19 @@ Change Log
 
 All library changes, in descending order.
 
+Version 0.3.0
+-------------
+
+**Released on March 3, 2016.**
+
+- Added Social Login for Google and Facebook.
+- Did a lot of work to speed up the integration.
+- Updated Documentation
+- Added Me Endpoint (Fixes #5)
+- Ability to expand resources on me endpoint
+- Updated configuration file to follow closer to spec
+- Ability to tie iOS sdk into integration
+
 Version 0.2.0
 -------------
 
