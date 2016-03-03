@@ -103,6 +103,7 @@ class OauthController extends Controller
         if(null === $request->input('refresh_token')) {
             return $this->respondWithInvalidRequest('The refresh_token parameter is required.');
         }
+
         try {
             $refreshGrant = new \Stormpath\Oauth\RefreshGrantRequest($request->input('refresh_token'));
 
@@ -110,7 +111,7 @@ class OauthController extends Controller
             $result = $auth->authenticate($refreshGrant);
             return $this->respondWithAccessTokens($result);
         } catch (\Exception $e) {
-            $this->respondWithInvalidLogin($e);
+            return $this->respondWithInvalidLogin($e);
         }
 
     }

@@ -162,14 +162,14 @@ return [
         ],
 
         "forgotPassword" => [
-            "enabled" => false,
+            "enabled" => null,
             "uri" => "/forgot",
             "view" => "stormpath::forgot-password",
             "nextUri" => "/login?status=forgot"
         ],
 
         "changePassword" => [
-            "enabled" => false,
+            "enabled" => null,
             "autoLogin" => false,
             "uri" => "/change",
             "nextUri" => "/login?status=reset",

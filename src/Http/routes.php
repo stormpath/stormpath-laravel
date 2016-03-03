@@ -51,7 +51,7 @@ $this->app->router->group($middleware, function() {
      |--------------------------------------------------------------------------
      */
     if (config('stormpath.web.logout.enabled')) {
-        $this->app->router->get(config('stormpath.web.logout.uri'), ['as' => 'stormpath.logout', 'uses' => 'Stormpath\Laravel\Http\Controllers\LoginController@getLogout']);
+        $this->app->router->post(config('stormpath.web.logout.uri'), ['as' => 'stormpath.logout', 'uses' => 'Stormpath\Laravel\Http\Controllers\LoginController@getLogout']);
     }
 
     /*

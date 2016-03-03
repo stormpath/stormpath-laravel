@@ -86,7 +86,9 @@ trait Cookies
         $policy = $application->oauthPolicy;
         $methodName = 'get' . ucfirst($type) . 'Ttl';
 
-        $time = $policy->{$methodName}();
+        $policy->setOptions([]);
+
+        $time = $policy->{$methodName}(['expand'=>'tokenEndpoint']);
 
         $converter = new \Bretterer\IsoDurationConverter\DurationParser();
 

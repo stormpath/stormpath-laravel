@@ -99,22 +99,13 @@ class StormpathLaravelServiceProviderTest extends TestCase
         /** @test */
         public function it_sets_verify_email_config_to_true_if_account_store_mapping_for_application_is_set_to_verify_email()
     {
-        $this->setupStormpathApplication();
-        $accountStoreMappings = $this->application->accountStoreMappings;
+        $provider = $this->setupServiceProvider($this->app);
 
-        try {
-            if ($accountStoreMappings) {
-                foreach ($accountStoreMappings as $asm) {
-                    $directory = $asm->accountStore;
-                    $acp = $directory->accountCreationPolicy;
-                    $acp->verificationEmailStatus = Stormpath::ENABLED;
-                    $acp->save();
-                }
-            }
-        } catch (\Stormpath\Resource\ResourceError $re) {
-        }
+        $this->setupStormpathApplication(['accountCreationPolicy' => true]);
+        config(['stormpath.application.href'=>$this->application->href]);
+        $provider->boot();
 
-        $application = app('stormpath.application');
+        app('stormpath.application');
 
         $this->assertTrue(config('stormpath.web.verifyEmail.enabled'));
     }

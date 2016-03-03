@@ -251,7 +251,6 @@ class RegisterControllerTest extends TestCase
         $this->see('csrf');
         $this->see('email');
         $this->see('password');
-        $this->see('accountStores');
         $this->assertResponseOk();
 
     }
@@ -331,7 +330,8 @@ class RegisterControllerTest extends TestCase
             ->seeJson();
 
 
-        $this->see('errors');
+        $this->see('message');
+        $this->see('status');
         $this->dontSee('test@test.com');
 
         $this->assertResponseStatus(409);

@@ -38,7 +38,7 @@ class Authenticate
 
             if($response === true) return $next($request);
 
-            return response('', 401);
+            return response(null, 401);
         }
 
         $isGuest = $this->isGuest($request);

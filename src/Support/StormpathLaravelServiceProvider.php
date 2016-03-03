@@ -20,6 +20,12 @@ namespace Stormpath\Laravel\Support;
 use Illuminate\Support\ServiceProvider;
 use Stormpath\Client;
 use Stormpath\Laravel\Http\Helpers\IdSiteModel;
+use Stormpath\Laravel\Http\Helpers\PasswordPolicies;
+use Stormpath\Laravel\Http\Helpers\PasswordPolicy;
+use Stormpath\Resource\AccountCreationPolicy;
+use Stormpath\Resource\AccountStore;
+use Stormpath\Resource\AccountStoreMapping;
+use Stormpath\Stormpath;
 
 class StormpathLaravelServiceProvider extends ServiceProvider
 {
@@ -51,10 +57,15 @@ class StormpathLaravelServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->loadRoutes();
-        $this->loadViewsFrom(__DIR__.'/../views', 'stormpath');
+
+        $this->warmResources();
 
         $this->checkForSocialProviders();
+        $this->setPasswordPolicies();
+        $this->setAccountCreationPolicy();
+
+        $this->loadViewsFrom(__DIR__.'/../views', 'stormpath');
+        $this->loadRoutes();
     }
 
     public function provides()
@@ -63,6 +74,53 @@ class StormpathLaravelServiceProvider extends ServiceProvider
             'stormpath.client',
             'stormpath.application'
         ];
+    }
+
+    private function warmResources()
+    {
+        if(config('stormpath.application.href') == null)  return;
+        $cache = $this->app['cache.store'];
+
+
+        if($cache->has('stormpath.resourcesWarm') && $cache->get('stormpath.resourcesWarm') == true) return;
+
+        app('stormpath.client');
+        $application = app('stormpath.application');
+
+        $dasm = AccountStoreMapping::get($application->defaultAccountStoreMapping->href);
+
+        $asm = AccountStoreMapping::get($application->accountStoreMappings->href);
+
+        $passwordPolicy = $dasm->getAccountStore()->getProperty('passwordPolicy');
+
+        $accountCreationPolicy = $dasm->getAccountStore(['expand'=>'accountCreationPolicy'])->accountCreationPolicy;
+
+        $passwordPolicies = PasswordPolicies::get($passwordPolicy->href);
+
+
+        $cache->rememberForever('stormpath.defaultAccountStoreMapping', function() use ($dasm) {
+            return $dasm;
+        });
+
+        $cache->rememberForever('stormpath.defaultAccountStoreMapping', function() use ($asm) {
+            return $asm;
+        });
+
+        $cache->rememberForever('stormpath.passwordPolicy', function() use ($passwordPolicy) {
+            return $passwordPolicy;
+        });
+
+        $cache->rememberForever('stormpath.accountCreationPolicy', function() use ($accountCreationPolicy) {
+            return $accountCreationPolicy;
+        });
+
+        $cache->rememberForever('stormpath.passwordPolicies', function() use ($passwordPolicies) {
+            return $passwordPolicies;
+        });
+
+        $cache->rememberForever('stormpath.resourcesWarm', function() {
+            return true;
+        });
     }
 
     private function loadRoutes()
@@ -85,6 +143,7 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
     private function registerConfig()
     {
+
         $this->publishes([
             __DIR__.'/../config/stormpath.php' => config_path('stormpath.php'),
         ]);
@@ -97,24 +156,25 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
     private function registerApplication()
     {
-
-
         $this->app->singleton('stormpath.application', function() {
-            if (config('stormpath.application.href') == null) {
-                throw new \InvalidArgumentException('Application href MUST be set.');
-            }
-
-            if (!$this->isValidApplicationHref()) {
-                throw new \InvalidArgumentException(config('stormpath.application.href') . ' is not a valid Stormpath Application HREF.');
-            }
-
-//            $application = app('cache.store')->rememberForever('stormpath.application', function() {
-                return \Stormpath\Resource\Application::get(config('stormpath.application.href'));
+            $this->guardAgainstInvalidApplicationHref();
+//            return $this->app['cache.store']->rememberForever('stormpath.application', function() {
+                $application = \Stormpath\Resource\Application::get(config('stormpath.application.href'));
+                return $application;
 //            });
-
-//            return $application;
         });
 
+    }
+
+    private function guardAgainstInvalidApplicationhref()
+    {
+        if (config('stormpath.application.href') == null) {
+            throw new \InvalidArgumentException('Application href MUST be set.');
+        }
+
+        if (!$this->isValidApplicationHref()) {
+            throw new \InvalidArgumentException(config('stormpath.application.href') . ' is not a valid Stormpath Application HREF.');
+        }
     }
 
     private function registerUser()
@@ -192,6 +252,64 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         return !! strpos(config( 'stormpath.application.href' ), '/applications/');
     }
 
+    private function setPasswordPolicies()
+    {
+
+        if(config('stormpath.web.forgotPassword.enabled') == true) return;
+
+        if(config('stormpath.web.changePassword.enabled') == true) return;
+
+        if(config('stormpath.application.href') == null)  return;
+
+        $cache = $this->app['cache.store'];
+
+        if(!$cache->has('stormpath.passwordPolicies')) {
+
+            $this->warmResources();
+
+        }
+
+        $passwordPolicies = $cache->get('stormpath.passwordPolicies');
+
+        if($passwordPolicies->getProperty('resetEmailStatus') == Stormpath::ENABLED) {
+            config(['stormpath.web.forgotPassword.enabled' => true]);
+            config(['stormpath.web.forgotPassword.enabled' => true]);
+            return;
+        }
+
+
+        config(['stormpath.web.forgotPassword.enabled' => false]);
+        config(['stormpath.web.forgotPassword.enabled' => false]);
+
+    }
+
+    private function setAccountCreationPolicy()
+    {
+        if(config('stormpath.web.verifyEmail.enabled') == true) return;
+
+        $cache = $this->app['cache.store'];
+
+        if(!$cache->has('stormpath.accountCreationPolicy')) {
+            $this->warmResources();
+        }
+
+        config(['stormpath.web.verifyEmail.enabled' => false]);
+
+        $accountCreationPolicy = $cache->get('stormpath.accountCreationPolicy');
+
+        if($accountCreationPolicy == null) {
+            return;
+        }
+
+
+        if($accountCreationPolicy->verificationEmailStatus == Stormpath::ENABLED) {
+            config(['stormpath.web.verifyEmail.enabled' => true]);
+            return;
+        }
+
+    }
+
+
     private function checkForSocialProviders()
     {
         if(config('stormpath.application.href') == null)  return;
@@ -234,6 +352,8 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         config(['stormpath.web.socialProviders.google.clientId' => $provider->clientId]);
         config(['stormpath.web.socialProviders.google.callbackUri' => $provider->redirectUri]);
     }
+
+
 
 
 }

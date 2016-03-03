@@ -38,6 +38,7 @@ class RegisterControllerEventTest extends TestCase
         $this->setupStormpathApplication();
         config(["stormpath.web.register.autoAuthorize"=>true]);
 
+
         $this->post('register', [
             'username' => 'testUsername',
             'givenName' =>'Test',

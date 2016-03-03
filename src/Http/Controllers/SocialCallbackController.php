@@ -116,65 +116,29 @@ class SocialCallbackController extends Controller
         $blacklistProperties = [
             'httpStatus',
             'account',
-            'applications',
-            'apiKeys',
-            'emailVerificationToken',
-            'providerData'
+            'emailVerificationToken'
         ];
 
         $propNames = $account->getPropertyNames();
         foreach($propNames as $prop) {
             if(in_array($prop, $blacklistProperties)) continue;
-            if(is_object($account->{$prop})) continue;
 
             $properties['account'][$prop] = $this->getPropertyValue($account, $prop);
         }
-
         return response()->json($properties);
     }
 
     private function getPropertyValue($account, $prop)
     {
         $value = null;
-
-        $value = $account->getProperty($prop);
+        try {
+            $value = $account->getProperty($prop);
+        } catch (\Exception $e) {
+            return null;
+        }
 
         return $value;
 
     }
-
-    private function returnSuccessLogin($account)
-    {
-        $idSiteSession = new IdSiteSessionHelper();
-        $accessTokens = $idSiteSession->create($account);
-
-        return redirect()
-            ->intended(config('stormpath.web.login.nextUri'))
-            ->withCookies(
-                [
-                    config('stormpath.web.accessTokenCookie.name') =>
-                        cookie(
-                            config('stormpath.web.accessTokenCookie.name'),
-                            $accessTokens->access_token,
-                            3600,
-                            config('stormpath.web.accessTokenCookie.path'),
-                            config('stormpath.web.accessTokenCookie.domain'),
-                            config('stormpath.web.accessTokenCookie.secure'),
-                            config('stormpath.web.accessTokenCookie.httpOnly')
-                        ),
-                    config('stormpath.web.refreshTokenCookie.name') =>
-                        cookie(
-                            config('stormpath.web.refreshTokenCookie.name'),
-                            $accessTokens->refresh_token,
-                            3600,
-                            config('stormpath.web.refreshTokenCookie.path'),
-                            config('stormpath.web.refreshTokenCookie.domain'),
-                            config('stormpath.web.refreshTokenCookie.secure'),
-                            config('stormpath.web.refreshTokenCookie.httpOnly')
-                        )
-                ]
-            );
-    }
-
 
 }

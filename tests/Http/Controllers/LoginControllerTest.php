@@ -94,7 +94,7 @@ class LoginControllerTest extends TestCase
             ->fillForm('Log In',['login' => 'test@test.com', 'password' => 'superP4ss!']);
 
 
-        $this->call('GET', config('stormpath.web.logout.uri'));
+        $this->call('POST', config('stormpath.web.logout.uri'));
 
         $headers = $this->response->headers;
         $cookies = $headers->getCookies();

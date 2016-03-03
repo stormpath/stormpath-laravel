@@ -17,11 +17,9 @@
 
 namespace Stormpath\Laravel\Http\Controllers;
 
-use Illuminate\Encryption\Encrypter;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Stormpath\Resource\Account;
-use Stormpath\Stormpath;
 
 class MeController extends Controller
 {
@@ -39,7 +37,6 @@ class MeController extends Controller
             $account = $this->getAccountFromAccessToken($accessToken);
             return $this->respondWithAccount($account);
         } catch (\Exception $e) {
-            dd($e);
             return response('', 401);
         }
     }
@@ -50,24 +47,12 @@ class MeController extends Controller
         $blacklistProperties = [
             'httpStatus',
             'account',
-            'applications',
-            'emailVerificationToken',
-            'providerData'
+            'emailVerificationToken'
         ];
 
         $propNames = $account->getPropertyNames();
         foreach($propNames as $prop) {
             if(in_array($prop, $blacklistProperties)) continue;
-            if(is_object($account->{$prop})) {
-                $class = $account->{$prop};
-                $path = explode('\\', $class);
-                $property = lcfirst(array_pop($path));
-                if(config("stormpath.web.me.expand.{$property}") === true) {
-                    dump($account->{$prop});
-                }
-
-                continue;
-            }
 
             $properties['account'][$prop] = $this->getPropertyValue($account, $prop);
         }
@@ -93,10 +78,18 @@ class MeController extends Controller
 
         $jwt = \JWT::decode($accessToken, config('stormpath.config.apiKey.secret'), ['HS256']);
 
-        $expands = [];
+        $expandsArray = [];
+        $expands = config('stormpath.web.me.expand');
+        foreach($expands as $key=>$value) {
+            if($value == false) continue;
+            $expandsArray[] = $key;
+        }
+        $toExpand = [];
+        if(count($expandsArray) > 0) {
+            $toExpand = ['expand' => implode(',',$expandsArray)];
+        }
 
-        foreach(config('stormpath.web.'))
-        $account = \Stormpath\Resource\Account::get($jwt->sub);
+        $account = \Stormpath\Resource\Account::get($jwt->sub, $toExpand);
         return $account;
     }
 }

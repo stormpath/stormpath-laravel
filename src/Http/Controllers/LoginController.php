@@ -177,6 +177,10 @@ class LoginController extends Controller
             throw new ActionAbortedException;
         }
 
+        if($this->request->wantsJson()) {
+            return response(null, 200);
+        }
+
         return redirect()
             ->to(config('stormpath.web.logout.nextUri'))
             ->withCookies([
@@ -205,8 +209,8 @@ class LoginController extends Controller
 
     private function respondWithForm()
     {
-//        $accountStoreArray = [];
-//        $accountStores = app('stormpath.application')->getAccountStoreMappings();
+        $accountStoreArray = [];
+//        $accountStores = app('cache.store')->get('stormpath.accountStoreMappings');
 //        foreach($accountStores as $accountStore) {
 //            $store = $accountStore->accountStore;
 //            $provider = $store->provider;
@@ -248,9 +252,9 @@ class LoginController extends Controller
                     ]
                 ]
             ],
-//            'accountStores' => [
-//                $accountStoreArray
-//            ],
+            'accountStores' => [
+                $accountStoreArray
+            ],
 
         ];
         return response()->json($data);
@@ -272,28 +276,26 @@ class LoginController extends Controller
         $blacklistProperties = [
             'httpStatus',
             'account',
-            'applications',
-            'apiKeys',
-            'emailVerificationToken',
-            'providerData'
+            'emailVerificationToken'
         ];
 
         $propNames = $account->getPropertyNames();
         foreach($propNames as $prop) {
             if(in_array($prop, $blacklistProperties)) continue;
-            if(is_object($account->{$prop})) continue;
 
             $properties['account'][$prop] = $this->getPropertyValue($account, $prop);
         }
-
         return response()->json($properties);
     }
 
     private function getPropertyValue($account, $prop)
     {
         $value = null;
-
-        $value = $account->getProperty($prop);
+        try {
+            $value = $account->getProperty($prop);
+        } catch (\Exception $e) {
+            return null;
+        }
 
         return $value;
 

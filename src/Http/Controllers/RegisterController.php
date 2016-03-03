@@ -82,6 +82,11 @@ class RegisterController extends Controller
                 ->withInput();
         }
 
+        if(!$errorFields = $this->isAcceptedPostFields($this->request->all())) {
+            return $this->respondWithErrorJson('We do not allow arbitrary data to be posted to an account\'s custom data object. '. $errorFields[0] . ' is either disabled or not defined in the config.', 400);
+        }
+
+
         try {
             $registerFields = $this->setRegisterFields();
 
@@ -190,7 +195,7 @@ class RegisterController extends Controller
 
         } catch(\Stormpath\Resource\ResourceError $re) {
             if($this->request->wantsJson()) {
-                return $this->respondWithError($re->getMessage(), $re->getStatus());
+                return $this->respondWithErrorJson($re->getMessage(), $re->getStatus());
             }
             return redirect()
                 ->to(config('stormpath.web.register.uri'))
@@ -297,12 +302,12 @@ class RegisterController extends Controller
         return response()->json($data);
     }
 
-    private function respondWithError($message, $statusCode = 400, $extra = [])
+
+    private function respondWithErrorJson($message, $statusCode = 400, $extra = [])
     {
         $error = [
-            'errors' => [
-                'message' => $message
-            ]
+            'message' => $message,
+            'status' => $statusCode
         ];
 
         if(!empty($extra)) {
@@ -318,28 +323,26 @@ class RegisterController extends Controller
         $blacklistProperties = [
             'httpStatus',
             'account',
-            'applications',
-            'apiKeys',
-            'emailVerificationToken',
-            'providerData'
+            'emailVerificationToken'
         ];
 
         $propNames = $account->getPropertyNames();
         foreach($propNames as $prop) {
             if(in_array($prop, $blacklistProperties)) continue;
-            if(is_object($account->{$prop})) continue;
 
             $properties['account'][$prop] = $this->getPropertyValue($account, $prop);
         }
-
         return response()->json($properties);
     }
 
     private function getPropertyValue($account, $prop)
     {
         $value = null;
-
-        $value = $account->getProperty($prop);
+        try {
+            $value = $account->getProperty($prop);
+        } catch (\Exception $e) {
+            return null;
+        }
 
         return $value;
 
@@ -352,5 +355,22 @@ class RegisterController extends Controller
             'message' => $validator->errors()->first(),
             'status' => 400
         ], 400);
+    }
+
+    private function isAcceptedPostFields($submittedFields)
+    {
+        $fields = [];
+        $allowedFields = config('stormpath.web.register.form.fields');
+        foreach($allowedFields as $key => $value) {
+            //Enabled check when iOS SDK is updated to not use username in tests
+//            if($value['enabled'] == false) continue;
+            $fields[] = $key;
+        }
+
+        if(!empty($diff = array_diff(array_keys($submittedFields), array_values($fields)))) {
+            return $diff;
+        }
+
+        return true;
     }
 }
