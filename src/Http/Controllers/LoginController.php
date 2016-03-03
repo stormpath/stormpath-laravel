@@ -24,6 +24,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Factory as Validator;
 use Stormpath\Laravel\Http\Traits\AuthenticatesUser;
+use Stormpath\Resource\Account;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Event;
@@ -76,9 +77,20 @@ class LoginController extends Controller
 
     public function postLogin()
     {
+        if($this->isSocialLoginAttempt()) {
+            return $this->doSocialLogin();
+        }
+
+
         $validator = $this->loginValidator();
 
+
+
         if($validator->fails()) {
+            if($this->request->wantsJson()) {
+                return $this->respondWithValidationErrorForJson($validator);
+            }
+
             return redirect()
                 ->to(config('stormpath.web.login.uri'))
                 ->withErrors($validator)
@@ -165,6 +177,10 @@ class LoginController extends Controller
             throw new ActionAbortedException;
         }
 
+        if($this->request->wantsJson()) {
+            return response();
+        }
+
         return redirect()
             ->to(config('stormpath.web.logout.nextUri'))
             ->withCookies([
@@ -193,22 +209,6 @@ class LoginController extends Controller
 
     private function respondWithForm()
     {
-        $application = app('stormpath.application');
-        $accountStoreArray = [];
-        $accountStores = $application->getAccountStoreMappings();
-        foreach($accountStores as $accountStore) {
-            $store = $accountStore->accountStore;
-            $provider = $store->provider;
-            $accountStoreArray[] = [
-                'href' => $store->href,
-                'name' => $store->name,
-                'provider' => [
-                    'href' => $provider->href,
-                    'providerId' => $provider->providerId,
-                    'clientId' => $provider->clientId
-                ]
-            ];
-        }
 
         $data = [
             'form' => [
@@ -238,11 +238,10 @@ class LoginController extends Controller
                 ]
             ],
             'accountStores' => [
-                $accountStoreArray
+                app('cache.store')->get('stormpath.accountStores')
             ],
 
         ];
-
         return response()->json($data);
 
     }
@@ -250,38 +249,88 @@ class LoginController extends Controller
     private function respondWithError($message, $statusCode = 400)
     {
         $error = [
-            'errors' => [
-                'message' => $message
-            ]
+            'message' => $message,
+            'status' => $statusCode
         ];
         return response()->json($error, $statusCode);
     }
 
-    private function respondWithAccount($account)
+    private function respondWithAccount(Account $account)
     {
-        $properties = [];
-        $blacklistProperties = [
-            'providerData',
-            'httpStatus',
-            'createdAt',
-            'modifiedAt'
-        ];
+        $properties = ['account'=>[]];
+        $config = config('stormpath.web.me.expand');
+        $whiteListResources = [];
+        foreach($config as $item=>$value) {
+            if($value == true) {
+                $whiteListResources[] = $item;
+            }
+        }
 
         $propNames = $account->getPropertyNames();
         foreach($propNames as $prop) {
-            if(in_array($prop, $blacklistProperties)) continue;
-            $properties[$prop] = $this->getPropertyValue($account, $prop);
-        }
+            $property = $this->getPropertyValue($account, $prop);
 
+            if(is_object($property) && !in_array($prop, $whiteListResources)) {
+                continue;
+            }
+
+            $properties['account'][$prop] = $property;
+        }
         return response()->json($properties);
     }
 
-    private function getPropertyValue($account, $propName)
+    private function getPropertyValue($account, $prop)
     {
-        if(is_object($account->{$propName})) {
-            return ['href'=>$account->{$propName}->href];
+        $value = null;
+        try {
+            $value = $account->getProperty($prop);
+        } catch (\Exception $e) {
+            return null;
         }
 
-        return $account->{$propName};
+        return $value;
+
+    }
+
+    private function isSocialLoginAttempt()
+    {
+        $attempt = $this->request->has('providerId');
+
+        if(!$attempt) {
+            return false;
+        }
+
+        switch ($provider = $this->request->input('providerId'))
+        {
+            case 'google' :
+            case 'facebook' :
+                return true;
+            case 'stormpath' :
+                throw new \InvalidArgumentException("Please use the standard login/password method instead");
+            default :
+                throw new \InvalidArgumentException("The social provider {$provider} is not supported");
+        }
+    }
+
+    private function doSocialLogin()
+    {
+        switch ($provider = $this->request->input('providerId'))
+        {
+            case 'google' :
+                return app(SocialCallbackController::class)->google($this->request);
+            case 'facebook' :
+                return app(SocialCallbackController::class)->facebook($this->request);
+
+
+        }
+    }
+
+    private function respondWithValidationErrorForJson($validator)
+    {
+
+        return response()->json([
+            'message' => $validator->errors()->first(),
+            'status' => 400
+        ], 400);
     }
 }

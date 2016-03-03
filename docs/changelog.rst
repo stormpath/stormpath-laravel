@@ -5,6 +5,30 @@ Change Log
 
 All library changes, in descending order. something
 
+Version 0.3.0
+-------------
+
+**Released on March 3, 2016.**
+
+- Added Social Login for Google and Facebook.
+- Did a lot of work to speed up the integration. This uses Laravel Cache
+- Updated Documentation
+- Added Me Endpoint (Fixes #5)
+- Ability to expand resources on me endpoint
+- Updated configuration file to follow closer to spec
+- Ability to tie iOS sdk into integration
+
+Version 0.2.0
+-------------
+
+**Released on January 28, 2016.**
+
+- Added Events (thanks @Kryten0807)
+- Added ability to create custom data during registration (thanks @Kryten0807) (Fixes #25)
+- Update Documentation
+- Fixed #28 to allow refreshing access_token
+- Added tests for ID Site (Fixes #29)
+
 Version 0.1.0
 -------------
 

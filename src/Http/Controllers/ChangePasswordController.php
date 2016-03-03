@@ -46,6 +46,7 @@ class ChangePasswordController extends Controller
      */
     public function __construct(Request $request, Validator $validator)
     {
+        $this->middleware('stormpath.produces');
         $this->request = $request;
         $this->validator = $validator;
     }

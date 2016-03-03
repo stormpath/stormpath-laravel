@@ -20,6 +20,7 @@ namespace Stormpath\Laravel\Http\Middleware;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Cookie\CookieJar;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 
 class Produces
@@ -33,8 +34,6 @@ class Produces
         'application/json'
     ];
 
-    /** @var string the default for how we want to respond if allowed */
-    private $defaultProduces = 'text/html';
 
 
     /**
@@ -44,7 +43,7 @@ class Produces
      * @param  \Closure $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
         $this->produces = config('stormpath.web.produces');
         $acceptHeader = explode(',',$request->header('Accept'));
@@ -52,6 +51,11 @@ class Produces
 
         if(!$this->hasApprovedProduces($approvedProduces)) {
             return $this->respondNotAcceptable('The system does not know how to respond to any accept headers defined.');
+        }
+
+        if(in_array('*/*', $acceptHeader)) {
+            $request->headers->replace(['Accept'=>$this->produces[0]]);
+            return $next($request);
         }
 
         if(!$this->acceptHeaderIsApproved($acceptHeader, $approvedProduces)) {

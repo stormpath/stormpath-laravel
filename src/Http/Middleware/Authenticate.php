@@ -18,9 +18,9 @@
 namespace Stormpath\Laravel\Http\Middleware;
 
 use Closure;
-use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Cookie\CookieJar;
-use Illuminate\Support\Facades\Cookie;
+use Illuminate\Http\Request;
+use Stormpath\Authc\Api\OAuthBearerRequestAuthenticator;
 
 class Authenticate
 {
@@ -31,8 +31,16 @@ class Authenticate
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
+        if($request->headers->has('Authorization')) {
+            $response = $this->validateWithAuthroizationHeader($request->headers->get('Authorization'));
+
+            if($response === true) return $next($request);
+
+            return response(null, 401);
+        }
+
         $isGuest = $this->isGuest($request);
 
         if ($isGuest) {
@@ -46,8 +54,9 @@ class Authenticate
         return $next($request);
     }
 
-    private function isGuest($request)
+    private function isGuest(Request $request)
     {
+
         if(!$request->hasCookie(config('stormpath.web.accessTokenCookie.name'))) {
             return true;
         }
@@ -111,6 +120,43 @@ class Authenticate
             return true;
 
         } catch (\Stormpath\Resource\ResourceError $re) {
+            return false;
+        }
+    }
+
+    private function validateWithAuthroizationHeader($header)
+    {
+        $header = explode(' ', $header);
+        $jwt = end($header);
+
+        switch($validationStrategy = config('stormpath.web.oauth2.password.validationStrategy')) {
+            case 'local' :
+                return $this->localAuthroizationValidation($jwt);
+            case 'stormpath' :
+                return $this->stormpathAuthorizationValidation($jwt);
+            default :
+                throw new \InvalidArgumentException("Validation Strategy not supported. Provided Validation strategy is: {$validationStrategy}");
+        }
+
+    }
+
+    private function localAuthroizationValidation($jwt)
+    {
+        \JWT::$leeway = 10;
+        try {
+            $jwt = \JWT::decode($jwt, config('stormpath.client.apiKey.secret'), ['HS256']);
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    private function stormpathAuthorizationValidation($jwt)
+    {
+        try {
+            $result = (new \Stormpath\Oauth\VerifyAccessToken(app('stormpath.application')))->verify($jwt);
+            return true;
+        } catch (\Exception $e) {
             return false;
         }
     }

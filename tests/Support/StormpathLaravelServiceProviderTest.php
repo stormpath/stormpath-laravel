@@ -25,8 +25,14 @@ use Stormpath\Stormpath;
 
 class StormpathLaravelServiceProviderTest extends TestCase
 {
+    public function getEnvironmentSetUp($app)
+    {
+        parent::getEnvironmentSetUp($app);
+
+    }
+
     /** @test */
-    public function it_tells_us_what_it_provides()
+        public function it_tells_us_what_it_provides()
     {
         $provider = $this->setupServiceProvider($this->app);
         $provides = $provider->provides();
@@ -35,8 +41,8 @@ class StormpathLaravelServiceProviderTest extends TestCase
         $this->assertContains('stormpath.application', $provides);
     }
 
-    /** @test */
-    public function it_provides_an_instance_of_client()
+        /** @test */
+        public function it_provides_an_instance_of_client()
     {
         $client = app('stormpath.client');
 
@@ -44,8 +50,8 @@ class StormpathLaravelServiceProviderTest extends TestCase
 
     }
 
-    /** @test */
-    public function it_provides_an_instance_of_application()
+        /** @test */
+        public function it_provides_an_instance_of_application()
     {
         $this->setupStormpathApplication();
         $application = app('stormpath.application');
@@ -53,36 +59,36 @@ class StormpathLaravelServiceProviderTest extends TestCase
         $this->assertInstanceOf('\Stormpath\Resource\Application', $application);
     }
 
-    /**
-     * @test
-     * @expectedException InvalidArgumentException
-     */
-    public function it_throws_exception_from_stormpath_application_if_application_is_not_set()
+        /**
+         * @test
+         * @expectedException InvalidArgumentException
+         */
+        public function it_throws_exception_from_stormpath_application_if_application_is_not_set()
     {
         app('stormpath.application');
 
         $this->assertArrayNotHasKey('enabled', config('stormpath.web.verifyEmail'));
     }
 
-    /**
-     * @test
-     * @expectedException InvalidArgumentException
-     */
-    public function it_throws_exception_if_stormpath_applicaiton_is_not_full_url()
+        /**
+         * @test
+         * @expectedException InvalidArgumentException
+         */
+        public function it_throws_exception_if_stormpath_applicaiton_is_not_full_url()
     {
         config(['stormpath.application.href'=>'123456789']);
         app('stormpath.application');
     }
 
-    /** @test */
-    public function it_returns_null_when_getting_user_without_an_application_set()
+        /** @test */
+        public function it_returns_null_when_getting_user_without_an_application_set()
     {
         $user = app('stormpath.user');
         $this->assertNull($user);
     }
 
-    /** @test */
-    public function it_sets_verify_email_config_to_false_by_default()
+        /** @test */
+        public function it_sets_verify_email_config_to_false_by_default()
     {
         $this->setupStormpathApplication();
         app('stormpath.application');
@@ -90,35 +96,22 @@ class StormpathLaravelServiceProviderTest extends TestCase
         $this->assertFalse(config('stormpath.web.verifyEmail.enabled'));
     }
 
-    /** @test */
-    public function it_sets_verify_email_config_to_true_if_account_store_mapping_for_application_is_set_to_verify_email()
+        /** @test */
+        public function it_sets_verify_email_config_to_true_if_account_store_mapping_for_application_is_set_to_verify_email()
     {
-        $this->setupStormpathApplication();
-        $accountStoreMappings = $this->application->accountStoreMappings;
+        $provider = $this->setupServiceProvider($this->app);
 
-        try {
-            if ($accountStoreMappings) {
-                foreach ($accountStoreMappings as $asm) {
-                    $directory = $asm->accountStore;
-                    $acp = $directory->accountCreationPolicy;
-                    $acp->verificationEmailStatus = Stormpath::ENABLED;
-                    $acp->save();
-                }
-            }
-        } catch (\Stormpath\Resource\ResourceError $re) {
-            var_dump($re->getDeveloperMessage());
-            var_dump($re->getMessage());
-            var_dump($re->getStatus());
-            throw $re;
-        }
+        $this->setupStormpathApplication(['accountCreationPolicy' => true]);
+        config(['stormpath.application.href'=>$this->application->href]);
+        $provider->boot();
 
-        $application = app('stormpath.application');
+        app('stormpath.application');
 
         $this->assertTrue(config('stormpath.web.verifyEmail.enabled'));
     }
 
-    /** @test */
-    public function a_user_can_be_reterived_from_provider()
+        /** @test */
+        public function a_user_can_be_reterived_from_provider()
     {
         $this->setupStormpathApplication();
         $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
@@ -135,8 +128,8 @@ class StormpathLaravelServiceProviderTest extends TestCase
         $this->assertEquals('test@test.com', $user->email);
     }
 
-    /** @test */
-    public function attempt_to_get_user_with_bad_access_token_returns_null()
+        /** @test */
+        public function attempt_to_get_user_with_bad_access_token_returns_null()
     {
         $this->setupStormpathApplication();
         $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
@@ -152,8 +145,8 @@ class StormpathLaravelServiceProviderTest extends TestCase
         $this->assertNull($user);
     }
 
-    /** @test */
-    public function attempt_to_get_user_with_no_access_token_returns_null()
+        /** @test */
+        public function attempt_to_get_user_with_no_access_token_returns_null()
     {
         $this->setupStormpathApplication();
         $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
@@ -169,8 +162,8 @@ class StormpathLaravelServiceProviderTest extends TestCase
         $this->assertNull($user);
     }
 
-    /** @test */
-    public function it_will_refresh_the_access_token_if_expired()
+        /** @test */
+        public function it_will_refresh_the_access_token_if_expired()
     {
         $this->setupStormpathApplication();
         $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
@@ -185,6 +178,117 @@ class StormpathLaravelServiceProviderTest extends TestCase
 
         $this->assertNotNull($user);
 
+    }
+
+        /** @test */
+        public function it_successfully_set_social_providers_data()
+    {
+        $this->setupStormpathApplication();
+        $google = $this->createGoogleDirectory();
+        $facebook = $this->createFacebookDirectory();
+//        $linkedin = $this->createLinkedinDirectory();
+
+        $provider = new StormpathLaravelServiceProvider($this->app);
+        $this->app->register($provider);
+        $provider->boot();
+        $provider->register();
+
+        $this->assertTrue(config('stormpath.web.social.enabled'));
+
+        $this->assertTrue(config('stormpath.web.social.google.enabled'));
+        $this->assertArrayHasKey('name',config('stormpath.web.social.google'));
+        $this->assertArrayHasKey('clientId',config('stormpath.web.social.google'));
+        $this->assertArrayHasKey('callbackUri',config('stormpath.web.social.google'));
+
+        $this->assertTrue(config('stormpath.web.social.facebook.enabled'));
+        $this->assertArrayHasKey('name',config('stormpath.web.social.facebook'));
+        $this->assertArrayHasKey('clientId',config('stormpath.web.social.facebook'));
+
+
+
+        $google->delete();
+        $facebook->delete();
+//        $linkedin->delete();
+
+
+    }
+
+
+    private function createGoogleDirectory()
+    {
+        $provider = \Stormpath\Resource\GoogleProvider::instantiate([
+            'clientId' => '857385-m8vk0fn2r7jmjo.apps.googleusercontent.com',
+            'clientSecret' => 'ehs7_-bA7OWQSQ4',
+            'redirectUri' => 'https://myapplication.com/authenticate'
+        ]);
+
+        $directory = \Stormpath\Resource\Directory::instantiate([
+            'name' => 'A Google Directory',
+            'description' => 'My Google Directory',
+            'provider' => $provider
+        ]);
+
+        $tenant = app('stormpath.client')->tenant;
+        $directory = $tenant->createDirectory($directory);
+
+        $accountStoreMapping = app('stormpath.client')->
+        dataStore->
+        instantiate(\Stormpath\Stormpath::ACCOUNT_STORE_MAPPING);
+
+        $accountStoreMapping->accountStore = $directory; // this could also be a group
+        app('stormpath.application')->createAccountStoreMapping($accountStoreMapping);
+
+        return $directory;
+    }
+
+    private function createFacebookDirectory()
+    {
+        $provider = \Stormpath\Resource\FacebookProvider::instantiate([
+            'clientId' => '1011854538839621',
+            'clientSecret' => '82c16954b0d88216127d66ac44bbc3a8'
+        ]);
+
+        $directory = \Stormpath\Resource\Directory::instantiate([
+            'name' => 'A Facebook Directory',
+            'description' => 'My Facebook Directory',
+            'provider' => $provider
+        ]);
+
+        $tenant = app('stormpath.client')->tenant;
+        $directory = $tenant->createDirectory($directory);
+
+        $accountStoreMapping = app('stormpath.client')->
+        dataStore->
+        instantiate(\Stormpath\Stormpath::ACCOUNT_STORE_MAPPING);
+
+        $accountStoreMapping->accountStore = $directory; // this could also be a group
+        app('stormpath.application')->createAccountStoreMapping($accountStoreMapping);
+        return $directory;
+    }
+
+    private function createLinkedinDirectory()
+    {
+        $provider = \Stormpath\Resource\LinkedInProvider::instantiate([
+            'clientId' => '857385m8vk0fn2r7j',
+            'clientSecret' => 'ehs7bA7OWQSQ4'
+        ]);
+
+        $directory = \Stormpath\Resource\Directory::instantiate([
+            'name' => 'A LinkedIn Directory',
+            'description' => 'My LinkedIn Directory',
+            'provider' => $provider
+        ]);
+
+        $tenant = app('stormpath.client')->tenant;
+        $directory = $tenant->createDirectory($directory);
+
+        $accountStoreMapping = app('stormpath.client')->
+        dataStore->
+        instantiate(\Stormpath\Stormpath::ACCOUNT_STORE_MAPPING);
+
+        $accountStoreMapping->accountStore = $directory; // this could also be a group
+        app('stormpath.application')->createAccountStoreMapping($accountStoreMapping);
+        return $directory;
     }
 
     /**
