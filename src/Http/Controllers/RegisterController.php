@@ -83,8 +83,9 @@ class RegisterController extends Controller
                 ->withInput();
         }
 
-        if(!$errorFields = $this->isAcceptedPostFields($this->request->all())) {
-            return $this->respondWithErrorJson('We do not allow arbitrary data to be posted to an account\'s custom data object. '. $errorFields[0] . ' is either disabled or not defined in the config.', 400);
+        $errorFields = $this->isAcceptedPostFields($this->request->all());
+        if(!empty($errorFields)) {
+            return $this->respondWithErrorJson('We do not allow arbitrary data to be posted to an account\'s custom data object. `'. array_shift($errorFields) . '` is either disabled or not defined in the config.', 400);
         }
 
 
