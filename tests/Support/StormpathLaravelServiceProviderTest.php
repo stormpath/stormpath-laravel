@@ -193,16 +193,16 @@ class StormpathLaravelServiceProviderTest extends TestCase
         $provider->boot();
         $provider->register();
 
-        $this->assertTrue(config('stormpath.web.socialProviders.enabled'));
+        $this->assertTrue(config('stormpath.web.social.enabled'));
 
-        $this->assertTrue(config('stormpath.web.socialProviders.google.enabled'));
-        $this->assertArrayHasKey('name',config('stormpath.web.socialProviders.google'));
-        $this->assertArrayHasKey('clientId',config('stormpath.web.socialProviders.google'));
-        $this->assertArrayHasKey('callbackUri',config('stormpath.web.socialProviders.google'));
+        $this->assertTrue(config('stormpath.web.social.google.enabled'));
+        $this->assertArrayHasKey('name',config('stormpath.web.social.google'));
+        $this->assertArrayHasKey('clientId',config('stormpath.web.social.google'));
+        $this->assertArrayHasKey('callbackUri',config('stormpath.web.social.google'));
 
-        $this->assertTrue(config('stormpath.web.socialProviders.facebook.enabled'));
-        $this->assertArrayHasKey('name',config('stormpath.web.socialProviders.facebook'));
-        $this->assertArrayHasKey('clientId',config('stormpath.web.socialProviders.facebook'));
+        $this->assertTrue(config('stormpath.web.social.facebook.enabled'));
+        $this->assertArrayHasKey('name',config('stormpath.web.social.facebook'));
+        $this->assertArrayHasKey('clientId',config('stormpath.web.social.facebook'));
 
 
 
