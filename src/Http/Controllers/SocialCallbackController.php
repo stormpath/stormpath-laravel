@@ -113,17 +113,23 @@ class SocialCallbackController extends Controller
     private function respondWithAccount(Account $account)
     {
         $properties = ['account'=>[]];
-        $blacklistProperties = [
-            'httpStatus',
-            'account',
-            'emailVerificationToken'
-        ];
+        $config = config('stormpath.web.me.expand');
+        $whiteListResources = [];
+        foreach($config as $item=>$value) {
+            if($value == true) {
+                $whiteListResources[] = $item;
+            }
+        }
 
         $propNames = $account->getPropertyNames();
         foreach($propNames as $prop) {
-            if(in_array($prop, $blacklistProperties)) continue;
+            $property = $this->getPropertyValue($account, $prop);
 
-            $properties['account'][$prop] = $this->getPropertyValue($account, $prop);
+            if(is_object($property) && !in_array($prop, $whiteListResources)) {
+                continue;
+            }
+
+            $properties['account'][$prop] = $property;
         }
         return response()->json($properties);
     }

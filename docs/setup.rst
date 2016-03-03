@@ -114,22 +114,23 @@ Now that you've got a Stormpath account all setup and ready to go, all that's
 left to do before we can dive into the code is install the `Stormpath-Laravel`_
 package from `Packagist`_.
 
-To install Stormpath-Laravel, you'll need ``composer``.  You can install the latest
-version of Stormpath-Laravel by running::
+To install Stormpath-Laravel, you'll need ``composer``.  Open your composer.json file
+and find the require section.  Add the following to your required properties::
 
-    $ composer require stormpath/laravel
+    "stormpath/laravel": "^0.2"
 
-If you'd like to upgrade to the latest version of Stormpath-Laravel (*maybe you
-have an old version installed*), you can run::
+After adding that line and saving the file, run the following from your command line::
 
     $ composer update
 
-To force an upgrade.
+.. note::
+    There is a known issue with running ``composer require stormpath/laravel`` with
+    our guzzle package.
 
 .. note::
     Stormpath-Laravel requires the following;
 
-    Laravel 5.1, and PHP 5.5+.
+    Laravel 5.2, and PHP 5.5+.
 
 
 .. _Active Directory: http://en.wikipedia.org/wiki/Active_Directory

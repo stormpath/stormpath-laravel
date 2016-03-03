@@ -59,5 +59,30 @@ model::
 As you can see above -- storing custom information on a ``user`` account is
 extremely simple!
 
+User Context
+------------
+This support is for front-end clients such as AngularJs. This endpoint allows the
+front-end application to fetch the account object of the currently authenticated user.
+
+We must provide this endpoint because, for security reasons, we don't allow the
+client to store any information about the user. It must be fetched from the server
+at runtime.
+
+This route is enabled by default at the ``/me`` uri, but this endpoint can be changed
+or disabled entirely with these options:::
+
+    web:
+      me:
+        enabled: true
+        uri: "/me"
+
+The endpoint will always respond with ``Content-Type: application/json`` and the body
+will be the JSON representation of the currently authenticated user.
+
+By default, all linked resources will be removed from the object. However the
+developer can opt-in to expansion through configuration. In this situation the
+linked resource will be returned.
+
+
 .. _Account Object: http://docs.stormpath.com/nodejs/api/account
 .. _Stormpath PHP SDK: http://github.com/stormpath/stormpath-sdk-php
