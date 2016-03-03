@@ -89,7 +89,23 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
         $dasm = AccountStoreMapping::get($application->defaultAccountStoreMapping->href);
 
-        $asm = AccountStoreMapping::get($application->accountStoreMappings->href);
+        $mappings = $application->getAccountStoreMappings(['expand'=>'accountStore']);
+        $accountStoreArray = [];
+
+        foreach($mappings as $mapping) {
+            $accountStoreArray[] = [
+                'href' => $mapping->accountStore->href,
+                'name' => $mapping->accountStore->name,
+                'provider' => [
+                    'href' => $mapping->accountStore->provider->href,
+                    'providerId' => $mapping->accountStore->provider->providerId,
+//                    'clientId' => $mapping->accountStore->provider->clientId
+                ]
+            ];
+        }
+
+
+        $asm = AccountStoreMapping::get($application->accountStoreMappings->href,['expand'=>'accountStore']);
 
         $passwordPolicy = $dasm->getAccountStore()->getProperty('passwordPolicy');
 
@@ -102,8 +118,12 @@ class StormpathLaravelServiceProvider extends ServiceProvider
             return $dasm;
         });
 
-        $cache->rememberForever('stormpath.defaultAccountStoreMapping', function() use ($asm) {
+        $cache->rememberForever('stormpath.accountStoreMappings', function() use ($asm) {
             return $asm;
+        });
+
+        $cache->rememberForever('stormpath.accountStores', function() use ($accountStoreArray) {
+            return $accountStoreArray;
         });
 
         $cache->rememberForever('stormpath.passwordPolicy', function() use ($passwordPolicy) {

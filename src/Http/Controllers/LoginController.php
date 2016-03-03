@@ -178,7 +178,7 @@ class LoginController extends Controller
         }
 
         if($this->request->wantsJson()) {
-            return response(null, 200);
+            return response();
         }
 
         return redirect()
@@ -209,21 +209,6 @@ class LoginController extends Controller
 
     private function respondWithForm()
     {
-        $accountStoreArray = [];
-//        $accountStores = app('cache.store')->get('stormpath.accountStoreMappings');
-//        foreach($accountStores as $accountStore) {
-//            $store = $accountStore->accountStore;
-//            $provider = $store->provider;
-//            $accountStoreArray[] = [
-//                'href' => $store->href,
-//                'name' => $store->name,
-//                'provider' => [
-//                    'href' => $provider->href,
-//                    'providerId' => $provider->providerId,
-//                    'clientId' => $provider->clientId
-//                ]
-//            ];
-//        }
 
         $data = [
             'form' => [
@@ -253,7 +238,7 @@ class LoginController extends Controller
                 ]
             ],
             'accountStores' => [
-                $accountStoreArray
+                app('cache.store')->get('stormpath.accountStores')
             ],
 
         ];

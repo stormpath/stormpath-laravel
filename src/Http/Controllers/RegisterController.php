@@ -259,23 +259,6 @@ class RegisterController extends Controller
 
     private function respondWithForm()
     {
-//        $application = app('stormpath.application');
-//        $accountStoreArray = [];
-//        $accountStores = $application->getAccountStoreMappings();
-//        foreach($accountStores as $accountStore) {
-//            $store = $accountStore->accountStore;
-//            $provider = $store->provider;
-//            $accountStoreArray[] = [
-//                'href' => $store->href,
-//                'name' => $store->name,
-//                'provider' => [
-//                    'href' => $provider->href,
-//                    'providerId' => $provider->providerId,
-//                    'clientId' => $provider->clientId
-//                ]
-//            ];
-//        }
-
         $fields = [];
         $fields[] = [
             'label' => 'csrf',
@@ -295,9 +278,9 @@ class RegisterController extends Controller
             'form' => [
                 'fields' => $fields
             ],
-//            'accountStores' => [
-//                $accountStoreArray
-//            ]
+            'accountStores' => [
+                app('cache.store')->get('stormpath.accountStores')
+            ]
         ];
 
         return response()->json($data);
