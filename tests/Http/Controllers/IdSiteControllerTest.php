@@ -30,7 +30,7 @@ class IdSiteControllerTest extends TestCase
     public function logout_will_redirect_to_id_site()
     {
         $this->setupStormpathApplication();
-        $this->get('logout');
+        $this->post('logout');
         $this->assertRedirectedContains('https://api.stormpath.com');
 
     }

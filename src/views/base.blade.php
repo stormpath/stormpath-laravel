@@ -186,7 +186,7 @@
         .view input[type="color"],
         .view input[type="date"],
         .view input[type="datetime"]
-      .view input[type="datetime-local"],
+        .view input[type="datetime-local"],
         .view input[type="email"],
         .view input[type="month"],
         .view input[type="number"],
@@ -377,7 +377,8 @@
             }
         }
 
-        .login-view .social-area button {
+        .login-view .social-area button,
+        .login-view .social-area a.btn-social {
             display: block;
             width: 100%;
             margin-bottom: 15px;
@@ -400,6 +401,8 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+    @yield('footer-scripts')
 
 </body>
 </html>

@@ -16,9 +16,9 @@ Open your ``.env`` file and add the following at the end:
 
 .. code-block:: bash
 
-  STORMPATH_ID={ID_FROM_API_CREDENTIALS}
-  STORMPATH_SECRET={SECRET_FROM_API_CREDENTIALS}
-  STORMPATH_APPLICATION={ID_OF_APPLICATION}
+  STORMPATH_CLIENT_APIKEY_ID={ID_FROM_API_CREDENTIALS}
+  STORMPATH_CLIENT_APIKEY_SECRET={SECRET_FROM_API_CREDENTIALS}
+  STORMPATH_APPLICATION_HREF={ID_OF_APPLICATION}
 
 The ``STORMPATH_ID`` option should be a long, random string that was generated
 and part of the API credentials file you downloaded.
@@ -91,6 +91,25 @@ Wasn't that easy?!
   If you'd like to change these password strength rules (*or disable them*),
   you can do so easily by visiting the `Stormpath dashboard`_, navigating to
   your user Directory, then changing the "Password Strength Policy".
+
+Other Notes
+===========
+
+Running an API
+--------------
+If you are running this package for your API, We suggest that you run it on
+a separate instance of laravel. This is so you can disable CSRF Verification
+for requests. To disable CSRF verification, open your ``app/http/Kernel.php`` file
+and comment out the ``\App\Http\Middleware\VerifyCsrfToken::class,`` line.
+
+Caching
+-------
+This package now relies heavly on caching to improve response times. We cache a
+number of items on the first page load and they are cached forever. If you make
+any changes to your application through the Stormpath Dahsboard, you will need to
+clear your laravel cache. Do this by running ``php artisan cache:clear`` from the
+command line.  Your next request after doing this will take a little longer, but
+the cache will be refreshed with the new settings.
 
 
 .. _Stormpath applications: https://api.stormpath.com/v#!applications

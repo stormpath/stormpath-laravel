@@ -1,0 +1,1 @@
+<a href="{{ route('stormpath.login.linkedin') }}" class="btn btn-social btn-linkedin"> {{ config('stormpath.web.socialProviders.linkedin.name') }}</a>

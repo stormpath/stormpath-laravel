@@ -34,6 +34,7 @@ class ForgotPasswordController extends Controller
 
     public function __construct(Request $request)
     {
+        $this->middleware('stormpath.produces');
 
         $this->request = $request;
     }
@@ -59,6 +60,10 @@ class ForgotPasswordController extends Controller
 
             $application = app( 'stormpath.application' );
             $application->sendPasswordResetEmail($request->get('email'));
+
+            if($this->request->wantsJson()) {
+                return response(null, 200);
+            }
 
             return redirect()
                 ->to(config('stormpath.web.forgotPassword.nextUri'));

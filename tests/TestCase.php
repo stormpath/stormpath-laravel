@@ -18,6 +18,7 @@
 namespace Stormpath\Laravel\Tests;
 
 use Mockery as m;
+use Stormpath\Stormpath;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
@@ -30,10 +31,26 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     }
 
 
-    public function setupStormpathApplication()
+    public function setupStormpathApplication($options = [])
     {
         $this->application = \Stormpath\Resource\Application::instantiate(array('name' => 'Test Application  - ' . microtime(), 'description' => 'Description of Main App', 'status' => 'enabled'));
         self::createResource(\Stormpath\Resource\Application::PATH, $this->application, array('createDirectory' => true));
+
+        if(isset($options['accountCreationPolicy']) && $options['accountCreationPolicy'] == true) {
+            $accountStoreMappings = $this->application->accountStoreMappings;
+
+            try {
+                if ($accountStoreMappings) {
+                    foreach ($accountStoreMappings as $asm) {
+                        $directory = $asm->accountStore;
+                        $acp = $directory->accountCreationPolicy;
+                        $acp->verificationEmailStatus = Stormpath::ENABLED;
+                        $acp->save();
+                    }
+                }
+            } catch (\Stormpath\Resource\ResourceError $re) {
+            }
+        }
 
         config(['stormpath.application.href'=>$this->application->href]);
     }

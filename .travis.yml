@@ -1,8 +1,4 @@
 language: php
-php:
-- 7.0
-- 5.6
-- 5.5
 sudo: false
 install:
 - test -z "$BUILD_DOCS" || pip install --user sphinx
@@ -11,7 +7,8 @@ before_script:
 - travis_retry composer install --prefer-dist --no-interaction
 - composer global require phpunit/phpunit
 - rm -f vendor/stormpath/sdk/src/Resource/ResourceError.php
-- wget https://gist.githubusercontent.com/bretterer/7365386b54bbc61bc388/raw/7c7edcdc00b473186ef4b359985ed97fac5b2cf7/ResourceError.php -O vendor/stormpath/sdk/src/Resource/ResourceError.php
+- wget https://gist.githubusercontent.com/bretterer/7365386b54bbc61bc388/raw/7c7edcdc00b473186ef4b359985ed97fac5b2cf7/ResourceError.php
+  -O vendor/stormpath/sdk/src/Resource/ResourceError.php
 script:
 - travis_retry phpunit --coverage-clover build/logs/clover.xml
 - test -z "$BUILD_DOCS" || cd docs
@@ -20,10 +17,11 @@ script:
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 - test -z "$BUILD_DOCS" || CURRENT_HASH=`git rev-parse HEAD`
-- test -z "$BUILD_DOCS" || RELEASE_VERSION=`git tag | xargs -I@ git log --format=format:"%ai @%n" -1 @ | sort
-  | awk '{print $4}' | tail -n 1`
+- test -z "$BUILD_DOCS" || RELEASE_VERSION=`git tag | xargs -I@ git log --format=format:"%ai
+  @%n" -1 @ | sort | awk '{print $4}' | tail -n 1`
 - test -z "$BUILD_DOCS" || RELEASE_HASH=`git rev-list $RELEASE_VERSION -n 1`
-- test -z "$BUILD_DOCS" || if [ "$CURRENT_HASH" = "$RELEASE_HASH" ]; then DEPLOY_DOCS=true; fi
+- test -z "$BUILD_DOCS" || if [ "$CURRENT_HASH" = "$RELEASE_HASH" ]; then DEPLOY_DOCS=true;
+  fi
 - test -z "$DEPLOY_DOCS" || git config --global user.email "evangelists@stormpath.com"
 - test -z "$DEPLOY_DOCS" || git config --global user.name "stormpath-laravel Auto
   Doc Build"
@@ -57,5 +55,10 @@ before_install:
 - chmod 600 ~/.ssh/id_rsa
 matrix:
   include:
-  - env: BUILD_DOCS=true
-    php: '7.0'
+  - php: '7.0'
+    env: BUILD_DOCS=true
+  - php: 5.6
+  - php: 5.5
+notifications:
+  slack:
+    secure: p5vEt4ED1Bx3y4RtsBwjn7kXaR1/G24CRpd4VVjzmimxPR78qh0joIsTiTqvlipbg0Lk/wO4sB4DJn4llEKqDiB6vp5ujW2e1/DRpeoYF71l002ji1CZ2Ilxsbn+Rjj1JEgsfvioDHfwcXvs8GVNf64nDjXV4p9+HNsAr6DxqOobPWnwJlA+726m9cWCGOtUM7JzTMb5ViALVL+x37bX9AlV6bBBOYt8gBF6sXNsNAyUa5xg0iwq2hp7jyiv7C1P5ufqeWy1zfkxGCBHVITboOOF764FEtqTknQyrxo6wv/vkA5zqx3nsBl+arGJT7XnNA2GnfTjhR9ujRWqHxTUUB9ZhgNQ+S+xAGOjPGI1zD4nQwCNQpa3wIKPTmKXTPzGNa7TinELlf59q75Up2Pru+EWRkjXGNExAG1GqlL0ntykT0LLGw1Z6t6nZaW/kUUN6ZWR7Cy1405NsmVleerKACdkxgJAmareKWZzRxqAY5/aFvQ/+CcHV1t00sDlJ14YnlnYmBEE58psYKxSdTI8B42NJ9/SpH8TAX6ipA/cJooGkdvwEHNSr7K7a6WT5GapM0WjbW0vy6hHDgSkEuvA+jfz2mkRb3BYoGk/BFHJ77pFeEk/LWaB5Nfj821sgdYK2QXq5uNBMoR7rnrgBvnkJPUeeMGSxIlETkqOlMCeqUU=

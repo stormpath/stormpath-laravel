@@ -25,6 +25,7 @@ use Event;
 use Stormpath\Laravel\Exceptions\ActionAbortedException;
 use Stormpath\Laravel\Events\UserIsRegistering;
 use Stormpath\Laravel\Events\UserHasRegistered;
+use Stormpath\Resource\Account;
 
 class RegisterController extends Controller
 {
@@ -46,6 +47,7 @@ class RegisterController extends Controller
      */
     public function __construct(Request $request, Validator $validator)
     {
+        $this->middleware('stormpath.produces');
         $this->request = $request;
         $this->validator = $validator;
     }
@@ -72,7 +74,7 @@ class RegisterController extends Controller
         if($validator->fails()) {
 
             if($this->request->wantsJson()) {
-                return $this->respondWithError('Validation Failed', 400, ['validatonErrors' => $validator->errors()]);
+                return $this->respondWithValidationErrorForJson($validator);
             }
 
             return redirect()
@@ -80,6 +82,12 @@ class RegisterController extends Controller
                 ->withErrors($validator)
                 ->withInput();
         }
+
+        if(($errorFields = $this->isAcceptedPostFields($this->request->all())) !== true) {
+            return $this->respondWithErrorJson('We do not allow arbitrary data to be posted to an account\'s custom data object. `'. array_shift($errorFields) . '` is either disabled or not defined in the config.', 400);
+        }
+
+
         try {
             $registerFields = $this->setRegisterFields();
 
@@ -92,6 +100,7 @@ class RegisterController extends Controller
 
             $account = \Stormpath\Resource\Account::instantiate($registerFields);
 
+            app('cache.store')->forget('stormpath.application');
             $application = app('stormpath.application');
 
             $account = $application->createAccount($account);
@@ -119,7 +128,7 @@ class RegisterController extends Controller
                 // make sure we're not adding the password or passwordConfirm
                 // fields
                 //
-                if ($key!='password' && $key!='passwordConfirm') {
+                if ($key!='password' && $key!='confirmPassword') {
                     if ($account->{$key}!=$registerFields[$key]) {
                         $account->customData->{$key} = $value;
                         $customDataAdded = true;
@@ -187,7 +196,7 @@ class RegisterController extends Controller
 
         } catch(\Stormpath\Resource\ResourceError $re) {
             if($this->request->wantsJson()) {
-                return $this->respondWithError($re->getMessage(), $re->getStatus());
+                return $this->respondWithErrorJson($re->getMessage(), $re->getStatus());
             }
             return redirect()
                 ->to(config('stormpath.web.register.uri'))
@@ -201,27 +210,28 @@ class RegisterController extends Controller
     {
         $rules = [];
         $messages = [];
+        $input = $this->request->all();
 
         $registerField = config('stormpath.web.register.form.fields');
 
-        foreach($registerField as $field) {
+        foreach($registerField as $key => $field) {
             if($field['enabled'] == true && $field['required'] == true) {
-                $rules[$field['name']] = 'required';
+                $rules[$key] = 'required';
             }
         }
 
-        $messages[config('stormpath.web.register.form.fields.username.name').'.required'] = 'Username is required.';
-        $messages[config('stormpath.web.register.form.fields.givenName.name').'.required'] = 'Given name is required.';
-        $messages[config('stormpath.web.register.form.fields.middleName.name').'.required'] = 'Middle name is required.';
-        $messages[config('stormpath.web.register.form.fields.surname.name').'.required'] = 'Surname is required.';
-        $messages[config('stormpath.web.register.form.fields.email.name').'.required'] = 'Email is required.';
-        $messages[config('stormpath.web.register.form.fields.password.name').'.required'] = 'Password is required.';
-        $messages[config('stormpath.web.register.form.fields.passwordConfirm.name').'.required'] = 'Password confirmation is required.';
+        $messages['username.required'] = 'Username is required.';
+        $messages['givenName.required'] = 'Given name is required.';
+        $messages['middleName.required'] = 'Middle name is required.';
+        $messages['surname.required'] = 'Surname is required.';
+        $messages['email.required'] = 'Email is required.';
+        $messages['password.required'] = 'Password is required.';
+        $messages['confirmPassword.required'] = 'Password confirmation is required.';
 
 
-        if( config('stormpath.web.register.form.fields.passwordConfirm.required') ) {
-            $rules['password'] = 'required|confirmed';
-            $messages['password.confirmed'] = 'Passwords are not the same.';
+        if( config('stormpath.web.register.form.fields.confirmPassword.enabled') ) {
+            $rules['password'] = 'required|same:confirmPassword';
+            $messages['password.same'] = 'Passwords are not the same.';
         }
 
         $validator = $this->validator->make(
@@ -240,7 +250,7 @@ class RegisterController extends Controller
         $registerFields = config('stormpath.web.register.form.fields');
         foreach($registerFields as $spfield=>$field) {
             if($field['required'] == true) {
-                $registerArray[$spfield] = $this->request->input($field['name']);
+                $registerArray[$spfield] = $this->request->input($spfield);
             }
         }
 
@@ -249,23 +259,6 @@ class RegisterController extends Controller
 
     private function respondWithForm()
     {
-        $application = app('stormpath.application');
-        $accountStoreArray = [];
-        $accountStores = $application->getAccountStoreMappings();
-        foreach($accountStores as $accountStore) {
-            $store = $accountStore->accountStore;
-            $provider = $store->provider;
-            $accountStoreArray[] = [
-                'href' => $store->href,
-                'name' => $store->name,
-                'provider' => [
-                    'href' => $provider->href,
-                    'providerId' => $provider->providerId,
-                    'clientId' => $provider->clientId
-                ]
-            ];
-        }
-
         $fields = [];
         $fields[] = [
             'label' => 'csrf',
@@ -286,19 +279,19 @@ class RegisterController extends Controller
                 'fields' => $fields
             ],
             'accountStores' => [
-                $accountStoreArray
+                app('cache.store')->get('stormpath.accountStores')
             ]
         ];
 
         return response()->json($data);
     }
 
-    private function respondWithError($message, $statusCode = 400, $extra = [])
+
+    private function respondWithErrorJson($message, $statusCode = 400, $extra = [])
     {
         $error = [
-            'errors' => [
-                'message' => $message
-            ]
+            'message' => $message,
+            'status' => $statusCode
         ];
 
         if(!empty($extra)) {
@@ -308,31 +301,68 @@ class RegisterController extends Controller
     }
 
 
-    private function respondWithAccount($account)
+    private function respondWithAccount(Account $account)
     {
-        $properties = [];
-        $blacklistProperties = [
-            'providerData',
-            'httpStatus',
-            'createdAt',
-            'modifiedAt'
-        ];
+        $properties = ['account'=>[]];
+        $config = config('stormpath.web.me.expand');
+        $whiteListResources = [];
+        foreach($config as $item=>$value) {
+            if($value == true) {
+                $whiteListResources[] = $item;
+            }
+        }
 
         $propNames = $account->getPropertyNames();
         foreach($propNames as $prop) {
-            if(in_array($prop, $blacklistProperties)) continue;
-            $properties[$prop] = $this->getPropertyValue($account, $prop);
-        }
+            $property = $this->getPropertyValue($account, $prop);
 
+            if(is_object($property) && !in_array($prop, $whiteListResources)) {
+                continue;
+            }
+
+            $properties['account'][$prop] = $property;
+        }
         return response()->json($properties);
     }
 
-    private function getPropertyValue($account, $propName)
+    private function getPropertyValue($account, $prop)
     {
-        if(is_object($account->{$propName})) {
-            return ['href'=>$account->{$propName}->href];
+        $value = null;
+        try {
+            $value = $account->getProperty($prop);
+        } catch (\Exception $e) {
+            return null;
         }
 
-        return $account->{$propName};
+        return $value;
+
+    }
+
+    private function respondWithValidationErrorForJson($validator)
+    {
+
+        return response()->json([
+            'message' => $validator->errors()->first(),
+            'status' => 400
+        ], 400);
+    }
+
+    private function isAcceptedPostFields($submittedFields)
+    {
+        $fields = [];
+        $allowedFields = config('stormpath.web.register.form.fields');
+
+        foreach($allowedFields as $key => $value) {
+            //Enabled check when iOS SDK is updated to not use username in tests
+//            if($value['enabled'] == false) continue;
+            $fields[] = $key;
+        }
+        $fields[] = '_token';
+
+        if(!empty($diff = array_diff(array_keys($submittedFields), array_values($fields)))) {
+            return $diff;
+        }
+
+        return true;
     }
 }

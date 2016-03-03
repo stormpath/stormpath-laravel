@@ -78,7 +78,7 @@ class LoginControllerEventTest extends TestCase
         $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
         $this->post('login', ['login' => 'test@test.com', 'password' => 'superP4ss!']);
 
-        $this->call('GET', config('stormpath.web.logout.uri'));
+        $this->call('POST', config('stormpath.web.logout.uri'));
 
         $headers = $this->response->headers;
         $cookies = $headers->getCookies();
@@ -106,7 +106,7 @@ class LoginControllerEventTest extends TestCase
         $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
         $this->post('login', ['login' => 'test@test.com', 'password' => 'superP4ss!']);
 
-        $this->call('GET', config('stormpath.web.logout.uri'));
+        $this->call('POST', config('stormpath.web.logout.uri'));
 
         // assert that the cookies still exist (ie. the user has not been logged
         // out)
