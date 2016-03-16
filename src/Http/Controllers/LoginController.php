@@ -21,6 +21,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Factory as Validator;
 use Stormpath\Laravel\Http\Traits\AuthenticatesUser;
@@ -80,6 +81,7 @@ class LoginController extends Controller
         if($this->isSocialLoginAttempt()) {
             return $this->doSocialLogin();
         }
+
 
 
         $validator = $this->loginValidator();
@@ -294,13 +296,13 @@ class LoginController extends Controller
 
     private function isSocialLoginAttempt()
     {
-        $attempt = $this->request->has('providerId');
+        $attempt = $this->request->has('providerData');
 
         if(!$attempt) {
             return false;
         }
 
-        switch ($provider = $this->request->input('providerId'))
+        switch ($provider = $this->request->input('providerData')['providerId'])
         {
             case 'google' :
             case 'facebook' :
@@ -312,9 +314,10 @@ class LoginController extends Controller
         }
     }
 
+
     private function doSocialLogin()
     {
-        switch ($provider = $this->request->input('providerId'))
+        switch ($provider = $this->request->input('providerData')['providerId'])
         {
             case 'google' :
                 return app(SocialCallbackController::class)->google($this->request);

@@ -30,7 +30,7 @@ class IdSiteSessionHelper
         try {
             $jwt = \JWT::encode([
                 'sub' => $account->href,
-                'iat' => time(),
+                'iat' => time()-1,
                 'status' => 'AUTHENTICATED',
                 'iss' => $application->href,
                 'aud' => config('stormpath.client.apiKey.id')
