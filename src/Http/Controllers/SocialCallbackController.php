@@ -248,8 +248,10 @@ class SocialCallbackController extends Controller
             $array['accessToken'] = $request->get('access_token');
         }
 
-        if($request->has('providerData')['accessToken']) {
-            $array['accessToken'] = $request->get('providerData')['accessToken'];
+        if($request->has('providerData')) {
+            if(!empty($request->get('providerData')['accessToken'])) {
+                $array['accessToken'] = $request->get('providerData')['accessToken'];
+            }
         }
 
         return $array;
