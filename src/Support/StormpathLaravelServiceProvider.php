@@ -17,6 +17,7 @@
 
 namespace Stormpath\Laravel\Support;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Stormpath\Client;
 use Stormpath\Laravel\Http\Helpers\IdSiteModel;
@@ -30,7 +31,7 @@ use Stormpath\Stormpath;
 class StormpathLaravelServiceProvider extends ServiceProvider
 {
     const INTEGRATION_NAME = 'stormpath-laravel';
-    const INTEGRATION_VERSION = '0.3.0';
+    const INTEGRATION_VERSION = '0.3.1';
 
     protected $defer = false;
     /**
@@ -146,6 +147,10 @@ class StormpathLaravelServiceProvider extends ServiceProvider
     private function loadRoutes()
     {
         require __DIR__ . '/../Http/routes.php';
+
+        if(config('stormpath.web.social.enabled')) {
+            require __DIR__ . '/../Http/socialRoutes.php';
+        }
     }
 
     private function registerClient()
@@ -343,7 +348,6 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
         foreach($providers as $provider) {
             config(['stormpath.web.social.enabled' => true]);
-            require __DIR__ . '/../Http/socialRoutes.php';
 
             switch ($provider->providerId) {
                 case 'facebook' :
@@ -351,6 +355,13 @@ class StormpathLaravelServiceProvider extends ServiceProvider
                     break;
                 case 'google' :
                     $this->setupGoogleProvider($provider);
+                    break;
+                case 'github' :
+                    Log::info('Github is not yet supported inside of the Laravel SDK');
+//                    $this->setupGithubProvider($provider);
+                    break;
+                case 'linkedin' :
+                    $this->setupLinkedinProvider($provider);
                     break;
             }
         }
@@ -371,6 +382,21 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         config(['stormpath.web.social.google.name' => 'Google']);
         config(['stormpath.web.social.google.clientId' => $provider->clientId]);
         config(['stormpath.web.social.google.callbackUri' => $provider->redirectUri]);
+    }
+
+//    private function setupGithubProvider($provider)
+//    {
+//        config(['stormpath.web.social.github.enabled' => true]);
+//        config(['stormpath.web.social.github.name' => 'Github']);
+//        config(['stormpath.web.social.github.clientId' => $provider->clientId]);
+//    }
+
+    private function setupLinkedinProvider($provider)
+    {
+        config(['stormpath.web.social.linkedin.enabled' => true]);
+        config(['stormpath.web.social.linkedin.name' => 'LinkedIn']);
+        config(['stormpath.web.social.linkedin.clientId' => $provider->clientId]);
+
     }
 
 

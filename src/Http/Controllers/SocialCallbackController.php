@@ -20,9 +20,13 @@ namespace Stormpath\Laravel\Http\Controllers;
 use Illuminate\Cookie\CookieJar;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Log;
+use Stormpath\Laravel\Exceptions\SocialLoginException;
 use Stormpath\Laravel\Http\Helpers\FacebookProviderAccountRequest;
 use Stormpath\Laravel\Http\Helpers\IdSiteSessionHelper;
 use Stormpath\Laravel\Http\Traits\Cookies;
+use Stormpath\Provider\GithubProviderAccountRequest;
+use Stormpath\Provider\LinkedInProviderAccountRequest;
 use Stormpath\Provider\ProviderAccountRequest;
 use Stormpath\Resource\AccessToken;
 use Stormpath\Resource\Account;
@@ -48,10 +52,8 @@ class SocialCallbackController extends Controller
     public function facebook(Request $request)
     {
         try {
-            $providerAccountRequest = new FacebookProviderAccountRequest(array(
-                "accessToken" => $request->get('access_token'),
-                "code" => $request->get('code')
-            ));
+
+            $providerAccountRequest = new FacebookProviderAccountRequest($this->buildProviderAccountRequestArray($request));
 
             $account = $this->sendProviderAccountRequest($providerAccountRequest);
 
@@ -65,8 +67,15 @@ class SocialCallbackController extends Controller
                 ->intended(config('stormpath.web.login.nextUri'));
 
         } catch (\Stormpath\Resource\ResourceError $re) {
-            dd($re);
-            return redirect()->to(config('stormpath.web.login.uri'));
+            if(app('request')->wantsJson()) {
+                return $this->respondWithError($re);
+            }
+            return redirect()->to(config('stormpath.web.login.uri'))->withErrors(['errors'=>[$re->getMessage()]]);
+        } catch (SocialLoginException $e) {
+            if(app('request')->wantsJson()) {
+                return $this->respondWithError($e);
+            }
+            return redirect()->to(config('stormpath.web.login.uri'))->withErrors(['errors'=>[$e->getMessage()]]);
         }
 
     }
@@ -74,9 +83,7 @@ class SocialCallbackController extends Controller
     public function google(Request $request)
     {
         try {
-            $providerAccountRequest = new \Stormpath\Provider\GoogleProviderAccountRequest(array(
-                "code" => $request->get('code')
-            ));
+            $providerAccountRequest = new \Stormpath\Provider\GoogleProviderAccountRequest($this->buildProviderAccountRequestArray($request));
 
             $account = $this->sendProviderAccountRequest($providerAccountRequest);
 
@@ -89,7 +96,80 @@ class SocialCallbackController extends Controller
 
             return redirect()->to(config('stormpath.web.login.nextUri'));
         } catch (\Stormpath\Resource\ResourceError $re) {
-            return redirect()->to(config('stormpath.web.login.uri'));
+            if(app('request')->wantsJson()) {
+                return $this->respondWithError($re);
+            }
+            return redirect()->to(config('stormpath.web.login.uri'))->withErrors(['errors'=>[$re->getMessage()]]);
+        } catch (SocialLoginException $e) {
+            if(app('request')->wantsJson()) {
+                return $this->respondWithError($e);
+            }
+            return redirect()->to(config('stormpath.web.login.uri'))->withErrors(['errors'=>[$e->getMessage()]]);
+        }
+
+    }
+
+    public function github(Request $request)
+    {
+        try {
+
+            $providerAccountRequest = new GithubProviderAccountRequest($this->buildProviderAccountRequestArray($request));
+
+            $account = $this->sendProviderAccountRequest($providerAccountRequest);
+
+            $this->setCookies($account);
+
+            if(app('request')->wantsJson()) {
+                return $this->respondWithAccount($account);
+            }
+
+            return redirect()
+                ->intended(config('stormpath.web.login.nextUri'));
+
+        } catch (\Stormpath\Resource\ResourceError $re) {
+            if(app('request')->wantsJson()) {
+                return $this->respondWithError($re);
+            }
+            return redirect()->to(config('stormpath.web.login.uri'))->withErrors(['errors'=>[$re->getMessage()]]);
+        } catch (SocialLoginException $e) {
+            if(app('request')->wantsJson()) {
+                return $this->respondWithError($e);
+            }
+            return redirect()->to(config('stormpath.web.login.uri'))->withErrors(['errors'=>[$e->getMessage()]]);
+        }
+
+    }
+
+    public function linkedin(Request $request)
+    {
+        if($request->has('error')) {
+            return redirect()->to(config('stormpath.web.login.uri'))->withErrors(['errors'=>[$request->get('error_description')]]);
+        }
+        try {
+
+            $providerAccountRequest = new LinkedInProviderAccountRequest($this->buildProviderAccountRequestArray($request));
+
+            $account = $this->sendProviderAccountRequest($providerAccountRequest);
+
+            $this->setCookies($account);
+
+            if(app('request')->wantsJson()) {
+                return $this->respondWithAccount($account);
+            }
+
+            return redirect()
+                ->intended(config('stormpath.web.login.nextUri'));
+
+        } catch (\Stormpath\Resource\ResourceError $re) {
+            if(app('request')->wantsJson()) {
+                return $this->respondWithError($re);
+            }
+            return redirect()->to(config('stormpath.web.login.uri'))->withErrors(['errors'=>[$re->getMessage()]]);
+        } catch (SocialLoginException $e) {
+            if(app('request')->wantsJson()) {
+                return $this->respondWithError($e);
+            }
+            return redirect()->to(config('stormpath.web.login.uri'))->withErrors(['errors'=>[$e->getMessage()]]);
         }
 
     }
@@ -108,6 +188,7 @@ class SocialCallbackController extends Controller
 
         $this->queueAccessToken($accessTokens->getProperty('access_token'));
         $this->queueRefreshToken($accessTokens->getProperty('refresh_token'));
+
     }
 
     private function respondWithAccount(Account $account)
@@ -145,6 +226,35 @@ class SocialCallbackController extends Controller
 
         return $value;
 
+    }
+
+    private function respondWithError($exception)
+    {
+        return response()->json([
+            'message' => $exception->getMessage(),
+            'status' => $exception->getStatus()
+        ], $exception->getStatus());
+    }
+
+    private function buildProviderAccountRequestArray($request)
+    {
+        $array = [];
+
+        if($request->has('code')) {
+            $array['code'] = $request->get('code');
+        }
+
+        if($request->has('access_token')) {
+            $array['accessToken'] = $request->get('access_token');
+        }
+
+        if($request->has('providerData')) {
+            if(!empty($request->get('providerData')['accessToken'])) {
+                $array['accessToken'] = $request->get('providerData')['accessToken'];
+            }
+        }
+
+        return $array;
     }
 
 }

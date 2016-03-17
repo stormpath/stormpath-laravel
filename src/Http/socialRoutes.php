@@ -48,5 +48,13 @@ $this->app->router->group($middleware, function() {
             $this->app->router->get(config('stormpath.web.social.google.uri'), ['as' => 'stormpath.callbacks.google', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@google']);
         }
 
+        if (config('stormpath.web.social.github.enabled')) {
+            $this->app->router->get(config('stormpath.web.social.github.uri'), ['as' => 'stormpath.callbacks.github', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@github']);
+        }
+
+        if (config('stormpath.web.social.linkedin.enabled')) {
+            $this->app->router->get(config('stormpath.web.social.linkedin.uri'), ['as' => 'stormpath.callbacks.linkedin', 'uses' => 'Stormpath\Laravel\Http\Controllers\SocialCallbackController@linkedin']);
+        }
+
     }
 });

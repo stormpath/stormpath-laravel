@@ -6,13 +6,18 @@ Upgrade Guide
 This page contains specific upgrading instructions to help you migrate between
 Stormpath-Laravel releases.
 
+Version 0.3.0 -> Version 0.3.1
+------------------------------
+Republish vendor config file.
+Clear your laravel cache if adding a LinkedIn directory.
+
 Version 0.2.0 -> Version 0.3.0
-----------------------------------
+------------------------------
 Republish vendor config file.
 Clear your laravel cache when making changes to your application from Stormpath Dashboard
 
 Version 0.1.0 -> Version 0.2.0
-----------------------------------
+------------------------------
 No Changes Needed
 
 Version 0.1.0.RC3 -> Version 0.1.0
