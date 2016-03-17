@@ -5,6 +5,15 @@ Change Log
 
 All library changes, in descending order. something
 
+Version 0.3.1
+-------------
+
+**Released on March 17, 2016.**
+
+- Added Social Login for LinkedIn.
+- Added .gitattributes for cleaner install via composer
+- Updated Documentation
+
 Version 0.3.0
 -------------
 
