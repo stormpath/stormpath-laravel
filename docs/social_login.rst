@@ -246,9 +246,115 @@ then immediately redirected back to your website at the URL specified by
 
 Simple, right?!
 
+LinkedIn Login
+--------------
+
+To use LinkedIn Login you must create a LinkedIn Application, this is done
+through their Developer site.  In the next few minutes I'll walk you through
+*everything* you need to know to support LinkedIn login with your app.
+
+
+Create a LinkedIn App
+.....................
+
+The first thing you need to do is log into the `LinkedIn Developer Site`_ and
+create a new LinkedIn App.
+
+You can do this by visiting the `LinkedIn Developer Site`_ and clicking the "My Apps"
+menu at the top of the screen, then select the "Create Application" button.  You
+should see something like the following:
+
+.. image:: /_static/linkedin-new-project.png
+
+All fields on this page are required, so go ahead and fill them all out. Here is a sample of
+what you can use to fill them in:
+
+.. image:: /_static/linkedin-new-project-filled.png
+
+Once you've done this, accept their terms and click submit.
+
+
+Specify Allowed URLs
+....................
+
+The next thing we need to do is tell Linkedin what URLs they are allowed to send
+the login details back to.
+
+From the app dashboard page you're on, find the section for OAuth 2.0 and fill in
+the ``Authorized Redirect URLs``. The default for the laravel integration is
+``/callbacks/linkedin`` but this field needs to be a fully qualified url. Our example
+uses ``http://localhost:8000`` for this. Once you fill in the field, Click on ``Add``
+
+Next you will need to tell LinkedIn that you need email address from your users.
+To do this, find the section on the same page called ``Default Applicaiton Permissions``
+and make sure ``r_emailaddress`` is selected.
+
+Lastly, click the "Save" button at the bottom to save the changes.
+
+Your settings should now look something like this:
+
+.. image:: /_static/linkedin-settings.png
+
+
+Create a Linkedin Directory
+...........................
+
+Next, we need to input the Linkedin app credentials into Stormpath Directory.
+This allows Stormpath to interact with the Linkedin API on your behalf, which
+automates all OAuth flows.
+
+To do this, you need to visit the `Stormpath Admin Console`_ and create a new
+directory.  When you click the "Create Directory" button you will choose
+"LinkedIn" as the provider, and enter the following information about your
+Facebook application:
+
+- For the "Name" field, you can insert whatever name you want.
+- For the "LinkedIn Client ID" field, insert your LinkedIn Client ID which you got
+  in the previous steps.
+- For the "LinkedIn Client Secret" field, insert your LinkedIn Client Secret
+  which you got in the previous steps.
+- For the "linkedIn Authorized Redirect URI" field, insert the same url you set
+  in the LinkedIn Developer Site
+
+Make sure to click "Create" to finish creating your directory.
+
+Next, you need to hook your new LinkedIn Directory up to your Stormpath
+Application.  To do this, visit the `Stormpath Admin Console`_, navigate to
+Applications, and select your application from the list.
+
+On your application page, click the "Account Stores" tab, then click the "Add
+Account Store" button.  From the drop down list, select your newly created
+LinkedIn Directory, then save your changes.
+
+That's it!
+
+
+Test it Out
+...........
+
+Now that you've plugged your Facebook credentials into Stormpath Laravel, social
+login should already be working!
+
+Open your laravel app in a browser, and try logging in by visiting the login page
+(``/login``).  If you're using the default login page included with this
+library, you should see the following:
+
+.. image:: /_static/login-page-linkedin.png
+
+You now have a fancy new LinkedIn enabled login button!  Try logging in!  When
+you click the new LinkedIn button you'll be redirected to LinkedIn, and
+prompted to accept the permissions requested:
+
+.. image:: /_static/login-page-linkedin-permissions.png
+
+After accepting permissions, you'll be immediately redirected back to your
+website at the URL specified by ``redirectUrl`` in your app's config.
+
+Simple, right?!
+
 
 
 .. _Stormpath Admin Console: https://api.stormpath.com
 .. _Facebook Developer Site: https://developers.facebook.com/
 .. _Google Developer Console: https://console.developers.google.com/project
-.. _LinkedIn Developer Console: https://www.linkedin.com/developer/apps
+.. _LinkedIn Developer Site: https://www.linkedin.com/developer/apps
