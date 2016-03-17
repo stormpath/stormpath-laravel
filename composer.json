@@ -21,15 +21,12 @@
     ],
     "require": {
         "php": ">=5.5",
-        "stormpath/sdk": "~1.12",
+        "stormpath/sdk": "~1.14",
         "illuminate/http": "~5.1|~5.2",
         "illuminate/routing": "~5.1|~5.2",
         "illuminate/validation": "~5.1|~5.2",
         "illuminate/support": "~5.1|~5.2",
-        "bretterer/iso_duration_converter": "^0.1.0",
-        "league/oauth2-facebook": "~1.0",
-        "league/oauth2-google": "~1.0",
-        "league/oauth2-linkedin": "~0.4"
+        "bretterer/iso_duration_converter": "^0.1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0",
@@ -46,7 +43,6 @@
             "Stormpath\\Laravel\\Tests\\": "tests/"
         }
     },
-    "minimum-stability": "stable",
     "support": {
         "source": "https://github.com/stormpath/stormpath-laravel",
         "email": "support@stormpath.com",

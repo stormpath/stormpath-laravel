@@ -6,9 +6,7 @@ before_script:
 - composer self-update
 - travis_retry composer install --prefer-dist --no-interaction
 - composer global require phpunit/phpunit
-- rm -f vendor/stormpath/sdk/src/Resource/ResourceError.php
-- wget https://gist.githubusercontent.com/bretterer/7365386b54bbc61bc388/raw/7c7edcdc00b473186ef4b359985ed97fac5b2cf7/ResourceError.php
-  -O vendor/stormpath/sdk/src/Resource/ResourceError.php
+
 script:
 - travis_retry phpunit --coverage-clover build/logs/clover.xml
 - test -z "$BUILD_DOCS" || cd docs

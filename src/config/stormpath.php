@@ -201,7 +201,7 @@ return [
             ],
             "linkedin" => [
                 "uri" => "/callbacks/linkedin",
-                "scope" => "r_basicprofile, r_emailaddress"
+                "scope" => "r_basicprofile r_emailaddress"
             ]
         ],
 
