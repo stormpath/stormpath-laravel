@@ -57,6 +57,7 @@ class LoginController extends Controller
     public function __construct(Request $request, Validator $validator)
     {
         $this->middleware('stormpath.produces');
+        $this->middleware('stormpath.guest');
         $this->request = $request;
         $this->validator = $validator;
     }
