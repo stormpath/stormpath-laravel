@@ -85,6 +85,22 @@ class RedirectIfAuthenticatedTest extends TestCase
     }
 
     /** @test */
+    public function it_will_not_try_to_refresh_access_token_if_json_is_requested()
+    {
+        $this->setupStormpathApplication();
+        $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
+
+        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest('test@test.com', 'superP4ss!');
+        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
+        $result =  $auth->authenticate($passwordGrant);
+
+        $this->json('GET', 'testRedirectIfAuthenticatedMiddleware',[], $this->cookiesToSendRefreshOnly($result));
+
+        $this->seeStatusCode(401);
+    }
+
+
+    /** @test */
     public function it_will_return_null_if_no_access_token_and_invalid_refresh_token()
     {
         $this->setupStormpathApplication();

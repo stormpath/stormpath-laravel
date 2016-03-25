@@ -43,10 +43,11 @@ class RedirectIfAuthenticated
             return redirect()->intended('/');
         }
 
-        $accessToken = null;
-        if (!$request->wantsJson()) {
-            $accessToken = $this->refreshCookie($request);
+        if($request->wantsJson()) {
+            return response(null, 401);
         }
+
+        $accessToken = $this->refreshCookie($request);
 
         if (null !== $accessToken) {
             return redirect()->intended('/');
