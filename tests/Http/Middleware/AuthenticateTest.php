@@ -38,6 +38,13 @@ class AuthenticateTest extends TestCase
     }
 
     /** @test */
+    public function json_request_as_guest_will_return_401_status()
+    {
+        $this->json('GET', 'testAuthenticateMiddleware');
+        $this->seeStatusCode(401);
+    }
+
+    /** @test */
     public function it_redirects_if_user_is_a_guest()
     {
         $this->get('testAuthenticateMiddleware');
@@ -45,37 +52,21 @@ class AuthenticateTest extends TestCase
     }
 
     /** @test */
-    public function an_invalid_access_token_redirects_to_login_screen()
+    public function it_will_authenticate_with_a_valid_authorization_header()
     {
         $this->setupStormpathApplication();
-        $this->call('GET', 'testAuthenticateMiddleware',[],
-            [
-                config('stormpath.web.accessTokenCookie.name') =>
-                    cookie(
-                        config('stormpath.web.accessTokenCookie.name'),
-                        '123',
-                        '3600',
-                        config('stormpath.web.accessTokenCookie.path'),
-                        config('stormpath.web.accessTokenCookie.domain'),
-                        config('stormpath.web.accessTokenCookie.secure'),
-                        config('stormpath.web.accessTokenCookie.httpOnly')
-                    ),
-                config('stormpath.web.refreshTokenCookie.name') =>
-                    cookie(
-                        config('stormpath.web.refreshTokenCookie.name'),
-                        '123',
-                        '3600',
-                        config('stormpath.web.refreshTokenCookie.path'),
-                        config('stormpath.web.refreshTokenCookie.domain'),
-                        config('stormpath.web.refreshTokenCookie.secure'),
-                        config('stormpath.web.refreshTokenCookie.httpOnly')
-                    )
-            ]);
-        $this->assertRedirectedToRoute('stormpath.login');
+        $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
+
+        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest('test@test.com', 'superP4ss!');
+        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
+        $result =  $auth->authenticate($passwordGrant);
+
+        $this->get('testAuthenticateMiddleware', ['Authorization'=>'Bearer ' . $result->getAccessTokenString()]);
+        $this->see('Hello!');
     }
 
     /** @test */
-    public function it_continues_if_user_is_authenticated()
+    public function it_authenticates_a_user_based_on_access_token()
     {
         $this->setupStormpathApplication();
         $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
@@ -86,92 +77,148 @@ class AuthenticateTest extends TestCase
 
         $this->call('GET', 'testAuthenticateMiddleware',[], $this->cookiesToSend($result));
         $this->see('Hello!');
-
-
     }
 
-    /** @test */
-    public function it_will_refresh_token_if_old_token()
-    {
-        $this->setupStormpathApplication();
-        $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
 
-        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest('test@test.com', 'superP4ss!');
-        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
-        $result =  $auth->authenticate($passwordGrant);
 
-        $this->call('GET', 'testAuthenticateMiddleware',[],
-            [
-                config('stormpath.web.accessTokenCookie.name') =>
-                    cookie(
-                        config('stormpath.web.accessTokenCookie.name'),
-                        'eyJraWQiOiIxUE4zRlhJMFU3OUUyTUhDRjZYVVlHVTRaIiwiYWxnIjoiSFMyNTYifQ.eyJqdGkiOiJ5VnZ4ZTV4T1NqOHl6WHNWa0w4VmIiLCJpYXQiOjE0NDk3ODU5ODgsImlzcyI6Imh0dHBzOi8vYXBpLnN0b3JtcGF0aC5jb20vdjEvYXBwbGljYXRpb25zL3hSQ1FsNmRIRFl2UWtPMzZDY2EwSSIsInN1YiI6Imh0dHBzOi8vYXBpLnN0b3JtcGF0aC5jb20vdjEvYWNjb3VudHMveGloYzVpYXlwb1BvaVFsakFEU2tXIiwiZXhwIjoxNDQ5Nzg5NTg4LCJydGkiOiJ5VnZ4YWxzVHNRQU1BUzFKVVRydFgifQ.gDO2pfxTfItjW8YMM_ZKf8BvqU3kenR0g8my7mneAd8',
-                        time()-86400,
-                        config('stormpath.web.accessTokenCookie.path'),
-                        config('stormpath.web.accessTokenCookie.domain'),
-                        config('stormpath.web.accessTokenCookie.secure'),
-                        config('stormpath.web.accessTokenCookie.httpOnly')
-                    ),
-                config('stormpath.web.refreshTokenCookie.name') =>
-                    cookie(
-                        config('stormpath.web.refreshTokenCookie.name'),
-                        $result->getRefreshTokenString(),
-                        time()-86400,
-                        config('stormpath.web.refreshTokenCookie.path'),
-                        config('stormpath.web.refreshTokenCookie.domain'),
-                        config('stormpath.web.refreshTokenCookie.secure'),
-                        config('stormpath.web.refreshTokenCookie.httpOnly')
-                    )
-            ]);
 
-        $this->see('Hello!');
-    }
 
-    /** @test */
-    public function it_will_redirect_to_login_if_old_token_and_can_not_refresh()
-    {
-        $this->setupStormpathApplication();
-        $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
 
-        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest('test@test.com', 'superP4ss!');
-        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
-        $result =  $auth->authenticate($passwordGrant);
-
-        $this->call('GET', 'testAuthenticateMiddleware',[],
-            [
-                config('stormpath.web.accessTokenCookie.name') =>
-                    cookie(
-                        config('stormpath.web.accessTokenCookie.name'),
-                        'eyJraWQiOiIxUE4zRlhJMFU3OUUyTUhDRjZYVVlHVTRaIiwiYWxnIjoiSFMyNTYifQ.eyJqdGkiOiJ5VnZ4ZTV4T1NqOHl6WHNWa0w4VmIiLCJpYXQiOjE0NDk3ODU5ODgsImlzcyI6Imh0dHBzOi8vYXBpLnN0b3JtcGF0aC5jb20vdjEvYXBwbGljYXRpb25zL3hSQ1FsNmRIRFl2UWtPMzZDY2EwSSIsInN1YiI6Imh0dHBzOi8vYXBpLnN0b3JtcGF0aC5jb20vdjEvYWNjb3VudHMveGloYzVpYXlwb1BvaVFsakFEU2tXIiwiZXhwIjoxNDQ5Nzg5NTg4LCJydGkiOiJ5VnZ4YWxzVHNRQU1BUzFKVVRydFgifQ.gDO2pfxTfItjW8YMM_ZKf8BvqU3kenR0g8my7mneAd8',
-                        time()-86400,
-                        config('stormpath.web.accessTokenCookie.path'),
-                        config('stormpath.web.accessTokenCookie.domain'),
-                        config('stormpath.web.accessTokenCookie.secure'),
-                        config('stormpath.web.accessTokenCookie.httpOnly')
-                    ),
-                config('stormpath.web.refreshTokenCookie.name') =>
-                    cookie(
-                        config('stormpath.web.refreshTokenCookie.name'),
-                        $result->getAccessTokenString(),
-                        time()-86400,
-                        config('stormpath.web.refreshTokenCookie.path'),
-                        config('stormpath.web.refreshTokenCookie.domain'),
-                        config('stormpath.web.refreshTokenCookie.secure'),
-                        config('stormpath.web.refreshTokenCookie.httpOnly')
-                    )
-            ]);
-
-        $this->assertRedirectedToRoute('stormpath.login');
-
-        $headers = $this->response->headers;
-        $cookies = $headers->getCookies();
-        foreach($cookies as $cookie) {
-            if($cookie->getName() == config('stormpath.web.accessTokenCookie.name') || $cookie->getName() == config('stormpath.web.refreshTokenCookie.name')) {
-                $this->assertLessThan(time(), $cookie->getExpiresTime());
-            }
-        }
-    }
-
+//    /** @test */
+//    public function it_redirects_if_user_is_a_guest()
+//    {
+//        $this->get('testAuthenticateMiddleware');
+//        $this->assertRedirectedToRoute('stormpath.login');
+//    }
+//
+//    /** @test */
+//    public function an_invalid_access_token_redirects_to_login_screen()
+//    {
+//        $this->setupStormpathApplication();
+//        $this->call('GET', 'testAuthenticateMiddleware',[],
+//            [
+//                config('stormpath.web.accessTokenCookie.name') =>
+//                    cookie(
+//                        config('stormpath.web.accessTokenCookie.name'),
+//                        '123',
+//                        '3600',
+//                        config('stormpath.web.accessTokenCookie.path'),
+//                        config('stormpath.web.accessTokenCookie.domain'),
+//                        config('stormpath.web.accessTokenCookie.secure'),
+//                        config('stormpath.web.accessTokenCookie.httpOnly')
+//                    ),
+//                config('stormpath.web.refreshTokenCookie.name') =>
+//                    cookie(
+//                        config('stormpath.web.refreshTokenCookie.name'),
+//                        '123',
+//                        '3600',
+//                        config('stormpath.web.refreshTokenCookie.path'),
+//                        config('stormpath.web.refreshTokenCookie.domain'),
+//                        config('stormpath.web.refreshTokenCookie.secure'),
+//                        config('stormpath.web.refreshTokenCookie.httpOnly')
+//                    )
+//            ]);
+//        $this->assertRedirectedToRoute('stormpath.login');
+//    }
+//
+//    /** @test */
+//    public function it_continues_if_user_is_authenticated()
+//    {
+//        $this->setupStormpathApplication();
+//        $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
+//
+//        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest('test@test.com', 'superP4ss!');
+//        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
+//        $result =  $auth->authenticate($passwordGrant);
+//
+//        $this->call('GET', 'testAuthenticateMiddleware',[], $this->cookiesToSend($result));
+//        $this->see('Hello!');
+//
+//
+//    }
+//
+//    /** @test */
+//    public function it_will_refresh_token_if_old_token()
+//    {
+//        $this->setupStormpathApplication();
+//        $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
+//
+//        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest('test@test.com', 'superP4ss!');
+//        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
+//        $result =  $auth->authenticate($passwordGrant);
+//
+//        $this->call('GET', 'testAuthenticateMiddleware',[],
+//            [
+//                config('stormpath.web.accessTokenCookie.name') =>
+//                    cookie(
+//                        config('stormpath.web.accessTokenCookie.name'),
+//                        'eyJraWQiOiIxUE4zRlhJMFU3OUUyTUhDRjZYVVlHVTRaIiwiYWxnIjoiSFMyNTYifQ.eyJqdGkiOiJ5VnZ4ZTV4T1NqOHl6WHNWa0w4VmIiLCJpYXQiOjE0NDk3ODU5ODgsImlzcyI6Imh0dHBzOi8vYXBpLnN0b3JtcGF0aC5jb20vdjEvYXBwbGljYXRpb25zL3hSQ1FsNmRIRFl2UWtPMzZDY2EwSSIsInN1YiI6Imh0dHBzOi8vYXBpLnN0b3JtcGF0aC5jb20vdjEvYWNjb3VudHMveGloYzVpYXlwb1BvaVFsakFEU2tXIiwiZXhwIjoxNDQ5Nzg5NTg4LCJydGkiOiJ5VnZ4YWxzVHNRQU1BUzFKVVRydFgifQ.gDO2pfxTfItjW8YMM_ZKf8BvqU3kenR0g8my7mneAd8',
+//                        time()-86400,
+//                        config('stormpath.web.accessTokenCookie.path'),
+//                        config('stormpath.web.accessTokenCookie.domain'),
+//                        config('stormpath.web.accessTokenCookie.secure'),
+//                        config('stormpath.web.accessTokenCookie.httpOnly')
+//                    ),
+//                config('stormpath.web.refreshTokenCookie.name') =>
+//                    cookie(
+//                        config('stormpath.web.refreshTokenCookie.name'),
+//                        $result->getRefreshTokenString(),
+//                        time()-86400,
+//                        config('stormpath.web.refreshTokenCookie.path'),
+//                        config('stormpath.web.refreshTokenCookie.domain'),
+//                        config('stormpath.web.refreshTokenCookie.secure'),
+//                        config('stormpath.web.refreshTokenCookie.httpOnly')
+//                    )
+//            ]);
+//
+//        $this->see('Hello!');
+//    }
+//
+//    /** @test */
+//    public function it_will_redirect_to_login_if_old_token_and_can_not_refresh()
+//    {
+//        $this->setupStormpathApplication();
+//        $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
+//
+//        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest('test@test.com', 'superP4ss!');
+//        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
+//        $result =  $auth->authenticate($passwordGrant);
+//
+//        $this->call('GET', 'testAuthenticateMiddleware',[],
+//            [
+//                config('stormpath.web.accessTokenCookie.name') =>
+//                    cookie(
+//                        config('stormpath.web.accessTokenCookie.name'),
+//                        'eyJraWQiOiIxUE4zRlhJMFU3OUUyTUhDRjZYVVlHVTRaIiwiYWxnIjoiSFMyNTYifQ.eyJqdGkiOiJ5VnZ4ZTV4T1NqOHl6WHNWa0w4VmIiLCJpYXQiOjE0NDk3ODU5ODgsImlzcyI6Imh0dHBzOi8vYXBpLnN0b3JtcGF0aC5jb20vdjEvYXBwbGljYXRpb25zL3hSQ1FsNmRIRFl2UWtPMzZDY2EwSSIsInN1YiI6Imh0dHBzOi8vYXBpLnN0b3JtcGF0aC5jb20vdjEvYWNjb3VudHMveGloYzVpYXlwb1BvaVFsakFEU2tXIiwiZXhwIjoxNDQ5Nzg5NTg4LCJydGkiOiJ5VnZ4YWxzVHNRQU1BUzFKVVRydFgifQ.gDO2pfxTfItjW8YMM_ZKf8BvqU3kenR0g8my7mneAd8',
+//                        time()-86400,
+//                        config('stormpath.web.accessTokenCookie.path'),
+//                        config('stormpath.web.accessTokenCookie.domain'),
+//                        config('stormpath.web.accessTokenCookie.secure'),
+//                        config('stormpath.web.accessTokenCookie.httpOnly')
+//                    ),
+//                config('stormpath.web.refreshTokenCookie.name') =>
+//                    cookie(
+//                        config('stormpath.web.refreshTokenCookie.name'),
+//                        $result->getAccessTokenString(),
+//                        time()-86400,
+//                        config('stormpath.web.refreshTokenCookie.path'),
+//                        config('stormpath.web.refreshTokenCookie.domain'),
+//                        config('stormpath.web.refreshTokenCookie.secure'),
+//                        config('stormpath.web.refreshTokenCookie.httpOnly')
+//                    )
+//            ]);
+//
+//        $this->assertRedirectedToRoute('stormpath.login');
+//
+//        $headers = $this->response->headers;
+//        $cookies = $headers->getCookies();
+//        foreach($cookies as $cookie) {
+//            if($cookie->getName() == config('stormpath.web.accessTokenCookie.name') || $cookie->getName() == config('stormpath.web.refreshTokenCookie.name')) {
+//                $this->assertLessThan(time(), $cookie->getExpiresTime());
+//            }
+//        }
+//    }
+//
     private function cookiesToSend($result)
     {
         return [
