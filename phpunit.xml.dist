@@ -3,7 +3,7 @@
          backupStaticAttributes="false"
          beStrictAboutTestsThatDoNotTestAnything="true"
          beStrictAboutOutputDuringTests="true"
-         bootstrap="bootstrap/autoload.php"
+         bootstrap="tests/phpunit.php"
          colors="true"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
