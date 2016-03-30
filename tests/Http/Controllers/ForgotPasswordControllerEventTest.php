@@ -43,6 +43,25 @@ class ForgotPasswordControllerEventTest extends TestCase
         $this->see('Password Reset Requested');
     }
 
+    /** @test */
+    public function UserHasRequestedPasswordReset_event_passes_data()
+    {
+        \Event::listen(\Stormpath\Laravel\Events\UserHasRequestedPasswordReset::class, function ($event) {
+            $data = $event->getData();
+
+            $this->assertEquals('test@test.com', $data['email']);
+        });
+
+        $this->setupStormpathApplication();
+        $this->createAccount(['email'=>'test@test.com']);
+        $this->post(route('stormpath.forgotPassword'), ['email'=>'test@test.com']);
+
+        $this->assertRedirectedTo(config('stormpath.web.forgotPassword.nextUri'));
+        $this->followRedirects();
+        $this->seePageIs(config('stormpath.web.forgotPassword.nextUri'));
+        $this->see('Password Reset Requested');
+    }
+
     /**
      * @test
      * @expectedException \Stormpath\Laravel\Exceptions\ActionAbortedException

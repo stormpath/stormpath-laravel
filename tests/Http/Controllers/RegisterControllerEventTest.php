@@ -18,6 +18,7 @@
 namespace Stormpath\Tests\Http\Controllers;
 
 use Stormpath\Laravel\Tests\TestCase;
+use Stormpath\Resource\Account;
 use Stormpath\Stormpath;
 
 class RegisterControllerEventTest extends TestCase
@@ -82,6 +83,38 @@ class RegisterControllerEventTest extends TestCase
         $this->assertNotTrue(cookie()->hasQueued(config('stormpath.web.refreshTokenCookie.name')));
     }
 
+    /**
+     * @test
+     */
+    public function UserIsRegistering_event_passes_fields()
+    {
+        \Event::listen(\Stormpath\Laravel\Events\UserIsRegistering::class, function ($event) {
+            $data = $event->getData();
+
+            $this->assertEquals('Test', $data['givenName']);
+            $this->assertEquals('Middle', $data['middleName']);
+            $this->assertEquals('Account', $data['surname']);
+            $this->assertEquals('test@account.com', $data['email']);
+            $this->assertEquals('superP4ss!', $data['password']);
+            $this->assertEquals('superP4ss!', $data['confirmPassword']);
+
+        });
+
+        $this->setupStormpathApplication();
+        config(["stormpath.web.register.autoAuthorize"=>true]);
+
+        $this->post('register', [
+            'username' => 'testUsername',
+            'givenName' =>'Test',
+            'middleName' => 'Middle',
+            'surname' => 'Account',
+            'email' => 'test@account.com',
+            'password' => 'superP4ss!',
+            'confirmPassword' => 'superP4ss!'
+        ]);
+
+    }
+
     /** @test */
     public function it_fires_the_UserHasRegistered_event_after_successful_registration()
     {
@@ -102,6 +135,33 @@ class RegisterControllerEventTest extends TestCase
 
         $this->assertTrue(cookie()->hasQueued(config('stormpath.web.accessTokenCookie.name')));
         $this->assertTrue(cookie()->hasQueued(config('stormpath.web.refreshTokenCookie.name')));
+
+        $this->assertRedirectedTo(config('stormpath.web.register.nextUri'));
+    }
+
+
+    /** @test */
+    public function UserHasRegistered_event_passes_account_object()
+    {
+        \Event::listen(\Stormpath\Laravel\Events\UserHasRegistered::class, function ($event) {
+            $this->assertInstanceOf(Account::class, $event->getAccount());
+        });
+
+        $this->setupStormpathApplication();
+        config(["stormpath.web.register.autoAuthorize"=>true]);
+
+        $this->post('register', [
+            'username' => 'testUsername',
+            'givenName' =>'Test',
+            'middleName' => 'Middle',
+            'surname' => 'Account',
+            'email' => 'test@account.com',
+            'password' => 'superP4ss!',
+            'confirmPassword' => 'superP4ss!'
+        ]);
+
+        $this->seeCookie(config('stormpath.web.accessTokenCookie.name'));
+        $this->seeCookie(config('stormpath.web.refreshTokenCookie.name'));
 
         $this->assertRedirectedTo(config('stormpath.web.register.nextUri'));
     }

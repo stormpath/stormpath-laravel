@@ -18,6 +18,7 @@
 namespace Stormpath\Tests\Http\Controllers;
 
 use Stormpath\Laravel\Tests\TestCase;
+use Stormpath\Resource\Account;
 
 class LoginControllerEventTest extends TestCase
 {
@@ -32,6 +33,23 @@ class LoginControllerEventTest extends TestCase
         $this->post('login', ['login' => 'test@test.com', 'password' => 'superP4ss!']);
         $this->assertTrue(cookie()->hasQueued(config('stormpath.web.accessTokenCookie.name')));
         $this->assertTrue(cookie()->hasQueued(config('stormpath.web.refreshTokenCookie.name')));
+        $account->delete();
+    }
+
+    /** @test */
+    public function UserIsLoggingIn_event_passes_user_and_pass()
+    {
+        \Event::listen(\Stormpath\Laravel\Events\UserIsLoggingIn::class, function ($event) {
+            $this->assertEquals('test@test.com', $event->getData()['login']);
+            $this->assertEquals('superP4ss!', $event->getData()['password']);
+        });
+
+        $this->setupStormpathApplication();
+        $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
+        $this->post('login', ['login' => 'test@test.com', 'password' => 'superP4ss!']);
+
+        $this->seeCookie(config('stormpath.web.accessTokenCookie.name'));
+        $this->seeCookie(config('stormpath.web.refreshTokenCookie.name'));
         $account->delete();
     }
 
@@ -67,6 +85,23 @@ class LoginControllerEventTest extends TestCase
         $this->assertTrue(cookie()->hasQueued(config('stormpath.web.refreshTokenCookie.name')));
         $account->delete();
     }
+
+    /** @test */
+    public function UserHasLoggedIn_event_sends_account_object()
+    {
+        \Event::listen(\Stormpath\Laravel\Events\UserHasLoggedIn::class, function ($event) {
+            $this->assertInstanceOf(Account::class, $event->getAccount());
+        });
+
+        $this->setupStormpathApplication();
+        $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
+        $this->post('login', ['login' => 'test@test.com', 'password' => 'superP4ss!']);
+
+        $this->seeCookie(config('stormpath.web.accessTokenCookie.name'));
+        $this->seeCookie(config('stormpath.web.refreshTokenCookie.name'));
+        $account->delete();
+    }
+
 
     /** @test */
     public function it_fires_the_UserIsLoggingOut_event_before_logging_out_the_user()
