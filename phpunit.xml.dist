@@ -1,27 +1,33 @@
-<phpunit colors="true"
-         verbose="false"
-         syntaxCheck="true"
-         stopOnError="false"
-         backupGlobals="false"
-         stopOnFailure="false"
-         bootstrap="tests/phpunit.php"
-         processIsolation="false"
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit backupGlobals="false"
          backupStaticAttributes="false"
+         beStrictAboutTestsThatDoNotTestAnything="true"
+         beStrictAboutOutputDuringTests="true"
+         bootstrap="bootstrap/autoload.php"
+         colors="true"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
+         failOnRisky="true"
+         failOnWarning="true"
+         processIsolation="false"
+         stopOnError="false"
+         stopOnFailure="false"
+         verbose="true"
 >
     <testsuites>
         <testsuite name="unit">
             <directory suffix="Test.php">./tests</directory>
-            <exclude>./src/views</exclude>
         </testsuite>
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">./src</directory>
             <exclude>
+                <directory>./src/config</directory>
                 <directory>./src/views</directory>
+                <file>./src/Http/routes.php</file>
+                <file>./src/Http/specialRoutes.php</file>
             </exclude>
         </whitelist>
     </filter>
