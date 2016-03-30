@@ -112,8 +112,8 @@ class RegisterControllerTest extends TestCase
             'confirmPassword' => 'superP4ss!'
         ]);
 
-        $this->seeCookie(config('stormpath.web.accessTokenCookie.name'));
-        $this->seeCookie(config('stormpath.web.refreshTokenCookie.name'));
+        $this->assertTrue(cookie()->hasQueued(config('stormpath.web.accessTokenCookie.name')));
+        $this->assertTrue(cookie()->hasQueued(config('stormpath.web.refreshTokenCookie.name')));
 
         $this->assertRedirectedTo(config('stormpath.web.register.nextUri'));
     }
@@ -134,8 +134,8 @@ class RegisterControllerTest extends TestCase
             'confirmPassword' => 'superP4ss!'
         ]);
 
-        $this->seeNotCookie(config('stormpath.web.accessTokenCookie.name'));
-        $this->seeNotCookie(config('stormpath.web.refreshTokenCookie.name'));
+        $this->assertNotTrue(cookie()->hasQueued(config('stormpath.web.accessTokenCookie.name')));
+        $this->assertNotTrue(cookie()->hasQueued(config('stormpath.web.refreshTokenCookie.name')));
 
         $this->assertRedirectedToRoute('stormpath.login', ['status'=>'created']);
         $this->followRedirects();

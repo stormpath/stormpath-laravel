@@ -47,6 +47,7 @@ class Produces
     {
         $this->produces = config('stormpath.web.produces');
         $acceptHeader = explode(',',$request->header('Accept'));
+        $request->prefers($acceptHeader);
         $approvedProduces = array_intersect($this->systemProduces, $this->produces);
 
         if(!$this->hasApprovedProduces($approvedProduces)) {
