@@ -48,8 +48,7 @@ class LoginControllerEventTest extends TestCase
         $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
         $this->post('login', ['login' => 'test@test.com', 'password' => 'superP4ss!']);
 
-        $this->seeCookie(config('stormpath.web.accessTokenCookie.name'));
-        $this->seeCookie(config('stormpath.web.refreshTokenCookie.name'));
+
         $account->delete();
     }
 
@@ -97,8 +96,7 @@ class LoginControllerEventTest extends TestCase
         $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
         $this->post('login', ['login' => 'test@test.com', 'password' => 'superP4ss!']);
 
-        $this->seeCookie(config('stormpath.web.accessTokenCookie.name'));
-        $this->seeCookie(config('stormpath.web.refreshTokenCookie.name'));
+
         $account->delete();
     }
 
