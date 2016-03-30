@@ -115,6 +115,15 @@ class RedirectIfAuthenticatedTest extends TestCase
 
 
     }
+    
+    /** @test */
+    public function is_authenticated_will_return_false_if_verification_of_access_token_failed()
+    {
+        $this->setupStormpathApplication();
+        $this->call('get', 'testRedirectIfAuthenticatedMiddleware', [], $this->cookiesToSendBadAccessToken());
+        $this->see('Hello!');
+    }
+    
 
     private function cookiesToSend($result)
     {
@@ -154,6 +163,22 @@ class RedirectIfAuthenticatedTest extends TestCase
                     config('stormpath.web.refreshTokenCookie.domain'),
                     config('stormpath.web.refreshTokenCookie.secure'),
                     config('stormpath.web.refreshTokenCookie.httpOnly')
+                )
+        ];
+    }
+
+    private function cookiesToSendBadAccessToken()
+    {
+        return [
+            config('stormpath.web.accessTokenCookie.name') =>
+                cookie(
+                    config('stormpath.web.accessTokenCookie.name'),
+                    '123',
+                    36400,
+                    config('stormpath.web.accessTokenCookie.path'),
+                    config('stormpath.web.accessTokenCookie.domain'),
+                    config('stormpath.web.accessTokenCookie.secure'),
+                    config('stormpath.web.accessTokenCookie.httpOnly')
                 )
         ];
     }

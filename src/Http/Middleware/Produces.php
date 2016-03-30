@@ -30,8 +30,8 @@ class Produces
 
     /** @var array Array of Accept Headers the integration knows how to respond to  */
     private $systemProduces = [
-        'text/html',
-        'application/json'
+        'application/json',
+        'text/html'
     ];
 
 
@@ -47,7 +47,6 @@ class Produces
     {
         $this->produces = config('stormpath.web.produces');
         $acceptHeader = explode(',',$request->header('Accept'));
-        $request->prefers($acceptHeader);
         $approvedProduces = array_intersect($this->systemProduces, $this->produces);
 
         if(!$this->hasApprovedProduces($approvedProduces)) {
@@ -55,7 +54,8 @@ class Produces
         }
 
         if(in_array('*/*', $acceptHeader)) {
-            $request->headers->replace(['Accept'=>$this->produces[0]]);
+            $request->headers->remove('Accept');
+            $request->headers->set('Accept', $this->produces[0]);
             return $next($request);
         }
 

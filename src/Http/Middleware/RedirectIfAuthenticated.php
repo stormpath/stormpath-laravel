@@ -60,7 +60,7 @@ class RedirectIfAuthenticated
     public function isAuthenticated($request)
     {
         $cookie = $request->cookie(config('stormpath.web.accessTokenCookie.name'));
-
+        
         if(null === $cookie) {
             return false;
         }

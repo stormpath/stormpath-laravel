@@ -67,8 +67,8 @@ return [
         ],
 
         "produces" => [
-          "text/html",
-          "application/json"
+          "application/json",
+          "text/html"
         ],
 
         "register" => [
