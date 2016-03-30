@@ -22,6 +22,8 @@
             <directory suffix=".php">./src</directory>
             <exclude>
                 <directory>./src/views</directory>
+                <file>./src/Http/routes.php</file>
+                <file>./src/Http/socialRoutes.php</file>
             </exclude>
         </whitelist>
     </filter>
