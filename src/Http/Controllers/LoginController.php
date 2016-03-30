@@ -164,17 +164,6 @@ class LoginController extends Controller
             return redirect(app('stormpath.application')->createIdSiteUrl(['logout'=>true, 'callbackUri'=>route('stormpath.idSiteResponse')]));
         }
 
-        // we've got a request to logout from the system. Fire the
-        // `UserIsLoggingOut` event.
-        //
-        // Note that it was originally intended that this event would return the
-        // Account object for the currently-logged-in user. Unfortunately, it is
-        // not possible to get the logged in user via the
-        // `app('stormpath.user')` method here, for reasons that are unclear.
-        //
-        // @todo Update this event so that the currently-logged-in user can be
-        // included
-        //
         if (false===Event::fire(new UserIsLoggingOut, [], true)) {
             throw new ActionAbortedException;
         }
