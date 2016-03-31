@@ -17,6 +17,7 @@
 
 namespace Stormpath\Laravel\Support;
 
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Stormpath\Client;
@@ -49,6 +50,12 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         $this->registerApplication();
 
         $this->registerUser();
+
+        $this->app->resolving(EncryptCookies::class, function ($object) {
+            $object->disableFor(config('stormpath.web.accessTokenCookie.name'));
+            $object->disableFor(config('stormpath.web.refreshTokenCookie.name'));
+        });
+
     }
 
     /**
@@ -67,6 +74,10 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(__DIR__.'/../views', 'stormpath');
         $this->loadRoutes();
+
+
+
+
     }
 
     public function provides()

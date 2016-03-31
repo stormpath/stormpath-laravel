@@ -38,11 +38,50 @@ class AuthenticateTest extends TestCase
     }
 
     /** @test */
+    public function json_request_as_guest_will_return_401_status()
+    {
+        $this->json('GET', 'testAuthenticateMiddleware');
+        $this->seeStatusCode(401);
+    }
+
+    /** @test */
     public function it_redirects_if_user_is_a_guest()
     {
         $this->get('testAuthenticateMiddleware');
         $this->assertRedirectedToRoute('stormpath.login');
     }
+
+    /** @test */
+    public function it_will_authenticate_with_a_valid_authorization_header()
+    {
+        $this->setupStormpathApplication();
+        $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
+
+        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest('test@test.com', 'superP4ss!');
+        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
+        $result =  $auth->authenticate($passwordGrant);
+
+        $this->get('testAuthenticateMiddleware', ['Authorization'=>'Bearer ' . $result->getAccessTokenString()]);
+        $this->see('Hello!');
+    }
+
+    /** @test */
+    public function it_authenticates_a_user_based_on_access_token()
+    {
+        $this->setupStormpathApplication();
+        $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
+
+        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest('test@test.com', 'superP4ss!');
+        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
+        $result =  $auth->authenticate($passwordGrant);
+
+        $this->call('GET', 'testAuthenticateMiddleware',[], $this->cookiesToSend($result));
+        $this->see('Hello!');
+    }
+
+
+
+
 
     /** @test */
     public function an_invalid_access_token_redirects_to_login_screen()
@@ -72,22 +111,6 @@ class AuthenticateTest extends TestCase
                     )
             ]);
         $this->assertRedirectedToRoute('stormpath.login');
-    }
-
-    /** @test */
-    public function it_continues_if_user_is_authenticated()
-    {
-        $this->setupStormpathApplication();
-        $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
-
-        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest('test@test.com', 'superP4ss!');
-        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
-        $result =  $auth->authenticate($passwordGrant);
-
-        $this->call('GET', 'testAuthenticateMiddleware',[], $this->cookiesToSend($result));
-        $this->see('Hello!');
-
-
     }
 
     /** @test */

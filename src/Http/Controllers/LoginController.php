@@ -25,7 +25,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Factory as Validator;
 use Stormpath\Laravel\Http\Traits\AuthenticatesUser;
+use Stormpath\Laravel\Http\Traits\Cookies;
+use Stormpath\Resource\AccessToken;
 use Stormpath\Resource\Account;
+use Stormpath\Resource\RefreshToken;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Event;
@@ -37,7 +40,7 @@ use Stormpath\Laravel\Events\UserIsLoggingOut;
 class LoginController extends Controller
 {
 
-    use AuthenticatesUser;
+    use AuthenticatesUser, Cookies;
 
     /**
      * @var Request
@@ -73,7 +76,8 @@ class LoginController extends Controller
 
         $status = $this->request->get('status');
 
-        return view( config('stormpath.web.login.view'), compact('status') );
+        return view(config('stormpath.web.login.view'), compact('status'));
+
     }
 
     public function postLogin()
@@ -81,7 +85,6 @@ class LoginController extends Controller
         if($this->isSocialLoginAttempt()) {
             return $this->doSocialLogin();
         }
-
 
 
         $validator = $this->loginValidator();
@@ -108,6 +111,8 @@ class LoginController extends Controller
             }
 
             $result = $this->authenticate($this->request->input('login'), $this->request->input('password'));
+            $this->queueAccessToken($result->getAccessTokenString());
+            $this->queueRefreshToken($result->getRefreshTokenString());
 
             $account = $result->getAccessToken()->getAccount();
 
@@ -117,32 +122,10 @@ class LoginController extends Controller
                 return $this->respondWithAccount($account);
             }
 
+
+
             return redirect()
-                ->intended(config('stormpath.web.login.nextUri'))
-                ->withCookies(
-                    [
-                        config('stormpath.web.accessTokenCookie.name') =>
-                            cookie(
-                                config('stormpath.web.accessTokenCookie.name'),
-                                $result->getAccessTokenString(),
-                                $result->getExpiresIn(),
-                                config('stormpath.web.accessTokenCookie.path'),
-                                config('stormpath.web.accessTokenCookie.domain'),
-                                config('stormpath.web.accessTokenCookie.secure'),
-                                config('stormpath.web.accessTokenCookie.httpOnly')
-                            ),
-                        config('stormpath.web.refreshTokenCookie.name') =>
-                            cookie(
-                                config('stormpath.web.refreshTokenCookie.name'),
-                                $result->getRefreshTokenString(),
-                                $result->getExpiresIn(),
-                                config('stormpath.web.refreshTokenCookie.path'),
-                                config('stormpath.web.refreshTokenCookie.domain'),
-                                config('stormpath.web.refreshTokenCookie.secure'),
-                                config('stormpath.web.refreshTokenCookie.httpOnly')
-                            )
-                    ]
-                );
+                ->intended(config('stormpath.web.login.nextUri'));
 
         } catch (\Stormpath\Resource\ResourceError $re) {
 
@@ -169,7 +152,18 @@ class LoginController extends Controller
         }
 
         if($this->request->wantsJson()) {
-            return response();
+            return response()
+                ->json()
+                ->withCookie(
+                    cookie()->forget(config('stormpath.web.accessTokenCookie.name'))
+                )
+                ->withCookie(
+                    cookie()->forget(config('stormpath.web.refreshTokenCookie.name'))
+                );
+
+//            $this->removeTokens($this->request);
+
+//            return response();
         }
 
         return redirect()
@@ -324,5 +318,19 @@ class LoginController extends Controller
             'message' => $validator->errors()->first(),
             'status' => 400
         ], 400);
+    }
+
+    private function removeTokens(Request $request)
+    {
+        $accessToken = $request->cookie('access_token');
+        $refreshToken = $request->cookie('refresh_token');
+        \JWT::$leeway = 10;
+        $accessToken = \JWT::decode($accessToken, config('stormpath.client.api.secret'), ['HS256']);
+        $refreshToken = \JWT::decode($refreshToken, config('stormpath.client.api.secret'), ['HS256']);
+
+        $token = AccessToken::get($accessToken->jti);
+        $token->delete();
+        $token = app('stormpath.client')->get($refreshToken->jti, \Stormpath\Stormpath::ACCESS_TOKEN, 'refreshTokens', []);
+        $token->delete();
     }
 }

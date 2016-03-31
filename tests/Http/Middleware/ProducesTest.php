@@ -17,6 +17,7 @@
 
 namespace Stormpath\Laravel\Tests\Http\Middleware;
 
+use Illuminate\Http\Request;
 use Stormpath\Laravel\Tests\TestCase;
 
 class ProducesTest extends TestCase
@@ -29,7 +30,11 @@ class ProducesTest extends TestCase
             'testProducesMiddleware',
             [
                 'middleware'=>'stormpath.produces',
-                function() {
+                function(Request $request) {
+                    if($request->wantsJson()) {
+                        return response()->json(['JSON']);
+                    };
+
                     return 'Hello!';
                 }
             ]
@@ -62,6 +67,17 @@ class ProducesTest extends TestCase
             ->see('The system does not know how to respond to any accept headers defined.')
             ->assertResponseStatus(406);
     }
+    
+    /** @test */
+    public function a_star_start_header_will_set_the_accept_header_to_first_in_produces_list()
+    {
+        $produces = config('stormpath.web.produces');
+        $firstProduces = $produces[0];
+
+        $this->get('testProducesMiddleware', ['Accept'=>'*/*'])
+            ->see('JSON');
+    }
+    
 
 
 }
