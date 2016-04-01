@@ -19,6 +19,7 @@ namespace Stormpath\Laravel\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Stormpath\Authc\Api\OAuthClientCredentialsRequestAuthenticator;
 use Stormpath\Authc\Api\OAuthRequestAuthenticator;
 use Stormpath\Oauth\OauthGrantAuthenticationResult;
 
@@ -32,8 +33,10 @@ class OauthController extends Controller
         switch($grantType) {
             case 'password' :
                 return $this->doPasswordGrantType($request);
+            // @codeCoverageIgnoreStart
             case 'client_credentials' :
                 return $this->doClientCredentialsGrantType($request);
+            // @codeCoverageIgnoreEnd
             case 'refresh_token' :
                 return $this->doRefreshGrantType($request);
             default :
@@ -42,16 +45,17 @@ class OauthController extends Controller
 
     }
 
+    /** @codeCoverageIgnore */
     private function doClientCredentialsGrantType($request)
     {
         try {
             $request = \Stormpath\Authc\Api\Request::createFromGlobals();
-            $result = (new OAuthRequestAuthenticator(app('stormpath.application')))->authenticate($request);
+            $result = (new OAuthClientCredentialsRequestAuthenticator(app('stormpath.application')))->authenticate($request);
 
             $tokenResponse = $result->tokenResponse;
             return $tokenResponse->toJson();
         } catch(\Exception $e) {
-            dd($e);
+            return $this->respondWithInvalidRequest($e->getMessage());
         }
     }
 

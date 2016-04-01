@@ -51,17 +51,19 @@ class ForgotPasswordController extends Controller
     public function postForgotPassword(Request $request)
     {
         try {
+            $input = $request->all();
             // we're about to post the "forgot password" request. Fire the
             // `UserHasRequestedPasswordReset` event
             //
-            if (false===Event::fire(new UserHasRequestedPasswordReset(['email' => $request->get('email')]), [], true)) {
+            if (false===Event::fire(new UserHasRequestedPasswordReset(['email' => $input['email']]), [], true)) {
                 throw new ActionAbortedException;
             }
 
             $application = app( 'stormpath.application' );
-            $application->sendPasswordResetEmail($request->get('email'));
+            $application->sendPasswordResetEmail($input['email']);
 
-            if($this->request->wantsJson()) {
+
+            if($request->wantsJson()) {
                 return response(null, 200);
             }
 
@@ -69,6 +71,14 @@ class ForgotPasswordController extends Controller
                 ->to(config('stormpath.web.forgotPassword.nextUri'));
 
         } catch (ResourceError $re) {
+
+            if($request->wantsJson()) {
+                return response()->json([
+                    'message' => 'Could not find an account with this email address',
+                    'status' => $re->getStatus()
+                ],400);
+            };
+
             return redirect()
                 ->to(config('stormpath.web.forgotPassword.uri'))
                 ->withErrors(['errors'=>['Could not find an account with this email address']])
