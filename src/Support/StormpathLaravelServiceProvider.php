@@ -170,7 +170,8 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         $secret = config( 'stormpath.client.apiKey.secret' );
 
         Client::$apiKeyProperties = "apiKey.id={$id}\napiKey.secret={$secret}";
-        Client::$integration = self::INTEGRATION_NAME."/".self::INTEGRATION_VERSION;
+        Client::$integration = $this->buildAgent();
+
 
         $this->app->singleton('stormpath.client', function() {
             return Client::getInstance();
@@ -410,7 +411,22 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
     }
 
+    private function buildAgent()
+    {
+        $agent = [];
 
+        if(request()->headers->has('X-STORMPATH-AGENT')) {
+            $agent[] = request()->header('X-STORMPATH-AGENT');
+        }
+
+        $laravel = app();
+        $version = $laravel::VERSION;
+
+        $agent[] = self::INTEGRATION_NAME . '/' . self::INTEGRATION_VERSION;
+        $agent[] = 'laravel/' . $version;
+
+        return implode(' ', $agent);
+    }
 
 
 }
