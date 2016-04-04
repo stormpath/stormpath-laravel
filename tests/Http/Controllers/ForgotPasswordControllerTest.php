@@ -58,4 +58,29 @@ class ForgotPasswordControllerTest extends TestCase
         $this->see('Password Reset Requested');
 
     }
+
+    /** @test */
+    public function a_valid_email_and_json_will_respond_with_a_200()
+    {
+        $this->setupStormpathApplication();
+        $this->createAccount(['email'=>'test@test.com']);
+        $this->json('post', route('stormpath.forgotPassword'), ['email'=>'test@test.com']);
+
+        $this->assertResponseStatus(200);
+
+    }
+
+    /** @test */
+    public function an_invalid_email_and_json_will_respond_with_a_200()
+    {
+        $this->setupStormpathApplication();
+        $this->json('post', route('stormpath.forgotPassword'), ['email'=>'test@test.com']);
+
+        $this->assertResponseStatus(400);
+        $response = $this->decodeResponseJson();
+
+        $this->assertEquals('Could not find an account with this email address', $response['message']);
+        $this->assertEquals(400, $response['status']);
+
+    }
 }

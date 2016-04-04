@@ -31,6 +31,7 @@ use Stormpath\Provider\ProviderAccountRequest;
 use Stormpath\Resource\AccessToken;
 use Stormpath\Resource\Account;
 
+/** @codeCoverageIgnore */
 class SocialCallbackController extends Controller
 {
     use Cookies;

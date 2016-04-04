@@ -269,9 +269,7 @@ class LoginController extends Controller
         $value = null;
         try {
             $value = $account->getProperty($prop);
-        } catch (\Exception $e) {
-            return null;
-        }
+        } catch (\Exception $e) {}
 
         return $value;
 
@@ -287,9 +285,12 @@ class LoginController extends Controller
 
         switch ($provider = $this->request->input('providerData')['providerId'])
         {
+            /** @codeCoverageIgnoreStart */
             case 'google' :
             case 'facebook' :
+            case 'linkedin' :
                 return true;
+            /** @codeCoverageIgnoreEnd */
             case 'stormpath' :
                 throw new \InvalidArgumentException("Please use the standard login/password method instead");
             default :
@@ -297,7 +298,7 @@ class LoginController extends Controller
         }
     }
 
-
+    /** @codeCoverageIgnore */
     private function doSocialLogin()
     {
         switch ($provider = $this->request->input('providerData')['providerId'])
@@ -306,7 +307,8 @@ class LoginController extends Controller
                 return app(SocialCallbackController::class)->google($this->request);
             case 'facebook' :
                 return app(SocialCallbackController::class)->facebook($this->request);
-
+            case 'linkedin' :
+                return app(SocialCallbackController::class)->linkedin($this->request);
 
         }
     }
@@ -320,17 +322,4 @@ class LoginController extends Controller
         ], 400);
     }
 
-    private function removeTokens(Request $request)
-    {
-        $accessToken = $request->cookie('access_token');
-        $refreshToken = $request->cookie('refresh_token');
-        \JWT::$leeway = 10;
-        $accessToken = \JWT::decode($accessToken, config('stormpath.client.api.secret'), ['HS256']);
-        $refreshToken = \JWT::decode($refreshToken, config('stormpath.client.api.secret'), ['HS256']);
-
-        $token = AccessToken::get($accessToken->jti);
-        $token->delete();
-        $token = app('stormpath.client')->get($refreshToken->jti, \Stormpath\Stormpath::ACCESS_TOKEN, 'refreshTokens', []);
-        $token->delete();
-    }
 }

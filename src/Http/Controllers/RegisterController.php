@@ -266,16 +266,13 @@ class RegisterController extends Controller
     }
 
 
-    private function respondWithErrorJson($message, $statusCode = 400, $extra = [])
+    private function respondWithErrorJson($message, $statusCode = 400)
     {
         $error = [
             'message' => $message,
             'status' => $statusCode
         ];
 
-        if(!empty($extra)) {
-            $error['errors'] = array_merge($error['errors'], $extra);
-        }
         return response()->json($error, $statusCode);
     }
 
@@ -309,9 +306,7 @@ class RegisterController extends Controller
         $value = null;
         try {
             $value = $account->getProperty($prop);
-        } catch (\Exception $e) {
-            return null;
-        }
+        } catch (\Exception $e) {}
 
         return $value;
 

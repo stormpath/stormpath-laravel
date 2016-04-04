@@ -27,9 +27,4 @@ class IdSiteModel extends \Stormpath\Resource\Resource
     {
         return Client::get($href, self::class, self::PATH, $options);
     }
-
-    public function getProviders()
-    {
-        return $this->getProperty('providers');
-    }
 }

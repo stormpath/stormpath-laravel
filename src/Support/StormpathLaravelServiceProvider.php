@@ -297,13 +297,10 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
         if(config('stormpath.application.href') == null)  return;
 
+        config(['stormpath.web.forgotPassword.enabled' => false]);
+        config(['stormpath.web.forgotPassword.enabled' => false]);
+
         $cache = $this->app['cache.store'];
-
-        if(!$cache->has('stormpath.passwordPolicies')) {
-
-            $this->warmResources();
-
-        }
 
         $passwordPolicies = $cache->get('stormpath.passwordPolicies');
 
@@ -312,10 +309,6 @@ class StormpathLaravelServiceProvider extends ServiceProvider
             config(['stormpath.web.forgotPassword.enabled' => true]);
             return;
         }
-
-
-        config(['stormpath.web.forgotPassword.enabled' => false]);
-        config(['stormpath.web.forgotPassword.enabled' => false]);
 
     }
 
