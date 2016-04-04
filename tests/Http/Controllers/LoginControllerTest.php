@@ -35,6 +35,16 @@ class LoginControllerTest extends TestCase
     }
 
     /** @test */
+    public function it_requires_a_login_to_be_submitted_json()
+    {
+        $this->json('post', 'login', ['password'=>'superPassword']);
+        $this->seeJson(['message'=>'Login is required.','status'=>400]);
+        $this->seeStatusCode(400);
+
+
+    }
+
+    /** @test */
     public function it_requires_a_password_to_be_submitted()
     {
         $this->post('login', ['login' => 'someLogin']);
@@ -151,6 +161,35 @@ class LoginControllerTest extends TestCase
     }
 
     /** @test */
+    public function posting_to_login_with_json_returns_account_object_and_expand_as_json()
+    {
+        $this->setupStormpathApplication();
+        $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
+
+        config(['stormpath.web.me.expand.applications'=>true]);
+
+        $this->json(
+            'post',
+            config('stormpath.web.login.uri'),
+            [
+                '_token' => csrf_field(),
+                'login' => 'test@test.com',
+                'password' => 'superP4ss!'
+            ]
+        )
+            ->seeJson();
+
+        $this->dontSee('errors');
+        $this->see('account');
+        $this->see('applications');
+        $this->see($account->username);
+        $this->assertResponseOk();
+
+
+        $account->delete();
+    }
+
+    /** @test */
     public function posting_to_login_with_json_with_failed_login_returns_json_error()
     {
         $this->setupStormpathApplication();
@@ -174,6 +213,82 @@ class LoginControllerTest extends TestCase
         $this->assertResponseStatus(400);
         $account->delete();
     }
+
+
+    /** @test */
+    public function it_can_logout_of_the_system_json()
+    {
+        $this->setupStormpathApplication();
+        $account = $this->createAccount(['login' => 'test@test.com', 'password' => 'superP4ss!']);
+        $this->visit('login')
+            ->fillForm('Log In',['login' => 'test@test.com', 'password' => 'superP4ss!']);
+
+
+        $this->json('POST', config('stormpath.web.logout.uri'));
+
+        $this->seeStatusCode(200);
+
+        $headers = $this->response->headers;
+        $cookies = $headers->getCookies();
+        foreach($cookies as $cookie) {
+            if($cookie->getName() == config('stormpath.web.accessTokenCookie.name') || $cookie->getName() == config('stormpath.web.refreshTokenCookie.name')) {
+                $this->assertLessThan(time(), $cookie->getExpiresTime());
+            }
+        }
+
+        $account->delete();
+    }
+
+    /**
+     * @test
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Please use the standard login/password method instead
+     */
+    public function social_login_attempt_with_stormpath_throws_exception()
+    {
+        $this->setupStormpathApplication();
+
+        $this->json('POST', config('stormpath.web.login.uri'), [
+            "providerData" => [
+                "providerId" => 'stormpath'
+            ]
+        ]);
+    }
+
+    /**
+     * @test
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage The social provider foobar is not supported
+     */
+    public function social_login_attempt_with_foobar_throws_exception()
+    {
+        $this->setupStormpathApplication();
+
+        $this->json('POST', config('stormpath.web.login.uri'), [
+            "providerData" => [
+                "providerId" => 'foobar'
+            ]
+        ]);
+    }
+
+    /**
+     * @test
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Either code or accessToken must be set for FacebookProviderAccountRequest
+     */
+    public function social_login_attempt_with_facebook_throws_exception()
+    {
+        $this->setupStormpathApplication();
+
+        $this->json('POST', config('stormpath.web.login.uri'), [
+            "providerData" => [
+                "providerId" => 'facebook',
+                "accessToken" => 'willCauseError'
+            ]
+        ]);
+    }
+
+
 
 
 }

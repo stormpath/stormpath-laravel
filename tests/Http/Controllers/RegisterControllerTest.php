@@ -284,6 +284,40 @@ class RegisterControllerTest extends TestCase
 
     }
 
+    /** @test */
+    public function posting_to_register_with_json_returns_account_object_with_expansion_as_json()
+    {
+        $this->setupStormpathApplication();
+
+        config([
+            'stormpath.web.me.expand.applications' => true
+        ]);
+
+        $this->json(
+            'post',
+            config('stormpath.web.register.uri'),
+            [
+                '_token' => csrf_token(),
+                'username' => 'testUsername',
+                'givenName'=>'Test',
+                'middleName' => 'Middle',
+                'surname' => 'Account',
+                'email' => 'test@account.com',
+                'password' => 'superP4ss!',
+                'confirmPassword' => 'superP4ss!'
+            ]
+        )
+            ->seeJson();
+
+        $this->dontSee('errors');
+        $this->see('account');
+        $this->see('applications');
+        $this->see('test@account.com');
+        $this->assertResponseOk();
+
+
+    }
+
 
     /** @test */
     public function posting_to_register_with_json_with_missing_fields_returns_json_error_with_validator_errors()
@@ -336,6 +370,36 @@ class RegisterControllerTest extends TestCase
 
         $this->assertResponseStatus(409);
         $account->delete();
+    }
+
+    /** @test */
+    public function posting_to_register_with_json_and_arbitrary_data_returns_with_error()
+    {
+        $this->setupStormpathApplication();
+
+        $this->json(
+            'post',
+            config('stormpath.web.register.uri'),
+            [
+                '_token' => csrf_token(),
+                'username' => 'testUsername',
+                'givenName'=>'Test',
+                'middleName' => 'Middle',
+                'somethingNotAllowed'=>'hello',
+                'surname' => 'Account',
+                'email' => 'test@test.com',
+                'password' => 'superP4ss!',
+                'confirmPassword' => 'superP4ss!'
+            ]
+        )
+            ->seeJson();
+
+
+        $this->see('message');
+        $this->see('status');
+        $this->dontSee('test@test.com');
+
+        $this->assertResponseStatus(400);
     }
 
 
@@ -410,6 +474,8 @@ class RegisterControllerTest extends TestCase
         $this->assertEquals('something', $account->customData->customData3);
 
     }
+
+
 
 
 }
