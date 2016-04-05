@@ -111,7 +111,6 @@ class StormpathLaravelServiceProvider extends ServiceProvider
                 'provider' => [
                     'href' => $mapping->accountStore->provider->href,
                     'providerId' => $mapping->accountStore->provider->providerId,
-//                    'clientId' => $mapping->accountStore->provider->clientId
                 ]
             ];
         }
@@ -345,7 +344,8 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         if(config('stormpath.application.href') == null)  return;
 
         $model = app('cache.store')->rememberForever('stormpath.idsitemodel', function() {
-            return IdSiteModel::get(app('stormpath.application')->getProperty('idSiteModel')->href);
+            $idSiteModel = $this->getIdSiteModel();
+            return IdSiteModel::get($idSiteModel->href);
         });
 
         $providers = $model->getProperty('providers');
@@ -371,6 +371,18 @@ class StormpathLaravelServiceProvider extends ServiceProvider
             }
         }
 
+
+    }
+
+    private function getIdSiteModel()
+    {
+        $model = app('stormpath.application')->getProperty('idSiteModel');
+
+        if($model == null) {
+            throw new \InvalidArgumentException('ID Site could not initialize, please visit ID Site from the Stormpath Dashboard and then clear your cache');
+        }
+
+        return $model;
 
     }
 
