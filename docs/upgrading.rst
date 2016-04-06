@@ -6,6 +6,10 @@ Upgrade Guide
 This page contains specific upgrading instructions to help you migrate between
 Stormpath-Laravel releases.
 
+Version 0.3.1 -> Version 0.4.0
+------------------------------
+Clear your laravel cache.
+
 Version 0.3.0 -> Version 0.3.1
 ------------------------------
 Republish vendor config file.
