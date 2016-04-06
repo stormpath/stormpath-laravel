@@ -40,7 +40,17 @@ class RedirectIfAuthenticated
     public function handle($request, Closure $next)
     {
         if ($this->isAuthenticated($request)) {
-            return redirect('/');
+            return redirect()->intended('/');
+        }
+
+        if($request->wantsJson()) {
+            return response(null, 401);
+        }
+
+        $accessToken = $this->refreshCookie($request);
+
+        if (null !== $accessToken) {
+            return redirect()->intended('/');
         }
 
         return $next($request);
@@ -49,17 +59,16 @@ class RedirectIfAuthenticated
 
     public function isAuthenticated($request)
     {
-        $cookie = null;
-
         $cookie = $request->cookie(config('stormpath.web.accessTokenCookie.name'));
-        if($cookie instanceof \Symfony\Component\HttpFoundation\Cookie)
-            $cookie = $cookie->getValue();
 
         if(null === $cookie) {
-            $cookie = $this->refreshCookie($request);
+            return false;
         }
 
-        // validation that the cookie is a valid cookie
+        if($cookie instanceof \Symfony\Component\HttpFoundation\Cookie) {
+            $cookie = $cookie->getValue();
+        }
+
         try {
             (new \Stormpath\Oauth\VerifyAccessToken(app('stormpath.application')))->verify($cookie);
             return true;

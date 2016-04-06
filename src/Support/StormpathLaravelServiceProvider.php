@@ -17,6 +17,7 @@
 
 namespace Stormpath\Laravel\Support;
 
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Stormpath\Client;
@@ -31,7 +32,7 @@ use Stormpath\Stormpath;
 class StormpathLaravelServiceProvider extends ServiceProvider
 {
     const INTEGRATION_NAME = 'stormpath-laravel';
-    const INTEGRATION_VERSION = '0.3.1';
+    const INTEGRATION_VERSION = '0.4.0';
 
     protected $defer = false;
     /**
@@ -49,6 +50,12 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         $this->registerApplication();
 
         $this->registerUser();
+
+        $this->app->resolving(EncryptCookies::class, function ($object) {
+            $object->disableFor(config('stormpath.web.accessTokenCookie.name'));
+            $object->disableFor(config('stormpath.web.refreshTokenCookie.name'));
+        });
+
     }
 
     /**
@@ -67,6 +74,10 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(__DIR__.'/../views', 'stormpath');
         $this->loadRoutes();
+
+
+
+
     }
 
     public function provides()
@@ -100,7 +111,6 @@ class StormpathLaravelServiceProvider extends ServiceProvider
                 'provider' => [
                     'href' => $mapping->accountStore->provider->href,
                     'providerId' => $mapping->accountStore->provider->providerId,
-//                    'clientId' => $mapping->accountStore->provider->clientId
                 ]
             ];
         }
@@ -159,7 +169,8 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         $secret = config( 'stormpath.client.apiKey.secret' );
 
         Client::$apiKeyProperties = "apiKey.id={$id}\napiKey.secret={$secret}";
-        Client::$integration = self::INTEGRATION_NAME."/".self::INTEGRATION_VERSION;
+        Client::$integration = $this->buildAgent();
+
 
         $this->app->singleton('stormpath.client', function() {
             return Client::getInstance();
@@ -286,13 +297,10 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
         if(config('stormpath.application.href') == null)  return;
 
+        config(['stormpath.web.forgotPassword.enabled' => false]);
+        config(['stormpath.web.forgotPassword.enabled' => false]);
+
         $cache = $this->app['cache.store'];
-
-        if(!$cache->has('stormpath.passwordPolicies')) {
-
-            $this->warmResources();
-
-        }
 
         $passwordPolicies = $cache->get('stormpath.passwordPolicies');
 
@@ -301,10 +309,6 @@ class StormpathLaravelServiceProvider extends ServiceProvider
             config(['stormpath.web.forgotPassword.enabled' => true]);
             return;
         }
-
-
-        config(['stormpath.web.forgotPassword.enabled' => false]);
-        config(['stormpath.web.forgotPassword.enabled' => false]);
 
     }
 
@@ -340,7 +344,8 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         if(config('stormpath.application.href') == null)  return;
 
         $model = app('cache.store')->rememberForever('stormpath.idsitemodel', function() {
-            return IdSiteModel::get(app('stormpath.application')->getProperty('idSiteModel')->href);
+            $idSiteModel = $this->getIdSiteModel();
+            return IdSiteModel::get($idSiteModel->href);
         });
 
         $providers = $model->getProperty('providers');
@@ -366,6 +371,18 @@ class StormpathLaravelServiceProvider extends ServiceProvider
             }
         }
 
+
+    }
+
+    private function getIdSiteModel()
+    {
+        $model = app('stormpath.application')->getProperty('idSiteModel');
+
+        if($model == null) {
+            throw new \InvalidArgumentException('ID Site could not initialize, please visit ID Site from the Stormpath Dashboard and then clear your cache');
+        }
+
+        return $model;
 
     }
 
@@ -399,7 +416,22 @@ class StormpathLaravelServiceProvider extends ServiceProvider
 
     }
 
+    private function buildAgent()
+    {
+        $agent = [];
 
+        if(request()->headers->has('X-STORMPATH-AGENT')) {
+            $agent[] = request()->header('X-STORMPATH-AGENT');
+        }
+
+        $laravel = app();
+        $version = $laravel::VERSION;
+
+        $agent[] = self::INTEGRATION_NAME . '/' . self::INTEGRATION_VERSION;
+        $agent[] = 'laravel/' . $version;
+
+        return implode(' ', $agent);
+    }
 
 
 }

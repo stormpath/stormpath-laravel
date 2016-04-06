@@ -82,7 +82,7 @@ class MeController extends Controller
     {
         \JWT::$leeway = 10;
 
-        $jwt = \JWT::decode($accessToken, config('stormpath.config.apiKey.secret'), ['HS256']);
+        $jwt = \JWT::decode($accessToken, config('stormpath.client.apiKey.secret'), ['HS256']);
 
         $expandsArray = [];
         $expands = config('stormpath.web.me.expand');

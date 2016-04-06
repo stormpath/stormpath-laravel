@@ -25,11 +25,12 @@ use Event;
 use Stormpath\Laravel\Exceptions\ActionAbortedException;
 use Stormpath\Laravel\Events\UserIsRegistering;
 use Stormpath\Laravel\Events\UserHasRegistered;
+use Stormpath\Laravel\Http\Traits\Cookies;
 use Stormpath\Resource\Account;
 
 class RegisterController extends Controller
 {
-    use AuthenticatesUser;
+    use AuthenticatesUser, Cookies;
     /**
      * @var Request
      */
@@ -146,7 +147,6 @@ class RegisterController extends Controller
             // `UserHasRegistered` event.
             //
             Event::fire(new UserHasRegistered($account));
-
             if($this->request->wantsJson()) {
                 return $this->respondWithAccount($account);
             }
@@ -165,33 +165,12 @@ class RegisterController extends Controller
             $login = isset($registerFields['email']) ? $registerFields['email'] : $login;
 
             $result = $this->authenticate($login, $registerFields['password']);
+            $this->queueAccessToken($result->getAccessTokenString());
+            $this->queueRefreshToken($result->getRefreshTokenString());
+
 
             return redirect()
-                ->to(config('stormpath.web.register.nextUri'))
-                ->withCookies(
-                    [
-                        config('stormpath.web.accessTokenCookie.name') =>
-                            cookie(
-                                config('stormpath.web.accessTokenCookie.name'),
-                                $result->getAccessTokenString(),
-                                $result->getExpiresIn(),
-                                config('stormpath.web.accessTokenCookie.path'),
-                                config('stormpath.web.accessTokenCookie.domain'),
-                                config('stormpath.web.accessTokenCookie.secure'),
-                                config('stormpath.web.accessTokenCookie.httpOnly')
-                            ),
-                        config('stormpath.web.refreshTokenCookie.name') =>
-                            cookie(
-                                config('stormpath.web.refreshTokenCookie.name'),
-                                $result->getRefreshTokenString(),
-                                $result->getExpiresIn(),
-                                config('stormpath.web.refreshTokenCookie.path'),
-                                config('stormpath.web.refreshTokenCookie.domain'),
-                                config('stormpath.web.refreshTokenCookie.secure'),
-                                config('stormpath.web.refreshTokenCookie.httpOnly')
-                            )
-                    ]
-                );
+                ->to(config('stormpath.web.register.nextUri'));
 
 
         } catch(\Stormpath\Resource\ResourceError $re) {
@@ -287,16 +266,13 @@ class RegisterController extends Controller
     }
 
 
-    private function respondWithErrorJson($message, $statusCode = 400, $extra = [])
+    private function respondWithErrorJson($message, $statusCode = 400)
     {
         $error = [
             'message' => $message,
             'status' => $statusCode
         ];
 
-        if(!empty($extra)) {
-            $error['errors'] = array_merge($error['errors'], $extra);
-        }
         return response()->json($error, $statusCode);
     }
 
@@ -330,9 +306,7 @@ class RegisterController extends Controller
         $value = null;
         try {
             $value = $account->getProperty($prop);
-        } catch (\Exception $e) {
-            return null;
-        }
+        } catch (\Exception $e) {}
 
         return $value;
 

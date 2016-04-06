@@ -85,6 +85,22 @@ class RedirectIfAuthenticatedTest extends TestCase
     }
 
     /** @test */
+    public function it_will_not_try_to_refresh_access_token_if_json_is_requested()
+    {
+        $this->setupStormpathApplication();
+        $this->createAccount(['login'=>'test@test.com', 'password'=>'superP4ss!']);
+
+        $passwordGrant = new \Stormpath\Oauth\PasswordGrantRequest('test@test.com', 'superP4ss!');
+        $auth = new \Stormpath\Oauth\PasswordGrantAuthenticator(app('stormpath.application'));
+        $result =  $auth->authenticate($passwordGrant);
+
+        $this->json('GET', 'testRedirectIfAuthenticatedMiddleware',[], $this->cookiesToSendRefreshOnly($result));
+
+        $this->seeStatusCode(401);
+    }
+
+
+    /** @test */
     public function it_will_return_null_if_no_access_token_and_invalid_refresh_token()
     {
         $this->setupStormpathApplication();
@@ -99,6 +115,15 @@ class RedirectIfAuthenticatedTest extends TestCase
 
 
     }
+    
+    /** @test */
+    public function is_authenticated_will_return_false_if_verification_of_access_token_failed()
+    {
+        $this->setupStormpathApplication();
+        $this->call('get', 'testRedirectIfAuthenticatedMiddleware', [], $this->cookiesToSendBadAccessToken());
+        $this->see('Hello!');
+    }
+    
 
     private function cookiesToSend($result)
     {
@@ -138,6 +163,22 @@ class RedirectIfAuthenticatedTest extends TestCase
                     config('stormpath.web.refreshTokenCookie.domain'),
                     config('stormpath.web.refreshTokenCookie.secure'),
                     config('stormpath.web.refreshTokenCookie.httpOnly')
+                )
+        ];
+    }
+
+    private function cookiesToSendBadAccessToken()
+    {
+        return [
+            config('stormpath.web.accessTokenCookie.name') =>
+                cookie(
+                    config('stormpath.web.accessTokenCookie.name'),
+                    '123',
+                    36400,
+                    config('stormpath.web.accessTokenCookie.path'),
+                    config('stormpath.web.accessTokenCookie.domain'),
+                    config('stormpath.web.accessTokenCookie.secure'),
+                    config('stormpath.web.accessTokenCookie.httpOnly')
                 )
         ];
     }

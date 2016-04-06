@@ -22,15 +22,16 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
 use Stormpath\Laravel\Exceptions\SocialLoginException;
-use Stormpath\Laravel\Http\Helpers\FacebookProviderAccountRequest;
 use Stormpath\Laravel\Http\Helpers\IdSiteSessionHelper;
 use Stormpath\Laravel\Http\Traits\Cookies;
+use Stormpath\Provider\FacebookProviderAccountRequest;
 use Stormpath\Provider\GithubProviderAccountRequest;
 use Stormpath\Provider\LinkedInProviderAccountRequest;
 use Stormpath\Provider\ProviderAccountRequest;
 use Stormpath\Resource\AccessToken;
 use Stormpath\Resource\Account;
 
+/** @codeCoverageIgnore */
 class SocialCallbackController extends Controller
 {
     use Cookies;
