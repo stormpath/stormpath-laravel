@@ -38,7 +38,7 @@ Follow these steps to add Stormpath user authentication to your Laravel app.
   Open your composer.json file and add the following to your require block:
   
   ```bash
-  "stormpath/laravel": "0.*"
+  "stormpath/laravel": "^0.4"
   ```
 
 6. **Include It In Your App**

@@ -117,7 +117,7 @@ package from `Packagist`_.
 To install Stormpath-Laravel, you'll need ``composer``.  Open your composer.json file
 and find the require section.  Add the following to your required properties::
 
-    "stormpath/laravel": "^0.2"
+    "stormpath/laravel": "^0.4"
 
 After adding that line and saving the file, run the following from your command line::
 

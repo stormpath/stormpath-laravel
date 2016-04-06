@@ -3,6 +3,22 @@ Change Log
 
 All library changes, in descending order.
 
+Version 0.4.0
+-------------
+
+**Released on April 6, 2016.**
+
+- Update to Produces Middleware
+- Update to Auth Middleware for more reliable checking
+- Increase Code Coverage
+- JWT Decode fix in /me route
+- Passing in X-STORMPATH-AGENT value into the User Agent
+- IdSiteModel Bug Fix to throw exception if model does not exist
+- File Cleanup
+- Prevent laravel cookie encryption on access and refresh token cookies
+- Bug Fix: Cookies now sent on JSON request when logging in
+
+
 Version 0.3.1
 -------------
 
