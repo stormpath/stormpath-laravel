@@ -136,23 +136,6 @@ Go ahead and pick a "Project Name" (usually the name of your app), and
 (*optionally*) a "Project ID".
 
 
-Enable Google Login
-...................
-
-Now that you've got a Google Project -- let's enable Google Login.  The way
-Google Projects work is that you have to selectively enable what functionality
-each Project needs.
-
-From your `Google Developer Console`_ click on your new Project, then in the
-side panel click on the "APIs & auth" menu option.
-
-Now, scroll through the API list until you see "Google+ API", then click the
-"OFF" button next to it to enable it.  You should now see the "Google+ API" as
-"ON" in your API list:
-
-.. image:: /_static/google-enable-login.png
-
-
 Create OAuth Credentials
 ........................
 
@@ -286,7 +269,7 @@ the ``Authorized Redirect URLs``. The default for the laravel integration is
 uses ``http://localhost:8000`` for this. Once you fill in the field, Click on ``Add``
 
 Next you will need to tell LinkedIn that you need email address from your users.
-To do this, find the section on the same page called ``Default Applicaiton Permissions``
+To do this, find the section on the same page called ``Default Application Permissions``
 and make sure ``r_emailaddress`` is selected.
 
 Lastly, click the "Save" button at the bottom to save the changes.
@@ -332,7 +315,7 @@ That's it!
 Test it Out
 ...........
 
-Now that you've plugged your Facebook credentials into Stormpath Laravel, social
+Now that you've plugged your LinkedIn credentials into Stormpath , social
 login should already be working!
 
 Open your laravel app in a browser, and try logging in by visiting the login page
