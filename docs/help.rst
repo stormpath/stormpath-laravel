@@ -21,8 +21,8 @@ If you visit our website (https://stormpath.com/), you can also click the "Chat
 with us!" button near the bottom right of the page to chat with us live, in
 real-time!
 
-And lastly, we're always available via Twitter as well!  We're `@gostormpath`_
+And lastly, we're always available via Twitter as well!  We're `@goStormpath`_
 on Twitter.
 
 
-.. _@gostormpath: https://twitter.com/gostormpath
+.. _@goStormpath: https://twitter.com/gostormpath

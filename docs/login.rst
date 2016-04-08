@@ -46,8 +46,6 @@ ID site looks like this:
 
 .. image:: /_static/id-site-login.png
 
-> Currently this is the only way to allow for social login within the package
-
 For more information about how to use and customize the ID site, please see
 this documentation:
 

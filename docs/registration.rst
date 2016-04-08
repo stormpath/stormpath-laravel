@@ -110,7 +110,7 @@ that allows them to ask for a new link.
 Auto Login
 ----------
 
-If you are *not* using email verificaion (not recommended) you may log users in
+If you are *not* using email verification (not recommended) you may log users in
 automatically when they register.  This can be achieved with this config::
 
     [
