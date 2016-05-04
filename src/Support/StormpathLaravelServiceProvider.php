@@ -109,8 +109,8 @@ class StormpathLaravelServiceProvider extends ServiceProvider
                 'href' => $mapping->accountStore->href,
                 'name' => $mapping->accountStore->name,
                 'provider' => [
-                    'href' => $mapping->accountStore->provider->href,
-                    'providerId' => $mapping->accountStore->provider->providerId,
+                  'href' => isset($mapping->accountStore->provider->href) ? $mapping->accountStore->provider->href : null,
+                  'providerId' => isset($mapping->accountStore->provider->providerId) ? $mapping->accountStore->provider->providerId : null,
                 ]
             ];
         }
