@@ -94,13 +94,13 @@ http://docs.stormpath.com/rest/product-guide/#directories
 
 .. note::
     Stormpath has multiple types of "Directories".  There are: "Cloud
-    Directories", "Mirror Directories", "Facebook Directories" and "Google
+    Directories", "Mirror Directories", and "Social
     Directories".
 
     Cloud Directories hold *typical* user accounts.
 
-    Facebook and Google Directories allow you to automatically create Stormpath
-    user accounts for both Facebook and Google users (*using social login*).
+    Social Directories allow you to automatically create Stormpath user accounts
+    for Facebook, Google, LinkedIn, or Github users (*using social login*).
     Social login will be covered in detail later on.
 
     Mirror Directories are used for syncing with `Active Directory`_ and
@@ -109,6 +109,10 @@ http://docs.stormpath.com/rest/product-guide/#directories
 
 Install the Package
 -------------------
+
+.. warning::
+    There is a known issue with running ``composer require stormpath/laravel`` with
+    our guzzle package.
 
 Now that you've got a Stormpath account all setup and ready to go, all that's
 left to do before we can dive into the code is install the `Stormpath-Laravel`_
@@ -123,9 +127,7 @@ After adding that line and saving the file, run the following from your command 
 
     $ composer update
 
-.. note::
-    There is a known issue with running ``composer require stormpath/laravel`` with
-    our guzzle package.
+
 
 .. note::
     Stormpath-Laravel requires the following;
