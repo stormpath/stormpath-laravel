@@ -33,6 +33,8 @@ return [
 
     "web" => [
 
+        "basePath" => null,
+
         "oauth2" => [
             "enabled" => true,
             "uri" => "/oauth/token",
@@ -46,7 +48,7 @@ return [
 
             "password" => [
                 "enabled" => true,
-                "validationStrategy" => "stormpath"
+                "validationStrategy" => "local"
             ]
         ],
 
@@ -54,7 +56,7 @@ return [
             "name" => "access_token",
             "httpOnly" => true,
             "secure" => null,
-            "path" => "/",
+            "path" => null,
             "domain" => null
         ],
 
@@ -62,7 +64,7 @@ return [
             "name" => "refresh_token",
             "httpOnly" => true,
             "secure" => null,
-            "path" => "/",
+            "path" => null,
             "domain" => null
         ],
 
