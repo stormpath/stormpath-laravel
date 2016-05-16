@@ -105,14 +105,19 @@ class StormpathLaravelServiceProvider extends ServiceProvider
         $accountStoreArray = [];
 
         foreach($mappings as $mapping) {
-            $accountStoreArray[] = [
+            $accountStoreArrayValues = [
                 'href' => $mapping->accountStore->href,
-                'name' => $mapping->accountStore->name,
-                'provider' => [
+                'name' => $mapping->accountStore->name
+              ];
+
+            if(isset($mapping->accountStore->provider)) {
+                $accountStoreArrayValues['provider'] = [
                     'href' => $mapping->accountStore->provider->href,
-                    'providerId' => $mapping->accountStore->provider->providerId,
-                ]
-            ];
+                    'providerId' => $mapping->accountStore->provider->providerId
+                  ];
+            }
+
+            $accountStoreArray[] = $accountStoreArrayValues;
         }
 
 
