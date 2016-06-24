@@ -3,6 +3,17 @@ Change Log
 
 All library changes, in descending order.
 
+
+Version 0.4.1
+-------------
+
+**Released on June 23, 2016.**
+
+- Documentation Updates
+- Fixed bug where account store cache would give non-object exception
+- Updated Configuration from Stormpath validation to local validation
+- Updated Configuration cookie path default.
+
 Version 0.4.0
 -------------
 

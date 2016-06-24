@@ -21,7 +21,7 @@ following configuration::
       "web" =>  [
         "logout" =>  [
           "enabled" =>  true,
-          "uri" =>  "/log-me-out",
+          "uri" =>  "/logout",
           "nextUri" =>  "/goodbye"
         ]
       ]
