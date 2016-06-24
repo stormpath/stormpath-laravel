@@ -7,7 +7,7 @@ Logout
 If you are using browser-based sessions, you'll need a way for the user to
 logout and destroy their session cookies.
 
-This library will automatically provide a GET route at ``/logout``.  Simply make a
+This library will automatically provide a POST route at ``/logout``.  Simply make a
 request of this URL and the session cookies will be destroyed.
 
 
@@ -21,7 +21,7 @@ following configuration::
       "web" =>  [
         "logout" =>  [
           "enabled" =>  true,
-          "uri" =>  "/log-me-out",
+          "uri" =>  "/logout",
           "nextUri" =>  "/goodbye"
         ]
       ]
