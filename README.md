@@ -10,7 +10,7 @@ Follow these steps to add Stormpath user authentication to your Laravel app.
 
 1. **Download Your Key File**
 
-  [Download your key file](https://support.stormpath.com/hc/en-us/articles/203697276-Where-do-I-find-my-API-key-) from the Stormpath Console.
+  [Download your key file](https://support.stormpath.com/hc/en-us/articles/221077627-Where-do-I-find-my-API-key-) from the Stormpath Console.
 
 2. **Store Your Key As Environment Variables**
 

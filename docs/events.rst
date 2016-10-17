@@ -4,7 +4,7 @@
 Laravel Events
 ==============
 
-This package provides a number of `events`_ allowing you to respond to user
+This package provides a number of `laravelevents`_ allowing you to respond to user
 actions as they happen.
 
 
@@ -137,6 +137,6 @@ out, the handler might look like this::
 
 
 
-.. _events: https://laravel.com/docs/5.2/events
+.. _laravelevents: https://laravel.com/docs/5.2/events
 .. _Laravel documentation for Registering Events: https://laravel.com/docs/5.2/events#registering-events-and-listeners
 .. _Laravel documentation on defining listeners: https://laravel.com/docs/5.2/events#defining-listeners

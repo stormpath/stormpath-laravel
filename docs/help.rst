@@ -3,6 +3,35 @@
 Getting Help
 ============
 
+Frequently Asked Questions
+--------------------------
+
+**How can I get the current Application Object?**
+
+We have created a helper function for the purpose of getting the current Stormpath
+application object.  You can simply call:
+
+.. code-block:: php
+
+    $stormpathApplication = app('stormpath.application');
+
+This will return the current Stormpath application object.
+
+**How can I get the current Client Object?**
+
+We have created a helper function for the purpose of getting the current Stormpath
+client object.  You can simply call:
+
+.. code-block:: php
+
+    $stormpathClient = app('stormpath.client');
+
+This will return the current Stormpath client object.
+
+
+Questions?
+----------
+
 Have a question you can't find an answer to?  Things not working as expected?
 We can help!
 

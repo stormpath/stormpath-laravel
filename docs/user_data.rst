@@ -16,7 +16,7 @@ address.  We can make use of the magical ``app('stormpath.user')`` context varia
 do this::
 
     Route::get('/email', ['middleware'=>['stormpath.auth']], function () {
-      res.send('Your email address is: ' + app('stormpath.user')->email);
+      echo 'Your email address is: ' . app('stormpath.user')->email;
     });
 
 The ``app('stormpath.user')`` context allows you to directly interact with the current

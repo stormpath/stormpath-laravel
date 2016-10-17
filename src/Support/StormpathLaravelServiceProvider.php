@@ -32,7 +32,7 @@ use Stormpath\Stormpath;
 class StormpathLaravelServiceProvider extends ServiceProvider
 {
     const INTEGRATION_NAME = 'stormpath-laravel';
-    const INTEGRATION_VERSION = '0.4.2';
+    const INTEGRATION_VERSION = '0.4.3';
 
     protected $defer = false;
     /**
