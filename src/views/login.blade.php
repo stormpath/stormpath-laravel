@@ -5,15 +5,19 @@
 @section('bodytag', 'login')
 
 @if(config('stormpath.web.social.enabled'))
-    {{--*/ $socialProviders = true /*--}}
-    {{--*/ $areaWrap = 'small col-sm-8' /*--}}
-    {{--*/ $classLabel = 'col-sm-12' /*--}}
-    {{--*/ $classInput = 'col-sm-12' /*--}}
+    @php
+        $socialProviders = true;
+        $areaWrap = 'small col-sm-8';
+        $classLabel = 'col-sm-12';
+        $classInput = 'col-sm-12';
+    @endphp
 @else
-    {{--*/ $socialProviders = false /*--}}
-    {{--*/ $areaWrap = 'small col-sm-12' /*--}}
-    {{--*/ $classLabel = 'col-sm-4' /*--}}
-    {{--*/ $classInput = 'col-sm-8' /*--}}
+    @php
+        $socialProviders = false;
+        $areaWrap = 'small col-sm-12';
+        $classLabel = 'col-sm-4';
+        $classInput = 'col-sm-8';
+    @endphp
 @endif
 
 
@@ -25,7 +29,7 @@
                 @include('stormpath::partials._loginStatusMessages')
 
                 <div class="box row">
-                    <div class="email-password-area col-xs-12 {{ $areaWrap }}">
+                    <div class="email-password-area col-xs-12 {!! $areaWrap !!}">
 
                         <div class="header">
                             @if(config('stormpath.web.register.enabled'))
