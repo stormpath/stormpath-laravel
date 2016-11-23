@@ -5,6 +5,15 @@ Change Log
 
 All library changes, in descending order. something
 
+
+Version 0.5.0
+-------------
+
+**Released on Nov 23, 2016.**
+
+- Fix bug in login view (Fixes #62)
+- Update docs to remove event that does not actually exist
+
 Version 0.4.2
 -------------
 
