@@ -32,8 +32,6 @@ Stormpath operations:
 | ``UserIsLoggingOut``              | A user has visited the ``logout`` URL but has not    |
 | (cancellable)                     | been logged out yet.                                 |
 +-----------------------------------+------------------------------------------------------+
-| ``UserHasLoggedOut``              | A user has successfully logged out.                  |
-+-----------------------------------+------------------------------------------------------+
 | ``UserHasRequestedPasswordReset`` | A user has completed the password reset form and the |
 |                                   | password reset email has been sent.                  |
 +-----------------------------------+------------------------------------------------------+

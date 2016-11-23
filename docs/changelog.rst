@@ -5,13 +5,13 @@ Change Log
 
 All library changes, in descending order. something
 
-Version 0.4.3
+Version 0.5.0
 -------------
 
-**Released on October 17, 2016.**
+**Released on Nov 23, 2016.**
 
-- Fix bug in login with undefined variable (Fixes #58)
-- Document the helpers for application and client (Fixes #54)
+- Fix bug in login view (Fixes #62)
+- Update docs to remove event that does not actually exist
 
 Version 0.4.2
 -------------

@@ -6,7 +6,8 @@ Upgrade Guide
 This page contains specific upgrading instructions to help you migrate between
 Stormpath-Laravel releases.
 
-Version 0.4.2 -> Version 0.4.3
+
+Version 0.4.2 -> Version 0.5.0
 ------------------------------
 No Changes Needed
 
