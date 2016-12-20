@@ -80,9 +80,9 @@ class MeController extends Controller
 
     private function getAccountFromAccessToken($accessToken)
     {
-        \JWT::$leeway = 10;
+        \Firebase\JWT\JWT::$leeway = 10;
 
-        $jwt = \JWT::decode($accessToken, config('stormpath.client.apiKey.secret'), ['HS256']);
+        $jwt = \Firebase\JWT\JWT::decode($accessToken, config('stormpath.client.apiKey.secret'), ['HS256']);
 
         $expandsArray = [];
         $expands = config('stormpath.web.me.expand');
