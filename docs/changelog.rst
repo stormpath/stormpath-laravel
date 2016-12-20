@@ -5,12 +5,6 @@ Change Log
 
 All library changes, in descending order. something
 
-Version 0.5.1
--------------
-
-**Released on Dec 20, 2016.**
-
-- Update JWT References for version 4.0
 
 Version 0.5.0
 -------------
