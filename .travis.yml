@@ -1,7 +1,7 @@
 language: php
 sudo: false
 install:
-- test -z "$BUILD_DOCS" || pip install --user sphinx
+- test -z "$BUILD_DOCS" || pip install -r requirements.txt
 before_script:
 - composer self-update
 - travis_retry composer install --prefer-dist --no-interaction
