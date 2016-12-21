@@ -7,6 +7,11 @@ This page contains specific upgrading instructions to help you migrate between
 Stormpath-Laravel releases.
 
 
+Version 0.5.0 -> Version 0.5.1
+------------------------------
+If you are relying on the JWT package from this, you will need to update your use to use the new namespace,
+Firebase\JWT\JWT.
+
 Version 0.4.2 -> Version 0.5.0
 ------------------------------
 No Changes Needed
