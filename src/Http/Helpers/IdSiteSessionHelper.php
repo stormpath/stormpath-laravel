@@ -28,7 +28,7 @@ class IdSiteSessionHelper
         $refreshTokenCookieConfig = config('stormpath.web.refreshTokenCookie');
         $application = app('stormpath.application');
         try {
-            $jwt = \JWT::encode([
+            $jwt = \Firebase\JWT\JWT::encode([
                 'sub' => $account->href,
                 'iat' => time()-1,
                 'status' => 'AUTHENTICATED',
