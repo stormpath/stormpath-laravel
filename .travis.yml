@@ -36,9 +36,9 @@ after_success:
 - test -z "$DEPLOY_DOCS" || ls -la source/php/laravel
 - test -z "$DEPLOY_DOCS" || git push origin source
 before_install:
-- openssl aes-256-cbc -K $encrypted_6460fd32304f_key -iv $encrypted_6460fd32304f_iv
+- test -z "$DEPLOY_DOCS" || openssl aes-256-cbc -K $encrypted_6460fd32304f_key -iv $encrypted_6460fd32304f_iv
   -in deploy-key.enc -out ~/.ssh/id_rsa -d
-- chmod 600 ~/.ssh/id_rsa
+- test -z "$DEPLOY_DOCS" || chmod 600 ~/.ssh/id_rsa
 matrix:
   include:
   - php: '7.0'
